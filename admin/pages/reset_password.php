@@ -18,24 +18,12 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Reset Password</title>
-
-  <!-- FIX: correct CSS path -->
   <link rel="stylesheet" href="../css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-
-  <style>
-    .auth-bg{
-      min-height: 100vh;
-      background:
-        linear-gradient(135deg, rgba(17,24,39,.88), rgba(2,132,199,.55)),
-        url("../assets/img/boxed-bg.jpg");
-      background-size: cover;
-      background-position: center;
-    }
-  </style>
+  <link rel="stylesheet" href="../css/auth.css">
 </head>
 
-<body class="hold-transition auth-bg">
+<body class="hold-transition auth-page">
   <div class="d-flex justify-content-center align-items-center min-vh-100">
     <div class="reset-card">
       <div class="login-box">
