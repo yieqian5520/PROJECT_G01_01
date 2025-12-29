@@ -36,7 +36,7 @@ $userName = $_SESSION['user']['full_name'] ?? 'Admin';
 
           <li class="user-footer">
             <a href="./profile_view.php" class="btn btn-default btn-flat">Profile</a>
-            <a href="../auth/logout.php" class="btn btn-default btn-flat float-end">Sign out</a>
+            <a href="../pages/logout1.php" class="btn btn-default btn-flat float-end">Sign out</a>
           </li>
         </ul>
       </li>

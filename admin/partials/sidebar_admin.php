@@ -111,7 +111,7 @@ $currentPage = $currentPage ?? ''; // set in each page
           </a>
         </li>
         <li class="nav-item">
-          <a href="../auth/logout.php" class="nav-link">
+          <a href="../pages/logout1.php" class="nav-link">
             <i class="nav-icon bi bi-box-arrow-right"></i>
             <p>Logout</p>
           </a>

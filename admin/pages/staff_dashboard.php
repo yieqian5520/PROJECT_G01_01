@@ -15,7 +15,6 @@ if(!isset($_SESSION['email'])) {
 
 <body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
   <div class="app-wrapper">
-
     <?php include __DIR__ . '/../partials/navbar.php'; ?>
     <?php include __DIR__ . '/../partials/sidebar_admin.php'; ?>
 

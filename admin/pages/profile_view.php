@@ -45,7 +45,7 @@ $msg = $_GET['msg'] ?? '';
             <p><b>Role:</b> <?= htmlspecialchars($me['role'] ?? '') ?></p>
 
             <a class="btn btn-primary" href="./profile_edit.php">Edit Profile</a>
-            <a class="btn btn-outline-secondary" href="../auth/logout.php">Logout</a>
+            <a class="btn btn-outline-secondary" href="../pages/logout1.php">Logout</a>
           </div>
         </div>
 

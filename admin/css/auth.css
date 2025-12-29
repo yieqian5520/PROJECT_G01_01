@@ -3,7 +3,6 @@ body.auth-page {
   background-size: cover;
 }
 
-/* dark overlay for readability */
 body.auth-page::before {
   content: "";
   position: fixed;
@@ -11,3 +10,4 @@ body.auth-page::before {
   background: rgba(0, 0, 0, 0.45);
   z-index: -1;
 }
+
