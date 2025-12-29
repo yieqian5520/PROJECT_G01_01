@@ -8,26 +8,28 @@ if (isset($_SESSION['user'])) {
 
 $err = $_GET['err'] ?? '';
 $msg = $_GET['msg'] ?? '';
+
+$pageTitle = "Login | Pucks Coffee";
 ?>
-
-<?php if (($_GET['msg'] ?? '') === 'loggedout'): ?>
-  <div class="alert alert-success">
-    You have been logged out successfully.
-  </div>
-<?php endif; ?>
-
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Login | Pucks Coffee</title>
-</head>
-<body class="login-page bg-body-tertiary">
+
+<?php include __DIR__ . '/../partials/header.php'; ?>
+<link rel="stylesheet" href="../css/auth.css">
+
+
+<body class="login-page auth-page">
   <div class="login-box">
     <div class="card">
       <div class="card-body login-card-body">
+        <?php if ($msg === 'loggedout'): ?>
+          <div class="alert alert-success">You have been logged out successfully.</div>
+        <?php elseif ($msg === 'reset_ok'): ?>
+          <div class="alert alert-success">Password updated. Please login.</div>
+        <?php endif; ?>
+
         <p class="login-box-msg">Sign in to start your session</p>
-        
+
         <?php if ($err === 'login_required'): ?>
           <div class="alert alert-warning">Please login first.</div>
         <?php elseif ($err === 'invalid'): ?>
@@ -36,13 +38,7 @@ $msg = $_GET['msg'] ?? '';
           <div class="alert alert-warning">Please fill in email and password.</div>
         <?php endif; ?>
 
-        <?php if ($msg === 'loggedout'): ?>
-          <div class="alert alert-success">You are logged out.</div>
-        <?php elseif ($msg === 'reset_ok'): ?>
-          <div class="alert alert-success">Password updated. Please login.</div>
-        <?php endif; ?>
-
-        <form action="../auth/login_action.php" method="post">
+        <form action="../auth/login_action.php" method="post" autocomplete="off">
           <div class="input-group mb-3">
             <input type="email" name="email" class="form-control" placeholder="Email" required>
             <div class="input-group-text"><span class="bi bi-envelope"></span></div>
@@ -67,5 +63,6 @@ $msg = $_GET['msg'] ?? '';
     </div>
   </div>
 
+  <?php include __DIR__ . '/../partials/scripts.php'; ?>
 </body>
 </html>

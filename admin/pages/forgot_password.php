@@ -22,9 +22,11 @@ unset($_SESSION['demo_reset_link']);
   <title>Forgot Password | Pucks Coffee</title>
   <link rel="stylesheet" href="../css/adminlte.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../css/auth.css">
 </head>
 
-<body class="login-page bg-body-tertiary">
+
+<body class="login-page auth-page">
   <div class="login-box">
     <div class="card">
       <div class="card-body login-card-body">
@@ -74,6 +76,5 @@ unset($_SESSION['demo_reset_link']);
     </div>
   </div>
 
-  <script src="../js/adminlte.js"></script>
 </body>
 </html>
