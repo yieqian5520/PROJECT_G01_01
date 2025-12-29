@@ -190,12 +190,9 @@ header {
 }
 
 .offers-grid {
-     display: grid;
+    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
 }
 
 .offer-card {
@@ -214,4 +211,56 @@ header {
 .offer-card:hover {
     cursor:pointer;
     transform: translateY(5px);
+}
+
+/*Contact */
+.contact form {
+    display: grid;
+    gap: 15px;
+    max-width: 500px;
+    margin: auto;
+}
+
+.contact input,
+.contact textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.contact button {
+    border: none;
+    cursor: pointer;
+}
+
+#contact {
+    margin-bottom: 30px;
+}
+
+/* Footer */
+footer{
+    background: #4e342e;
+    color: #fff;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.social-links img {
+    height: 25px;
+    margin: 10px 5px;
+    transition: transform 0.3s;
+}
+
+.social-links img:hover {
+    transform: scale(1.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .about {
+        flex-direction: column;
+    }
+    .hero-text h1 {
+        font-size: 2rem;
+    }
 }
