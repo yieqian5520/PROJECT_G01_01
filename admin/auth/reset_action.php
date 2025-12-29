@@ -27,7 +27,7 @@ function valid_password($pw) {
   if (strlen($pw) < 8) return false;
   if (!preg_match('/[a-z]/', $pw)) return false; // at least one lowercase
   if (!preg_match('/[0-9]/', $pw)) return false; // at least one number
-  return true;
+  return true;                                      
 }
 
 if (!valid_password($password)) {

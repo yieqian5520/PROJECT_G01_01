@@ -21,8 +21,6 @@ $msg = $_GET['msg'] ?? '';
 <head>
   <meta charset="utf-8">
   <title>Login | Pucks Coffee</title>
-  <link rel="stylesheet" href="../css/adminlte.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 </head>
 <body class="login-page bg-body-tertiary">
   <div class="login-box">
@@ -69,6 +67,5 @@ $msg = $_GET['msg'] ?? '';
     </div>
   </div>
 
-  <script src="../js/adminlte.js"></script>
 </body>
 </html>

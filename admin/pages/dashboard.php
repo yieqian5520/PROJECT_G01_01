@@ -113,16 +113,5 @@ require_once __DIR__ . '/../partials/auth_guard.php';
 
   <?php include __DIR__ . '/../partials/scripts.php'; ?>
 
-  <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js" crossorigin="anonymous"></script>
-  <script>
-    const options = {
-      series: [{ name: 'Sales', data: [10, 15, 8, 18, 25, 20, 30] }],
-      chart: { height: 300, type: 'area', toolbar: { show: false } },
-      dataLabels: { enabled: false },
-      stroke: { curve: 'smooth' },
-      xaxis: { categories: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] },
-    };
-    new ApexCharts(document.querySelector("#sales-chart"), options).render();
-  </script>
 </body>
 </html>
