@@ -4,18 +4,11 @@ $userName = $_SESSION['user']['full_name'] ?? 'Admin';
 ?>
 <nav class="app-header navbar navbar-expand bg-body">
   <div class="container-fluid">
-    <form class="d-none d-md-flex ms-3" method="get" action="./search.php" role="search">
-      <div class="input-group input-group-sm">
-        <span class="input-group-text"><i class="bi bi-search"></i></span>
-        <input name="q" class="form-control" type="search" placeholder="Search..." aria-label="Search">
-      </div>
-    </form>
-
     <ul class="navbar-nav">
       <li class="nav-item">
         <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
           <i class="bi bi-list"></i>
-        </a>      
+        </a>
       </li>
     </ul>
 
