@@ -145,4 +145,41 @@ header {
 }
 
 
+/* About */
+.about {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    align-items: center;
+}
+.about-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+}
+.about-text a {
+    text-align: center;
+}
+.about-img {
+    flex: 1;
+}
+.about-img img {
+    width: 100%;
+    border-radius: 10px;
+}
+
+.secondary-btn {
+    background: transparent;
+    border: 2px solid #ffca28;
+    color: #ffca28;
+}
+.secondary-btn:hover {
+    background: #ffca28;
+    color: #3e2723;
+}
+
+#about {
+    margin-bottom: 20px;
+}
 
