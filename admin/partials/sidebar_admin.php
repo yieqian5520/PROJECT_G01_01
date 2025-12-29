@@ -18,6 +18,12 @@ $currentPage = $currentPage ?? ''; // set in each page
   <div class="sidebar-wrapper">
     <nav class="mt-2">
       <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation" data-accordion="false">
+        <li class="nav-item">
+          <a href="./search.php" class="nav-link <?= activeClass($currentPage, 'search') ?>">
+            <i class="nav-icon bi bi-search"></i>
+            <p>Search</p>
+          </a>
+        </li>
 
         <li class="nav-item">
           <a href="./dashboard.php" class="nav-link <?= activeClass($currentPage, 'dashboard') ?>">
@@ -38,7 +44,7 @@ $currentPage = $currentPage ?? ''; // set in each page
           </a>
           <ul class="nav nav-treeview">
             <li class="nav-item">
-              <a href="./orders_list.php" class="nav-link <?= activeClass($currentPage, 'orders_list') ?>">
+              <a href="./order_list.php" class="nav-link <?= activeClass($currentPage, 'order_list') ?>">
                 <i class="nav-icon bi bi-circle"></i>
                 <p>View Orders</p>
               </a>
@@ -51,12 +57,12 @@ $currentPage = $currentPage ?? ''; // set in each page
             <i class="nav-icon bi bi-people"></i>
             <p>
               Customers
-              <i class="nav-arrow bi bi-chevron-right"></i>
+              <i class="nav-arrow bi bi-chevron-right"></i>                   
             </p>
           </a>
           <ul class="nav nav-treeview">
             <li class="nav-item">
-              <a href="./customers_list.php" class="nav-link <?= activeClass($currentPage, 'customers_list') ?>">
+              <a href="./customer_list.php" class="nav-link <?= activeClass($currentPage, 'customers_list') ?>">
                 <i class="nav-icon bi bi-circle"></i>
                 <p>View Customers</p>
               </a>
@@ -89,7 +95,7 @@ $currentPage = $currentPage ?? ''; // set in each page
         </li>
 
         <li class="nav-item">
-          <a href="./feedback_list.php" class="nav-link <?= activeClass($currentPage, 'feedback') ?>">
+          <a href="./feedback_list.php" class="nav-link <?= activeClass($currentPage, 'feedback_list') ?>">               
             <i class="nav-icon bi bi-chat-left-text"></i>
             <p>Feedback</p>
           </a>
