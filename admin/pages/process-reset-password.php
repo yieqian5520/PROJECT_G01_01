@@ -42,14 +42,14 @@ if ($_POST["password"] !== $_POST["password_confirmation"]) {
 $password_hash = password_hash($_POST["password"], PASSWORD_DEFAULT);
 
 // Prepare the SQL query to update the user's password
-$sql = "UPDATE users SET password_hash = ?, reset_token_hash = NULL, reset_token_expires_at = NULL WHERE id = ?";
+$sql = "UPDATE users SET password = ?, reset_token_hash = NULL, reset_token_expires_at = NULL WHERE id = ?";
 $stmt = $mysqli->prepare($sql);
 
 if ($stmt === false) {
     die("Error preparing SQL query: " . $mysqli->error);
 }
 
-$stmt->bind_param("ss", $password_hash, $user["id"]);
+$stmt->bind_param("si", $password_hash, $user["id"]);
 $stmt->execute();
 
 if ($stmt->affected_rows > 0) {
