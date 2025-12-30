@@ -31,14 +31,14 @@ function isActiveForm($formName, $activeForm){
 <body>
   <div class="container">
     <div class="form-box <?= isActiveForm('login', $activeForm); ?>" id="login-form">
-      <form action="login_register.php" method="post">
+      <p action="login_register.php" method="post">
         <h2>Login</h2>
         <?= showError($errors['login']); ?>
         <input type="email" name="email" placeholder="Email" required>
         <input type="password" name="password" placeholder="Password" required>
         <button type="submit" name="login">Login</button>
         <p>Don't have an account? <a href="#" onclick="showForm('register-form')">Register</a></p>
-        <a href="forgot_password.php">Forgot Password?</a>
+        <p><a href="forgot_password.php">Forgot Password?</a></p>
       </form>
     </div>
 

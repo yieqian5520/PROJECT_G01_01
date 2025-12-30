@@ -4,16 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <title>Forgot Password</title>
+    <link rel="stylesheet" href="../css/forgot.css">
 </head>
 
 <body>
-  <h1>Forgot Password</h1>
-  <form method="post" action="../pages/send-password-reset.php">
-    <label for="email">Email</label>
-    <input type="email" id="email" name="email" required>
-    <button type="submit">Send</button>
-  </form>
+  <div class="container">
+    <div class="form-box">
+      <form method="post" action="../pages/send-password-reset.php">
+        <h2>Forgot Password</h2>
+        <input type="email" id="email" placeholder="Enter your email address" name="email" required>
+        <button type="submit" name="send">Send</button>
+      </form>
+    </div>
+  </div>
+  
 </body>
 </html>
