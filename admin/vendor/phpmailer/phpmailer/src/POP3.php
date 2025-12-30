@@ -122,7 +122,7 @@ class POP3
      *
      * @var bool
      */
-    protected $connected = false;
+    protected $mysqliected = false;
 
     /**
      * Error container.

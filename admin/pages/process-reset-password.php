@@ -1,57 +1,61 @@
 <?php
 
-$token = $_GET["token"];
-
-$token_hash = hash("sha256", $token);
-
+// Include the database configuration
 $mysqli = require __DIR__ . '/../config/config.php';
 
-$sql = "SELECT * FROM users WHERE reset_token_hash = ?";
+// Ensure that the connection is a valid mysqli object
+if (!($mysqli instanceof mysqli)) {
+    die("Database connection failed");
+}
 
+$token = $_POST["token"];
+$token_hash = hash("sha256", $token);
+
+// Prepare the SQL query to check if the token exists in the database
+$sql = "SELECT * FROM users WHERE reset_token_hash = ?";
 $stmt = $mysqli->prepare($sql);
 
-$stmt->bind_param("s", $token_hash);
+if ($stmt === false) {
+    die("Error preparing SQL query: " . $mysqli->error);
+}
 
+$stmt->bind_param("s", $token_hash);
 $stmt->execute();
 
 $result = $stmt->get_result();
-
 $user = $result->fetch_assoc();
 
-if($user === null){
-  die("Token not found");
+if ($user === null) {
+    die("Token not found");
 }
 
-if(strtotime($user["reset_token_expires_at"]) <= time()){
-  die("Token has expired");
+if (strtotime($user["reset_token_expires_at"]) <= time()) {
+    die("Token has expired");
 }
 
-if (strlen($_POST["password"]) < 8) {
-    die("Password must be at least 8 characters");
-}
-
-if ( ! preg_match("/[a-z]/i", $_POST["password"])) {
-    die("Password must contain at least one letter");
-}
-
-if ( ! preg_match("/[0-9]/", $_POST["password"])) {
-    die("Password must contain at least one number");
-}
-
+// Check if passwords match
 if ($_POST["password"] !== $_POST["password_confirmation"]) {
     die("Passwords must match");
 }
 
+// Hash the new password
 $password_hash = password_hash($_POST["password"], PASSWORD_DEFAULT);
 
-$sql = "UPDATE users
-        SET password_hash = ?, reset_token_hash = NULL, reset_token_expires_at = NULL
-        WHERE id = ?";
-
+// Prepare the SQL query to update the user's password
+$sql = "UPDATE users SET password_hash = ?, reset_token_hash = NULL, reset_token_expires_at = NULL WHERE id = ?";
 $stmt = $mysqli->prepare($sql);
 
-$stmt->bind_param("ss", $password_hash, $user["id"]);
+if ($stmt === false) {
+    die("Error preparing SQL query: " . $mysqli->error);
+}
 
+$stmt->bind_param("ss", $password_hash, $user["id"]);
 $stmt->execute();
 
-echo "Password has been reset successfully.";
+if ($stmt->affected_rows > 0) {
+    echo "Password has been reset successfully.";
+} else {
+    die("Error resetting password. Please try again.");
+}
+
+?>

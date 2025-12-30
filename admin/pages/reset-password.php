@@ -35,17 +35,25 @@ if(strtotime($user["reset_token_expires_at"]) <= time()){
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/forgot.css">
 </head>
 <body>
-  <h1>Reset Password</h1>
-  <form method="post" action="../pages/process-reset-password.php">
-    <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
-    
-    <label for="password">New Password</label>
-    <input type="password" id="password" name="password" required>
+  <div class="container">
+    <div class="form-box">
+        <h2>Reset Password</h2>
+        <form method="post" action="../pages/process-reset-password.php">
+          <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
+          
+          <label for="password">New Password</label>
+          <input type="password" id="password" name="password" required>
 
-    <label for="password_confirmation">Repeat password</label>
-    <input type="password" id="password_confirmation" name="password_confirmation" required>
-    <button>send</button>
-  </form>
+          <label for="password_confirmation">Repeat password</label>
+          <input type="password" id="password_confirmation" name="password_confirmation" required>
+          <button>Send</button>
+        </form>
+    </div>
+  </div>
+</body>
+</html>
+  
+  

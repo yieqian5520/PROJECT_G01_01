@@ -5,11 +5,10 @@ $user = "root";
 $password = "";
 $database = "users_db";
 
-$conn = new mysqli($host, $user, $password, $database);
+$mysqli = new mysqli($host, $user, $password, $database);
 
-if($conn->connect_error){
-    die("Connection failed: " . $conn->connect_error);
+if ($mysqli->connect_error) {
+    die("Connection failed: " . $mysqli->connect_error);
 }
 
-
-?>
+return $mysqli;

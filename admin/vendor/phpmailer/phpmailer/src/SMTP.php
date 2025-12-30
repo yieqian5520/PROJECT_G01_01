@@ -420,7 +420,7 @@ class SMTP
             set_error_handler(function () {
                 call_user_func_array([$this, 'errorHandler'], func_get_args());
             });
-            $connection = stream_socket_client(
+            $mysqliection = stream_socket_client(
                 $host . ':' . $port,
                 $errno,
                 $errstr,
@@ -437,7 +437,7 @@ class SMTP
             set_error_handler(function () {
                 call_user_func_array([$this, 'errorHandler'], func_get_args());
             });
-            $connection = fsockopen(
+            $mysqliection = fsockopen(
                 $host,
                 $port,
                 $errno,
@@ -448,7 +448,7 @@ class SMTP
         restore_error_handler();
 
         //Verify we connected properly
-        if (!is_resource($connection)) {
+        if (!is_resource($mysqliection)) {
             $this->setError(
                 'Failed to connect to server',
                 '',
@@ -472,10 +472,10 @@ class SMTP
             if (0 !== $max && $timeout > $max && strpos(ini_get('disable_functions'), 'set_time_limit') === false) {
                 @set_time_limit($timeout);
             }
-            stream_set_timeout($connection, $timeout, 0);
+            stream_set_timeout($mysqliection, $timeout, 0);
         }
 
-        return $connection;
+        return $mysqliection;
     }
 
     /**
