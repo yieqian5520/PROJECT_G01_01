@@ -53,7 +53,8 @@ $stmt->bind_param("si", $password_hash, $user["id"]);
 $stmt->execute();
 
 if ($stmt->affected_rows > 0) {
-    echo "Password has been reset successfully.";
+    echo "<p>Password has been reset successfully.</p>";
+    echo "<a href='index1.php'><button>Return to Login</button></a>";
 } else {
     die("Error resetting password. Please try again.");
 }
