@@ -219,6 +219,14 @@ main {
   margin-top: 1.4rem;
 }
 
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
 main .date {
   display: inline-block;
   background: var(--color-light);

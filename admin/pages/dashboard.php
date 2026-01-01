@@ -75,115 +75,143 @@ if(!isset($_SESSION['email'])) {
             </div>
         </aside>
         <!-- END OF ASIDE -->
-         <main>
-            <h1>Dashboard</h1>
-            <div class="date">
-                <input type="date">
-            </div>
 
-            <div class="insights">
-                <div class="sales">
-                    <span class="material-symbols-sharp">analytics</span>
-                    <div class="middle">
-                        <div class="left">
-                            <h3>Total Sales</h3>
-                            <h1>RM25,024</h1>
-                        </div>
-                        <div class="progress">
-                            <svg>
-                                <circle cx='38' cy='38' r='36'></circle>
-                            </svg>
-                            <div class="number">
-                                <p>81%</p>
-                            </div>
-                        </div>
-                    </div>
-                    <small class="text-muted">Last 24 Hours</small>
+        <main>
+            <div id="dashboard" class="tab-content active">
+                <h1>Dashboard</h1>
+                <div class="date">
+                    <input type="date">
                 </div>
-                <!-- END OF SALES -->
-                <div class="expenses">
-                    <span class="material-symbols-sharp">bar_chart</span>
-                    <div class="middle">
-                        <div class="left">
-                            <h3>Total Expenses</h3>
-                            <h1>RM14,160</h1>
-                        </div>
-                        <div class="progress">
-                            <svg>
-                                <circle cx='38' cy='38' r='36'></circle>
-                            </svg>
-                            <div class="number">
-                                <p>62%</p>
-                            </div>
-                        </div>
-                    </div>
-                    <small class="text-muted">Last 24 Hours</small>
-                </div>
-                <!-- END OF EXPENSES -->
-                <div class="income">
-                    <span class="material-symbols-sharp">trending_up</span>
-                    <div class="middle">
-                        <div class="left">
-                            <h3>Total Income</h3>
-                            <h1>RM10,864</h1>
-                        </div>
-                        <div class="progress">
-                            <svg>
-                                <circle cx='38' cy='38' r='36'></circle>
-                            </svg>
-                            <div class="number">
-                                <p>44%</p>
-                            </div>
-                        </div>
-                    </div>
-                    <small class="text-muted">Last 24 Hours</small>
-                </div>
-                <!-- END OF INCOME -->
-            </div>
-            <!-- END OF INSIGHTS -->
 
-            <div class="recent-orders">
-                <h2>Recent Orders</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Customer Name</th>
-                            <th>Product Name</th>
-                            <th>Price</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>John Doe</td>
-                            <td>Cappuccino</td>
-                            <td>RM12.00</td>
-                            <td>2026-01-15</td>
-                            <td><span class="status delivered">Served</span></td>
-                            <td class="primary">Details</td>
-                        </tr>
-                        <tr>
-                            <td>Jane Smith</td>
-                            <td>Latte</td>
-                            <td>RM10.00</td>
-                            <td>2026-01-15</td>
-                            <td><span class="status pending">Preparing</span></td>
-                            <td class="primary">Details</td>
-                        </tr>
-                        <tr>
-                            <td>Mike Johnson</td>
-                            <td>Espresso</td>
-                            <td>RM8.00</td>
-                            <td>2026-01-15</td>
-                            <td><span class="status cancelled">Cancelled</span></td>
-                            <td class="primary">Details</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <a href="#">Show All</a>
+                <div class="insights">
+                    <div class="sales">
+                        <span class="material-symbols-sharp">analytics</span>
+                        <div class="middle">
+                            <div class="left">
+                                <h3>Total Sales</h3>
+                                <h1>RM25,024</h1>
+                            </div>
+                            <div class="progress">
+                                <svg>
+                                    <circle cx='38' cy='38' r='36'></circle>
+                                </svg>
+                                <div class="number">
+                                    <p>81%</p>
+                                </div>
+                            </div>
+                        </div>
+                        <small class="text-muted">Last 24 Hours</small>
+                    </div>
+                    <!-- END OF SALES -->
+                    <div class="expenses">
+                        <span class="material-symbols-sharp">bar_chart</span>
+                        <div class="middle">
+                            <div class="left">
+                                <h3>Total Expenses</h3>
+                                <h1>RM14,160</h1>
+                            </div>
+                            <div class="progress">
+                                <svg>
+                                    <circle cx='38' cy='38' r='36'></circle>
+                                </svg>
+                                <div class="number">
+                                    <p>62%</p>
+                                </div>
+                            </div>
+                        </div>
+                        <small class="text-muted">Last 24 Hours</small>
+                    </div>
+                    <!-- END OF EXPENSES -->
+                    <div class="income">
+                        <span class="material-symbols-sharp">trending_up</span>
+                        <div class="middle">
+                            <div class="left">
+                                <h3>Total Income</h3>
+                                <h1>RM10,864</h1>
+                            </div>
+                            <div class="progress">
+                                <svg>
+                                    <circle cx='38' cy='38' r='36'></circle>
+                                </svg>
+                                <div class="number">
+                                    <p>44%</p>
+                                </div>
+                            </div>
+                        </div>
+                        <small class="text-muted">Last 24 Hours</small>
+                    </div>
+                    <!-- END OF INCOME -->
+                </div>
+                <!-- END OF INSIGHTS -->
+
+                <div class="recent-orders">
+                    <h2>Recent Orders</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Customer Name</th>
+                                <th>Product Name</th>
+                                <th>Price</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>John Doe</td>
+                                <td>Cappuccino</td>
+                                <td>RM12.00</td>
+                                <td>2026-01-15</td>
+                                <td><span class="status delivered">Served</span></td>
+                                <td class="primary">Details</td>
+                            </tr>
+                            <tr>
+                                <td>Jane Smith</td>
+                                <td>Latte</td>
+                                <td>RM10.00</td>
+                                <td>2026-01-15</td>
+                                <td><span class="status pending">Preparing</span></td>
+                                <td class="primary">Details</td>
+                            </tr>
+                            <tr>
+                                <td>Mike Johnson</td>
+                                <td>Espresso</td>
+                                <td>RM8.00</td>
+                                <td>2026-01-15</td>
+                                <td><span class="status cancelled">Cancelled</span></td>
+                                <td class="primary">Details</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <a href="#">Show All</a>
+                </div>
+            </div>
+            <div id="customers" class="tab-content">
+                <h1>Customers</h1>
+                <p>Customer management content goes here.</p>
+            </div>
+            <div id="orders" class="tab-content">
+                <h1>Orders</h1>
+                <p>Order management content goes here.</p>
+            </div>
+            <div id="staff" class="tab-content">
+                <h1>Staff</h1>
+                <p>Staff management content goes here.</p>
+            </div>
+            <div id="feedback" class="tab-content">
+                <h1>Feedback</h1>
+                <p>Feedback content goes here.</p>
+            </div>
+            <div id="reports" class="tab-content">
+                <h1>Reports</h1>
+                <p>Reports content goes here.</p>
+            </div>
+            <div id="profile" class="tab-content">
+                <h1>Profile</h1>
+                <p>Profile content goes here.</p>
             </div>
         </main>
+
         <!-----------------------END OF MAIN --------------------->
 
         <div class="right">
