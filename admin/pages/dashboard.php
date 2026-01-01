@@ -6,6 +6,38 @@ if(!isset($_SESSION['email'])) {
     exit();
 }
 
+$db = require __DIR__ . "/../config/config.php";
+
+$userId = $_SESSION['id'] ?? null;
+
+if ($userId) {
+    $stmt = $db->prepare(
+        "SELECT id, name, email, phone, role, profile_image
+         FROM users 
+         WHERE id = ?"
+    );
+    $stmt->bind_param("i", $userId);
+} else {
+    $email = $_SESSION['email'];
+    $stmt = $db->prepare(
+        "SELECT id, name, email, phone, role, profile_image
+         FROM users 
+         WHERE email = ?"
+    );
+    $stmt->bind_param("s", $email);
+}
+
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+$_SESSION['id'] = $user['id']; 
+
+
+if (!$user) {
+    session_destroy();
+    header("Location: index1.php");
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
@@ -38,7 +70,7 @@ if(!isset($_SESSION['email'])) {
                     <h3>Dashboard</h3> 
                 </a>
 
-                <a href="#" class="active">
+                <a href="#">
                     <span class="material-symbols-sharp">person</span>
                     <h3>Customers</h3> 
                 </a>
@@ -77,7 +109,7 @@ if(!isset($_SESSION['email'])) {
         <!-- END OF ASIDE -->
 
         <main>
-            <div id="dashboard" class="tab-content active">
+            <div id="dashboard" class="tab-content active" >
                 <h1>Dashboard</h1>
                 <div class="date">
                     <input type="date">
@@ -205,10 +237,50 @@ if(!isset($_SESSION['email'])) {
             <div id="reports" class="tab-content">
                 <h1>Reports</h1>
                 <p>Reports content goes here.</p>
-            </div>
+            </div>           
             <div id="profile" class="tab-content">
                 <h1>Profile</h1>
-                <p>Profile content goes here.</p>
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <img src="<?= htmlspecialchars($user['profile_image'] ?: '../assets/img/profile-1.jpg') ?>?t=<?= time() ?>" alt="Profile Picture" id="profile-img">
+                        </div>
+                        <div class="profile-info">
+                            <h2><?= htmlspecialchars($user['name']) ?></h2>
+                            <p>Admin</p>
+                            <button type="button" class="change-photo-btn" onclick="document.getElementById('profile_photo').click()">
+                                <span class="material-symbols-sharp">camera_alt</span> Change Profile Picture
+                            </button>
+                        </div>
+                    </div>
+                    <div class="profile-card">
+                        <h3><span class="material-symbols-sharp">edit</span> Edit Your Details</h3>
+                        <form method="POST" action="update-profile.php" enctype="multipart/form-data" class="profile-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="name"><span class="material-symbols-sharp">person</span> Full Name</label>
+                                    <input type="text" id="name" name="name" value="<?= htmlspecialchars($user['name']) ?>" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email"><span class="material-symbols-sharp">email</span> Email</label>
+                                    <input type="email" id="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="phone"><span class="material-symbols-sharp">phone</span> Phone Number</label>
+                                    <input type="tel" id="phone" name="phone" value="<?= htmlspecialchars($user['phone'] ?? '') ?>" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="role"><span class="material-symbols-sharp">badge</span> Role</label>
+                                    <input type="text" id="role" name="role" value="<?= htmlspecialchars($user['role']) ?>" readonly>
+                                </div>
+                            </div>
+                            <input type="file" id="profile_photo" name="profile_photo" accept="image/*" style="display: none;">
+                            <button type="submit" class="btn-primary"><span class="material-symbols-sharp">save</span> Save Changes</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </main>
 
@@ -222,11 +294,14 @@ if(!isset($_SESSION['email'])) {
                 </div>
                 <div class="profile">
                     <div class="info">
-                        <p>Hey, <b>Daniel</b></p>
-                        <small class="text-muted">Admin</small>
+                        <p>Hey, <?= htmlspecialchars($user['name']) ?></p>
+                        <small class="text-muted"><?= htmlspecialchars($user['role']) ?></small>
                     </div>
                     <div class="profile-photo">
-                        <img src="../assets/img/profile-1.jpg" alt="">
+                        <img
+                        src="<?= htmlspecialchars($user['profile_image'] ?: '../assets/img/profile-1.jpg') ?>?t=<?= time() ?>"
+                        alt=""
+                        >
                     </div>
                 </div>
             </div>
@@ -235,7 +310,7 @@ if(!isset($_SESSION['email'])) {
                 <h2>Feedback</h2>
                 <div class="fback">
                     <div class="fb">
-                        <div class="profile-phot">
+                        <div class="profile-photo">
                             <img src="../assets/img/profile-2.jpg">
                         </div>
                         <div class="message">
@@ -244,7 +319,7 @@ if(!isset($_SESSION['email'])) {
                         </div>
                     </div>
                     <div class="fb">
-                        <div class="profile-phot">
+                        <div class="profile-photo">
                             <img src="../assets/img/profile-3.jpg">
                         </div>
                         <div class="message">
@@ -253,7 +328,7 @@ if(!isset($_SESSION['email'])) {
                         </div>
                     </div>
                     <div class="fb">
-                        <div class="profile-phot">
+                        <div class="profile-photo">
                             <img src="../assets/img/profile-4.jpg">
                         </div>
                         <div class="message">
@@ -262,7 +337,7 @@ if(!isset($_SESSION['email'])) {
                         </div>
                     </div>
                     <div class="fb">
-                        <div class="profile-phot">
+                        <div class="profile-photo">
                             <img src="../assets/img/profile-3.jpg">
                         </div>
                         <div class="message">
@@ -271,7 +346,7 @@ if(!isset($_SESSION['email'])) {
                         </div>
                     </div>
                     <div class="fb">
-                        <div class="profile-phot">
+                        <div class="profile-photo">
                             <img src="../assets/img/profile-3.jpg">
                         </div>
                         <div class="message">
@@ -280,7 +355,7 @@ if(!isset($_SESSION['email'])) {
                         </div>
                     </div>
                     <div class="fb">
-                        <div class="profile-phot">
+                        <div class="profile-photo">
                             <img src="../assets/img/profile-3.jpg">
                         </div>
                         <div class="message">
