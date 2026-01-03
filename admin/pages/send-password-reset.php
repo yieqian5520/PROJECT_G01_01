@@ -14,13 +14,13 @@ $sql = "UPDATE users
         SET reset_token_hash = ?, reset_token_expires_at = ?
         WHERE email = ?";
 
-$stmt = $conn->prepare($sql);
+$stmt = $mysqli->prepare($sql);
 
 $stmt->bind_param('sss', $token_hash, $expiry, $email);
 
 $stmt->execute();
 
-if($conn->affected_rows){
+if($mysqli->affected_rows){
     $mail = require __DIR__ . '/mailer.php';
 
     $mail->setFrom("noreply@example.com");
@@ -28,7 +28,7 @@ if($conn->affected_rows){
     $mail->Subject = "Password Reset";
     $mail->Body = <<<END
 
-    Click <a href="http://example.com/reset-password.php?token=$token&email=$email">here</a> to reset your password. This link will expire in 1 hour.
+    Click <a href="http://localhost/MASTER PROJECT - PUCKS COFFEE ORDERING SYSTEM/PROJECT_G01_01/admin/pages/reset-password.php?token=$token&email=$email">here</a> to reset your password. This link will expire in 1 hour.
     END;
 
     try {
