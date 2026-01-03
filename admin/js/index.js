@@ -5,6 +5,8 @@ const themeTogglerSpans = document.querySelectorAll(".theme-toggler span");
 
 sidebarLinks.forEach(link => {
   link.addEventListener('click', (e) => {
+    if (link.id === 'logout-link') return;
+
     e.preventDefault();
     const targetId = link.querySelector('h3').textContent.toLowerCase().replace(' ', '');
 

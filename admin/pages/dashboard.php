@@ -100,9 +100,9 @@ if (!$user) {
                     <h3>Profile</h3> 
                 </a>
 
-                <a href="#">
+                <a href="logout1.php" id="logout-link">
                     <span class="material-symbols-sharp">logout</span>
-                    <h3>Logout</h3> 
+                    <h3>Logout</h3>
                 </a>
             </div>
         </aside>
