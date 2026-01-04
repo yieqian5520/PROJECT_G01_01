@@ -56,7 +56,7 @@ if (!$user) {
         <aside>
             <div class="top">
                 <div class="logo">
-                    <img src="../assets/img/p.png" alt="">
+                    <img src="../assets/img/puckslogo.jpg" alt="">
                     <h2>PUCKS COFFEE <span class="danger">Admin</span></h2>
                 </div>
                 <div class="close" id="close-btn">
