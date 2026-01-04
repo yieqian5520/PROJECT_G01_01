@@ -144,6 +144,8 @@ aside .logo {
 aside .logo img {
   width: 2rem;
   height: 2rem;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 aside .close {
@@ -468,7 +470,7 @@ main .profile-container {
   flex-direction: column;
   gap: 2rem;
   max-width: 800px;
-  margin: 0 auto;
+  margin: 62px auto;
 }
 
 main .profile-header {
