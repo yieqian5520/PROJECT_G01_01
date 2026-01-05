@@ -1,5 +1,6 @@
 <?php
-include_once __DIR__ . "/includes/header.php"; 
+session_start();
+include_once __DIR__ . "/includes/header.php";
 ?>
 
 <section class="register-section">
@@ -10,20 +11,29 @@ include_once __DIR__ . "/includes/header.php";
 
                     <h5>Login Form</h5>
 
-                    <form method="post" action="">
+                    <!-- SHOW ERROR MESSAGE -->
+                    <?php if (isset($_SESSION['status'])): ?>
+                        <div class="alert alert-danger">
+                            <?= $_SESSION['status']; ?>
+                        </div>
+                        <?php unset($_SESSION['status']); ?>
+                    <?php endif; ?>
+
+                    <form action="logincode.php" method="POST">
 
                         <div class="mb-3">
                             <label>Email Address</label>
-                            <input type="email" name="email" class="form-control" placeholder="example@email.com" required>
+                            <input type="email" name="email" class="form-control"
+                                   placeholder="example@email.com" required>
                         </div>
 
                         <div class="mb-3">
                             <label>Password</label>
-                            <input type="password" name="password" class="form-control" placeholder="********" required>
+                            <input type="password" name="password" class="form-control"
+                                   placeholder="********" required>
                         </div>
 
-
-                        <button type="submit" class="register-btn w-100">
+                        <button type="submit" name="login_now_btn" class="register-btn w-100">
                             Login Now
                         </button>
 
