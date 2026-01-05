@@ -5,7 +5,16 @@ include_once __DIR__ . "/includes/header.php";
 <section class="register-section">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-5">
+            <div class="col-md-6">
+                <div class="alert">
+                    <?php
+                       if(isset($_SESSION['status']))
+                       {
+                        echo "<h4>".$_SESSION['status']."</h4>";
+                        unset($_SESSION['status']);
+                       }
+                       ?>
+                </div>
                 <div class="register-card">
 
                     <h5>Create Your Account</h5>
