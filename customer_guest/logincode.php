@@ -16,6 +16,25 @@ if (isset($_POST['login_now_btn'])) {
 
             $user = mysqli_fetch_assoc($query_run);
 
+            if($row['verify_status'] == "1")
+            {
+                $_SESSION['authenticated'] = TRUE;
+                $_SESSION['auth_user'] = [
+                    'username' => $row['name'],
+                    'phone' => $row['phone'],
+                    'email'=> $row['email'],
+                ];
+                $_SESSION['status'] = "You are Logged In Successfully.";
+                header("Location: dashboard.php");
+                exit(0);
+            }
+            else
+            {
+                $_SESSION['status'] = "Please verify your email address to login.";
+                header("Location: login.php");
+                exit(0);
+            }
+
             // SET SESSION
             $_SESSION['auth'] = true;
             $_SESSION['user_id'] = $user['id'];
