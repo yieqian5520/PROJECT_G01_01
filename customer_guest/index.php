@@ -12,7 +12,7 @@ include_once __DIR__ . "/includes/header.php";
                 Experience the perfect cup every time at
                 <span>Pucks Coffee</span>
             </p>
-            <a href="#menu" class="btn">View Menu</a>
+            <a href="#menu" class="btn">View Men    u</a>
         </div>
     </div>
 </section>
