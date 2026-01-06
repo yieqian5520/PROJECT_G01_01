@@ -304,3 +304,25 @@ footer{
     transform: translateY(-2px);
 }
 
+.contact .row{
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.contact .row form{
+    flex: 1 1 40rem;
+    border:var(--border);
+    padding: 2rem;
+    text-align: center;
+}
+
+.contact .row form .box{
+    margin:1rem 0;
+    width:100%;
+    border:var(--border);
+    padding:1.4rem;
+    font-size: 1.8rem;
+    color:var(--black);
+}
