@@ -25,11 +25,10 @@
         </div>
 
         <ul class="nav-links">
-            <li><a href="index.php">Home</a></li>
-            <li><a href="index.php">Menu</a></li>
-            <li><a href="index.php">About</a></li>
-            <li><a href="index.php">Offer</a></li>
-            <li><a href="index.php">Contact</a></li>
+            <li><a href="index.php" class="active">Home</a></li>
+            <li><a href="menu.php" class="active">Menu</a></li>
+            <li><a href="about.php" class="active">About</a></li>
+            <li><a href="contact.php" class="active">Contact</a></li>
             <li><a href="register.php" class="active">Register</a></li>
             <li><a href="login.php" class="active">Login</a></li>
         </ul>
