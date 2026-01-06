@@ -7,12 +7,13 @@ include_once __DIR__ . "/includes/header.php";
 <section id="home" class="hero">
     <div class="hero-overlay">
         <div class="hero-text">
+            <br>
             <h1>Freshly Brewed Coffee, Just for You</h1>
             <p>
                 Experience the perfect cup every time at
                 <span>Pucks Coffee</span>
             </p>
-            <a href="#menu" class="btn">View Men    u</a>
+            <a href="#menu" class="btn">View Menu</a>
         </div>
     </div>
 </section>
@@ -24,23 +25,53 @@ include_once __DIR__ . "/includes/header.php";
     <div class="menu-grid">
         <div class="menu-item">
             <img src="image/espresso.jpg" alt="Espresso">
+            <div class="content">
+        <div class="stars">
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-half"></i>
+        </div>
+        </div>
             <h3>Espresso</h3>
             <p>Strong and bold coffee shot</p>
             <span>RM 8.00</span>
+            <br>
+            <a href="#" class="btn">add to cart</a>
+        </div>
+        
+        <div class="menu-item">
+            <img src="image/espresso.jpg" alt="Espresso">
+            <div class="content">
+        <div class="stars">
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-half"></i>
+        </div>
+        </div>
+            <h3>Espresso</h3>
+            <p>Strong and bold coffee shot</p>
+            <span>RM 8.00</span>
+            <br>
+            <a href="#" class="btn">add to cart</a>
         </div>
 
         <div class="menu-item">
-            <img src="image/latte.jpg" alt="Latte">
-            <h3>Latte</h3>
-            <p>Smooth espresso with steamed milk</p>
-            <span>RM 12.00</span>
+            <img src="image/espresso.jpg" alt="Espresso">
+            <div class="content">
+        <div class="stars">
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-half"></i>
         </div>
-
-        <div class="menu-item">
-            <img src="image/cappuccino.jpg" alt="Cappuccino">
-            <h3>Cappuccino</h3>
-            <p>Perfect blend of espresso, milk & foam</p>
-            <span>RM 11.00</span>
+        </div>
+            <h3>Espresso</h3>
+            <p>Strong and bold coffee shot</p>
+            <span>RM 8.00</span>
+            <br>
+            <a href="#" class="btn">add to cart</a>
         </div>
     </div>
 </section>
@@ -58,26 +89,7 @@ include_once __DIR__ . "/includes/header.php";
     </div>
 
     <div class="about-img">
-        <img src="image/about.webp" alt="About Pucks Coffee">
-    </div>
-</section>
-
-<!-- ================= OFFERS SECTION ================= -->
-<section id="offers" class="offers">
-    <div class="container">
-        <h2 class="section-title">Special Offers</h2>
-
-        <div class="offers-grid">
-            <div class="offer-card">
-                <h3>Buy 1 Get 1 Free</h3>
-                <p>Available every Monday</p>
-            </div>
-
-            <div class="offer-card">
-                <h3>Happy Hour</h3>
-                <p>4:00 PM – 6:00 PM</p>
-            </div>
-        </div>
+        <img src="image/About.png" alt="">
     </div>
 </section>
 
@@ -87,6 +99,7 @@ include_once __DIR__ . "/includes/header.php";
 
     <form>
         <input type="text" placeholder="Your Name" required>
+        <input type="phone" placeholder="Your Phone" required>
         <input type="email" placeholder="Your Email" required>
         <textarea placeholder="Your Message..." required></textarea>
         <button type="submit" class="btn">Send Message</button>

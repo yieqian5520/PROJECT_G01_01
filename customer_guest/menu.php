@@ -3,122 +3,217 @@
 include_once __DIR__ . "/includes/header.php";
 ?>
 
+<!-- ================= MENU SECTION ================= -->
+<section id="menu" class="menu container">
+    <h2 class="section-title">Our Menu</h2>
 
-<section class="menu" id="menu">
+    <div class="menu-grid">
+        <div class="menu-item">
+            <img src="image/background2.jpg" alt="">
+            <div class="content">
+        <div class="stars">
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-half"></i>
+        </div>
+        </div>
+            <h3>Espresso</h3>
+            <p>Strong and bold coffee shot</p>
+            <span>RM 8.00</span>
+            <br>
+            <a href="#" class="btn">add to cart</a>
+        </div>
 
-<h3 class="sub-heading"> Our Menu </h3>
+        <div class="menu-item">
+            <img src="image/espresso.jpg" alt="Espresso">
+            <div class="content">
+        <div class="stars">
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-half"></i>
+        </div>
+        </div>
+            <h3>Espresso</h3>
+            <p>Strong and bold coffee shot</p>
+            <span>RM 8.00</span>
+            <br>
+            <a href="#" class="btn">add to cart</a>
+        </div>
 
-<div class="box-container">
-    <div class="box">   
-    <div class="image">
-         <img src="image/background.webp" alt="Background">
-        <a href="#" class="bi bi-heart-fill"></a>
-    </div>
-    <div class="content">
+        <div class="menu-item">
+            <img src="image/espresso.jpg" alt="Espresso">
+            <div class="content">
         <div class="stars">
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-half"></i>
         </div>
-        <h3>delicious food</h3>
-        <p>banana</p>
-        <a href="#" class="btn">add to cart</a>
-        <span class="price">RM12.00</span>
-    </div>
-    </div>
-    <div class="box">   
-    <div class="image">
-         <img src="image/background.webp" alt="Background">
-        <a href="#" class="bi bi-heart-fill"></a>
-    </div>
-    <div class="content">
+        </div>
+            <h3>Espresso</h3>
+            <p>Strong and bold coffee shot</p>
+            <span>RM 8.00</span>
+            <br>
+            <a href="#" class="btn">add to cart</a>
+        </div>
+
+        <div class="menu-item">
+            <img src="image/espresso.jpg" alt="Espresso">
+            <div class="content">
         <div class="stars">
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-half"></i>
         </div>
-        <h3>delicious food</h3>
-        <p>banana</p>
-        <a href="#" class="btn">add to cart</a>
-        <span class="price">RM12.00</span>
-    </div>
-    </div>
-    <div class="box">   
-    <div class="image">
-         <img src="image/background.webp" alt="Background">
-        <a href="#" class="bi bi-heart-fill"></a>
-    </div>
-    <div class="content">
+        </div>
+            <h3>Espresso</h3>
+            <p>Strong and bold coffee shot</p>
+            <span>RM 8.00</span>
+            <br>
+            <a href="#" class="btn">add to cart</a>
+        </div>
+
+        <div class="menu-item">
+            <img src="image/espresso.jpg" alt="Espresso">
+            <div class="content">
         <div class="stars">
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-half"></i>
         </div>
-        <h3>delicious food</h3>
-        <p>banana</p>
-        <a href="#" class="btn">add to cart</a>
-        <span class="price">RM12.00</span>
-    </div>
-    </div>
-    <div class="box">   
-    <div class="image">
-         <img src="image/background.webp" alt="Background">
-        <a href="#" class="bi bi-heart-fill"></a>
-    </div>
-    <div class="content">
+        </div>
+            <h3>Espresso</h3>
+            <p>Strong and bold coffee shot</p>
+            <span>RM 8.00</span>
+            <br>
+            <a href="#" class="btn">add to cart</a>
+        </div>
+
+        <div class="menu-item">
+            <img src="image/espresso.jpg" alt="Espresso">
+            <div class="content">
         <div class="stars">
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-half"></i>
         </div>
-        <h3>delicious food</h3>
-        <p>banana</p>
-        <a href="#" class="btn">add to cart</a>
-        <span class="price">RM12.00</span>
-    </div>
-    </div>
-    <div class="box">   
-    <div class="image">
-         <img src="image/background.webp" alt="Background">
-        <a href="#" class="bi bi-heart-fill"></a>
-    </div>
-    <div class="content">
+        </div>
+            <h3>Espresso</h3>
+            <p>Strong and bold coffee shot</p>
+            <span>RM 8.00</span>
+            <br>
+            <a href="#" class="btn">add to cart</a>
+        </div>
+
+        <div class="menu-item">
+            <img src="image/espresso.jpg" alt="Espresso">
+            <div class="content">
         <div class="stars">
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-half"></i>
         </div>
-        <h3>delicious food</h3>
-        <p>banana</p>
-        <a href="#" class="btn">add to cart</a>
-        <span class="price">RM12.00</span>
-    </div>
-    </div>
-    <div class="box">   
-    <div class="image">
-         <img src="image/background.webp" alt="Background">
-        <a href="#" class="bi bi-heart-fill"></a>
-    </div>
-    <div class="content">
+        </div>
+            <h3>Espresso</h3>
+            <p>Strong and bold coffee shot</p>
+            <span>RM 8.00</span>
+            <br>
+            <a href="#" class="btn">add to cart</a>
+        </div>
+
+        <div class="menu-item">
+            <img src="image/espresso.jpg" alt="Espresso">
+            <div class="content">
         <div class="stars">
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-half"></i>
         </div>
-        <h3>delicious food</h3>
-        <p>banana</p>
-        <a href="#" class="btn">add to cart</a>
-        <span class="price">RM12.00</span>
+        </div>
+            <h3>Espresso</h3>
+            <p>Strong and bold coffee shot</p>
+            <span>RM 8.00</span>
+            <br>
+            <a href="#" class="btn">add to cart</a>
+        </div>
+
+        <div class="menu-item">
+            <img src="image/espresso.jpg" alt="Espresso">
+            <div class="content">
+        <div class="stars">
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-half"></i>
+        </div>
+        </div>
+            <h3>Espresso</h3>
+            <p>Strong and bold coffee shot</p>
+            <span>RM 8.00</span>
+            <br>
+            <a href="#" class="btn">add to cart</a>
+        </div>
+
+        <div class="menu-item">
+            <img src="image/espresso.jpg" alt="Espresso">
+            <div class="content">
+        <div class="stars">
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-half"></i>
+        </div>
+        </div>
+            <h3>Espresso</h3>
+            <p>Strong and bold coffee shot</p>
+            <span>RM 8.00</span>
+            <br>
+            <a href="#" class="btn">add to cart</a>
+        </div>
+
+        <div class="menu-item">
+            <img src="image/espresso.jpg" alt="Espresso">
+            <div class="content">
+        <div class="stars">
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-half"></i>
+        </div>
+        </div>
+            <h3>Espresso</h3>
+            <p>Strong and bold coffee shot</p>
+            <span>RM 8.00</span>
+            <br>
+            <a href="#" class="btn">add to cart</a>
+        </div>
+
+        <div class="menu-item">
+            <img src="image/espresso.jpg" alt="Espresso">
+            <div class="content">
+        <div class="stars">
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-half"></i>
+        </div>
+        </div>
+            <h3>Espresso</h3>
+            <p>Strong and bold coffee shot</p>
+            <span>RM 8.00</span>
+            <br>
+            <a href="#" class="btn">add to cart</a>
+        </div>
     </div>
-    </div>
-</div>
 </section>
+
 
 
 <?php

@@ -64,9 +64,10 @@ header {
 /* Hero Section */
 .hero {
     height: 90vh;
-    background: ur1('images/hero.jpg') center/cover no-repeat;
+    background: url("image/background2.jpg") center / cover no-repeat;
     position: relative;
 }
+
 .hero-overlay {
     background: rgba(0, 0, 0, 0.5);
     height: 100%;
@@ -119,6 +120,12 @@ header {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
 }
+
+.menu-item .stars {
+    color: #ff6f00;
+    margin-bottom: 10px;
+}
+
 .menu-item {
     background: #fff;
     border-radius: 10px;
@@ -183,26 +190,6 @@ header {
     margin-bottom: 20px;
 }
 
-/* Offers */
-.offers {
-    background: #ffe0b2;
-    padding: 50px 0;
-}
-
-.offers-grid {
-     display: grid;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-.offer-card:hover {
-    cursor:pointer;
-    transform: translateY(5px);
-}
 
 /*Contact */
 .contact form {
