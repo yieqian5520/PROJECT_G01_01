@@ -1,12 +1,30 @@
 <?php
 session_start();
+if(isset( $_SESSION['authenticated'])){
+
+    $_SESSION['status'] = "Please Login to Access User Dashboard.";
+    header("Location: dashboard.php");
+    exit(0);
+}
 include_once __DIR__ . "/includes/header.php";
 ?>
 
 <section class="register-section">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-5">
+            <div class="col-md-6">
+
+            <?php
+            if(isset($_SESSION['status']))
+            {
+                ?>
+                <div class="alert alert-success">
+                    <h5><?= $_SESSION['status'];?></h5>
+                </div>
+                <?php
+                unset($_SESSION['status']);
+            }
+            ?>
                 <div class="register-card">
 
                     <h5>Login Form</h5>
@@ -38,6 +56,12 @@ include_once __DIR__ . "/includes/header.php";
                         </button>
 
                     </form>
+
+                    <hr>
+                    <h5>
+                        Did not receive your verification email?
+                        <a href="resend-email-verification.php">Resend</a>
+                    </h5>
 
                 </div>
             </div>
