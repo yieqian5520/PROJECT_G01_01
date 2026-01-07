@@ -1,5 +1,5 @@
 <?php
-
+session_start();
 $con =mysqli_connect("localhost","root","","pucks_coffee");
 
 if ($con->connect_error){

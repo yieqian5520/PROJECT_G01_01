@@ -1,4 +1,5 @@
 <?php
+session_start();
 // Home Page
 include_once __DIR__ . "/includes/header.php";
 ?>
