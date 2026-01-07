@@ -16,33 +16,25 @@ if (isset($_POST['login_now_btn'])) {
 
             $user = mysqli_fetch_assoc($query_run);
 
-            if($row['verify_status'] == "1")
-            {
-                $_SESSION['authenticated'] = TRUE;
+            if ($user['verify_status'] == "1") {
+
+                $_SESSION['authenticated'] = true;
+
                 $_SESSION['auth_user'] = [
-                    'username' => $row['name'],
-                    'phone' => $row['phone'],
-                    'email'=> $row['email'],
+                    'username' => $user['name'],
+                    'email'    => $user['email'],
+                    'phone'    => $user['phone'],
                 ];
+
                 $_SESSION['status'] = "You are Logged In Successfully.";
-                header("Location: dashboard.php");
-                exit(0);
-            }
-            else
-            {
+                header("Location: customer_guest/dashboard.php");
+                exit();
+
+            } else {
                 $_SESSION['status'] = "Please verify your email address to login.";
                 header("Location: login.php");
-                exit(0);
+                exit();
             }
-
-            // SET SESSION
-            $_SESSION['auth'] = true;
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['email'] = $user['email'];
-
-            // REDIRECT TO DASHBOARD
-            header("Location: dashboard.php");
-            exit();
 
         } else {
             $_SESSION['status'] = "Invalid Email or Password";

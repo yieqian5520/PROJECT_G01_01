@@ -3,7 +3,8 @@ session_start();
 
 if(isset($_SESSION['authenticated']))
 {
-    header("Location: dashboard.php");
+    $_SESSION['status'] = "Please Login to Access User Dashboard";
+    header("Location: login.php");
     exit(0);
 } 
 
