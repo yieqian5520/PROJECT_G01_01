@@ -27,7 +27,7 @@ include_once __DIR__ . "/includes/header.php";
 
                 <div class="card">
                     <div class="card-header">
-                        <h4>User Dashboard</h4>
+                        <h4>User Profile</h4>
                     </div>
 
                     <div class="card-body">
@@ -44,11 +44,6 @@ include_once __DIR__ . "/includes/header.php";
         </div>
     </div>
 </div>
-<br>
-<br>
-<br>
-<br>
-<br>
 <br>
 
 <?php 
