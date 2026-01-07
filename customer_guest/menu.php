@@ -27,7 +27,7 @@ include_once __DIR__ . "/includes/header.php";
         </div>
 
         <div class="menu-item">
-            <img src="image/espresso.jpg" alt="Espresso">
+            <img src="image/background2.jpg" alt="">
             <div class="content">
         <div class="stars">
             <i class="bi bi-star-fill"></i>
@@ -44,7 +44,7 @@ include_once __DIR__ . "/includes/header.php";
         </div>
 
         <div class="menu-item">
-            <img src="image/espresso.jpg" alt="Espresso">
+            <img src="image/background2.jpg" alt="">
             <div class="content">
         <div class="stars">
             <i class="bi bi-star-fill"></i>
@@ -61,7 +61,7 @@ include_once __DIR__ . "/includes/header.php";
         </div>
 
         <div class="menu-item">
-            <img src="image/espresso.jpg" alt="Espresso">
+            <img src="image/background2.jpg" alt="">
             <div class="content">
         <div class="stars">
             <i class="bi bi-star-fill"></i>
@@ -78,7 +78,7 @@ include_once __DIR__ . "/includes/header.php";
         </div>
 
         <div class="menu-item">
-            <img src="image/espresso.jpg" alt="Espresso">
+            <img src="image/background2.jpg" alt="">
             <div class="content">
         <div class="stars">
             <i class="bi bi-star-fill"></i>
@@ -95,7 +95,7 @@ include_once __DIR__ . "/includes/header.php";
         </div>
 
         <div class="menu-item">
-            <img src="image/espresso.jpg" alt="Espresso">
+            <img src="image/background2.jpg" alt="">
             <div class="content">
         <div class="stars">
             <i class="bi bi-star-fill"></i>
@@ -112,7 +112,7 @@ include_once __DIR__ . "/includes/header.php";
         </div>
 
         <div class="menu-item">
-            <img src="image/espresso.jpg" alt="Espresso">
+            <img src="image/background2.jpg" alt="">
             <div class="content">
         <div class="stars">
             <i class="bi bi-star-fill"></i>
@@ -129,7 +129,7 @@ include_once __DIR__ . "/includes/header.php";
         </div>
 
         <div class="menu-item">
-            <img src="image/espresso.jpg" alt="Espresso">
+            <img src="image/background2.jpg" alt="">
             <div class="content">
         <div class="stars">
             <i class="bi bi-star-fill"></i>
@@ -146,7 +146,7 @@ include_once __DIR__ . "/includes/header.php";
         </div>
 
         <div class="menu-item">
-            <img src="image/espresso.jpg" alt="Espresso">
+            <img src="image/background2.jpg" alt="">
             <div class="content">
         <div class="stars">
             <i class="bi bi-star-fill"></i>
@@ -163,7 +163,7 @@ include_once __DIR__ . "/includes/header.php";
         </div>
 
         <div class="menu-item">
-            <img src="image/espresso.jpg" alt="Espresso">
+            <img src="image/background2.jpg" alt="">
             <div class="content">
         <div class="stars">
             <i class="bi bi-star-fill"></i>
@@ -180,7 +180,7 @@ include_once __DIR__ . "/includes/header.php";
         </div>
 
         <div class="menu-item">
-            <img src="image/espresso.jpg" alt="Espresso">
+            <img src="image/background2.jpg" alt="">
             <div class="content">
         <div class="stars">
             <i class="bi bi-star-fill"></i>
@@ -197,7 +197,7 @@ include_once __DIR__ . "/includes/header.php";
         </div>
 
         <div class="menu-item">
-            <img src="image/espresso.jpg" alt="Espresso">
+            <img src="image/background2.jpg" alt="Espresso">
             <div class="content">
         <div class="stars">
             <i class="bi bi-star-fill"></i>
@@ -212,6 +212,8 @@ include_once __DIR__ . "/includes/header.php";
             <br>
             <a href="#" class="btn">add to cart</a>
         </div>
+
+        
     </div>
 </section>
 
