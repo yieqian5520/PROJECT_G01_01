@@ -28,27 +28,27 @@ if (isset($_POST['login_now_btn'])) {
 
                 $_SESSION['status'] = "You are Logged In Successfully.";
                 header("Location: customer_guest/dashboard.php");
-                exit();
+                exit(0);
 
             } else {
                 $_SESSION['status'] = "Please verify your email address to login.";
                 header("Location: login.php");
-                exit();
+                exit(0);
             }
 
         } else {
             $_SESSION['status'] = "Invalid Email or Password";
             header("Location: login.php");
-            exit();
+            exit(0);
         }
 
     } else {
         $_SESSION['status'] = "All fields are mandatory";
         header("Location: login.php");
-        exit();
+        exit(0);
     }
 
 } else {
     header("Location: login.php");
-    exit();
+    exit(0);
 }
