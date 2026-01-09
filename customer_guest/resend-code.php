@@ -17,7 +17,7 @@ function resend_email_verify($name, $email, $verify_token)
         $mail->Host       = "smtp.gmail.com";
         $mail->SMTPAuth   = true;
         $mail->Username   = "bananacoffee06@gmail.com";
-        $mail->Password   = "rfvoklcgvudyspra"; // App password (no spaces)
+        $mail->Password   = "bmvzawwmlimtiqou"; // App password (no spaces)
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
