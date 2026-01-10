@@ -37,7 +37,12 @@
             <li><a href="menu.php" class="active">Menu</a></li>
             <li><a href="about.php" class="active">About</a></li>
             <li><a href="contact.php" class="active">Contact</a></li>
-            <li><a href="dashboard.php" class="active">Profile</a></li>
+            <li>
+    <a href="dashboard.php" class="active">
+        <i class="bi bi-person-fill"></i>
+    </a>
+</li>
+
             <?php if(!isset($_SESSION['authenticated'])): ?>
             <li><a href="register.php" class="active">Register</a></li>
             <li><a href="login.php" class="active">Login</a></li>

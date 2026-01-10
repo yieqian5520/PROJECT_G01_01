@@ -25,7 +25,7 @@ include_once __DIR__ . "/includes/header.php";
 
                     <div class="card-body">
 
-                        <form action="" method="POST">
+                        <form action="password-reset-code.php" method="POST">
 
                             <div class="mb-3">
                                 <label>Email Address</label>
