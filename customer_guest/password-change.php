@@ -30,7 +30,7 @@ include_once __DIR__ . "/includes/header.php";
 
                         <form action="password-reset-code.php" method="POST">
 
-                            <input type="hidden" value="<?php if(isset($_GET['token'])){echo $_GET['token'];} ?>">
+                            <input type="hidden" name="password_token" value="<?php if(isset($_GET['token'])){echo $_GET['token'];} ?>">
 
                             <div class="form-group mb-3">
                                 <label>Email Address</label>
