@@ -118,6 +118,10 @@ if(isset($_POST['password_update']))
 
                             if($update_password_run)
                             {
+                                $new_token = md5(rand())."fund";
+                                $update_to_new_token = "UPDATE users SET verify_token='$new_token' WHERE verify_token='$token' LIMIT 1";
+                                $update_to_new_token_run = mysqli_query($con,$update_new_token);
+
                                 $_SESSION['status'] = "New Password Has Been Updated Successfully";
                                 header("Location: login.php");
                                 exit(0);
@@ -132,7 +136,7 @@ if(isset($_POST['password_update']))
                         else
                         {
                             $_SESSION['status'] = "Password and Confirm Password Does Not Match";
-                            header("Location: password-change.php");
+                            header("Location: password-change.php?token=$token&email=$email");
                             exit(0);
                         }
                     }
