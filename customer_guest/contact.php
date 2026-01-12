@@ -7,7 +7,7 @@ include_once __DIR__ . "/includes/header.php";
 <section class="contact-hero">
   <div class="contact-hero__overlay">
     <div class="contact-hero__content">
-      <p class="contact-hero__subtitle">We’re here to hear from you</p>
+      <p class="contact-hero__subtitle">We're here to hear from you</p>
       <h1 class="contact-hero__title">CONTACT</h1>
       <p class="contact-hero__desc">Nice to hear from you</p>
     </div>
@@ -94,10 +94,25 @@ include_once __DIR__ . "/includes/header.php";
 
     <div class="bottom-box">
       <h4>OPEN HOURS</h4>
-      <p>Mon–Fri: 9AM – 10PM</p>
-      <p>Sat–Sun: 9AM – 11PM</p>
+      <p>Mon-Fri: 9AM - 10PM</p>
+      <p>Sat-Sun: 9AM - 11PM</p>
     </div>
   </div>
+<div class="address-img">
+        <img src="image/Address.png" alt="Address">
+    </div>
+
+<!-- ================= CONTACT PAGE ================= -->
+<section id="contact" class="contact container">
+    <h2 class="section-title">Contact Us</h2>
+
+    <form action="" method="POST">
+        <input type="text" name="name" placeholder="Your Name" required>
+        <input type="tel" name="phone" placeholder="Your Phone" required>
+        <input type="email" name="email" placeholder="Your Email" required>
+        <textarea name="message" placeholder="Your Message..." required></textarea>
+        <button type="submit" class="btn">Send Message</button>
+    </form>
 </section>
 
 <?php
