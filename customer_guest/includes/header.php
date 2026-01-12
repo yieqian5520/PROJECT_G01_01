@@ -26,11 +26,12 @@
 
 <header>
     <nav class="navbar container">
-        <div class="logo">
-            <a href="index.php" class="text-white fw-bold text-decoration-none">
-                Pucks Coffee
-            </a>
-        </div>
+    <div class="logo">
+        <img src="image/logo.jpg" alt="">
+        <a href="index.php" class="text-white fw-bold text-decoration-none">
+            Pucks Coffee
+        </a>
+    </div>
 
         <ul class="nav-links">
             <li><a href="index.php" class="active">Home</a></li>

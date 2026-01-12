@@ -77,10 +77,8 @@ include_once __DIR__ . "/includes/header.php";
     referrerpolicy="no-referrer-when-downgrade">
   </iframe>
 </div>
-
-    </div>
-
-  </div>
+</div>
+</section>
 
 <?php
 include_once __DIR__ . "/includes/footer.php";
