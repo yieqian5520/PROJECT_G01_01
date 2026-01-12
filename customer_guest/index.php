@@ -24,7 +24,7 @@ include_once __DIR__ . "/includes/header.php";
     <div class="menu-grid">
         <!-- Menu Item 1 -->
         <div class="menu-item">
-            <img src="image/background2.jpg" alt="Espresso">
+            <img src="image/background2.jpg" alt="Espresso">    
             <h3>Espresso</h3>
             <p>Strong and bold coffee shot</p>
             <span>RM 8.00</span>
