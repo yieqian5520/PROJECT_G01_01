@@ -97,9 +97,51 @@ include_once __DIR__ . "/includes/header.php";
         <span>RM 7.00</span><br>
         <a href="#" class="btn">add to cart</a>
       </div>
+
+      <div class="menu-item">
+        <img src="image/background2.jpg" alt="Croissant">
+        <h3>Butter Croissant</h3>
+        <p>Flaky and buttery</p>
+        <span>RM 7.00</span><br>
+        <a href="#" class="btn">add to cart</a>
+      </div>
+
+      <div class="menu-item">
+        <img src="image/background2.jpg" alt="Croissant">
+        <h3>Butter Croissant</h3>
+        <p>Flaky and buttery</p>
+        <span>RM 7.00</span><br>
+        <a href="#" class="btn">add to cart</a>
+      </div>
+
+      <div class="menu-item">
+        <img src="image/background2.jpg" alt="Croissant">
+        <h3>Butter Croissant</h3>
+        <p>Flaky and buttery</p>
+        <span>RM 7.00</span><br>
+        <a href="#" class="btn">add to cart</a>
+      </div>
+
+      <div class="menu-item">
+        <img src="image/background2.jpg" alt="Croissant">
+        <h3>Butter Croissant</h3>
+        <p>Flaky and buttery</p>
+        <span>RM 7.00</span><br>
+        <a href="#" class="btn">add to cart</a>
+      </div>
+
+      <div class="menu-item">
+        <img src="image/background2.jpg" alt="Croissant">
+        <h3>Butter Croissant</h3>
+        <p>Flaky and buttery</p>
+        <span>RM 7.00</span><br>
+        <a href="#" class="btn">add to cart</a>
+      </div>
     </div>
   </div>
 </section>
+
+
 
 <script>
   // Simple tab switcher
