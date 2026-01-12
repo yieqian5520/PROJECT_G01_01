@@ -1,5 +1,6 @@
 <?php
 session_start();
+include_once __DIR__ . "/dbcon.php";
 
 // Protect dashboard
 if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
@@ -11,13 +12,20 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 // Handle profile update
 if (isset($_POST['update_profile'])) {
 
-    // Basic fields
-    $_SESSION['auth_user']['username'] = $_POST['username'];
-    $_SESSION['auth_user']['email']    = $_POST['email'];
-    $_SESSION['auth_user']['address']  = $_POST['address'];
-    $_SESSION['auth_user']['phone']    = $_POST['phone'];
+    $user_id = (int)($_SESSION['auth_user']['id'] ?? 0);
+    if ($user_id <= 0) {
+        $_SESSION['status'] = "Session error: user id missing. Please login again.";
+        header("Location: login.php");
+        exit();
+    }
 
-    // Password update (only if filled)
+    $username = mysqli_real_escape_string($con, $_POST['username']);
+    $email    = mysqli_real_escape_string($con, $_POST['email']);
+    $address  = mysqli_real_escape_string($con, $_POST['address']);
+    $phone    = mysqli_real_escape_string($con, $_POST['phone']);
+
+    // Password update (optional)
+    $new_password_hash = null;
     if (!empty($_POST['password']) || !empty($_POST['confirm_password'])) {
 
         if ($_POST['password'] !== $_POST['confirm_password']) {
@@ -26,25 +34,58 @@ if (isset($_POST['update_profile'])) {
             exit();
         }
 
-        // Hash password
-        $_SESSION['auth_user']['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        $new_password_hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
     }
 
-    // Profile image upload
+    // Image upload (optional)
+    $profile_path = null;
     if (!empty($_FILES['profile_image']['name'])) {
 
-        $folder = "uploads/";
+        $folder = __DIR__ . "/uploads/";
         if (!is_dir($folder)) {
             mkdir($folder, 0777, true);
         }
 
-        $file_name = time() . "_" . $_FILES['profile_image']['name'];
-        move_uploaded_file($_FILES['profile_image']['tmp_name'], $folder . $file_name);
+        $ext = strtolower(pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION));
+        $allowed = ['jpg','jpeg','png','webp'];
 
-        $_SESSION['auth_user']['profile_image'] = $folder . $file_name;
+        if (!in_array($ext, $allowed)) {
+            $_SESSION['status'] = "Only JPG, JPEG, PNG, WEBP allowed.";
+            header("Location: dashboard.php");
+            exit();
+        }
+
+        $file_name = time() . "_" . $user_id . "." . $ext;
+        $target = $folder . $file_name;
+
+        if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $target)) {
+            $profile_path = "uploads/" . $file_name; // save relative for browser
+        } else {
+            $_SESSION['status'] = "Upload failed. Check folder permissions.";
+            header("Location: dashboard.php");
+            exit();
+        }
     }
 
-    $_SESSION['status'] = "Profile Updated Successfully";
+    // Build UPDATE query
+    $sql = "UPDATE users SET name='$username', email='$email', address='$address', phone='$phone'";
+    if ($new_password_hash) $sql .= ", password='$new_password_hash'";
+    if ($profile_path) $sql .= ", profile_image='$profile_path'";
+    $sql .= " WHERE id=$user_id LIMIT 1";
+
+    if (mysqli_query($con, $sql)) {
+        // Update session so it shows immediately
+        $_SESSION['auth_user']['username'] = $username;
+        $_SESSION['auth_user']['email']    = $email;
+        $_SESSION['auth_user']['address']  = $address;
+        $_SESSION['auth_user']['phone']    = $phone;
+        if ($profile_path) $_SESSION['auth_user']['profile_image'] = $profile_path;
+
+        $_SESSION['status'] = "Profile Updated Successfully";
+    } else {
+        $_SESSION['status'] = "Update Failed: " . mysqli_error($con);
+    }
+
     header("Location: dashboard.php");
     exit();
 }
@@ -71,13 +112,16 @@ include_once __DIR__ . "/includes/header.php";
 
                     <div class="card-body">
 
-                        <!-- Profile Image -->
                         <div class="text-center mb-3">
-                            <img src="<?= $_SESSION['auth_user']['profile_image'] ?? 'https://via.placeholder.com/120' ?>"
-                                 class="rounded-circle" width="120" height="120">
+                            <img
+                              src="<?= !empty($_SESSION['auth_user']['profile_image']) ? $_SESSION['auth_user']['profile_image'] : 'https://via.placeholder.com/120' ?>"
+                              class="rounded-circle"
+                              width="120"
+                              height="120"
+                              style="object-fit:cover;"
+                            >
                         </div>
 
-                        <!-- Profile Form -->
                         <form method="POST" enctype="multipart/form-data">
 
                             <div class="mb-3">
@@ -122,8 +166,7 @@ include_once __DIR__ . "/includes/header.php";
                             </div>
 
                             <div class="d-grid">
-                                <button type="submit" name="update_profile"
-                                        class="btn btn-warning text-dark">
+                                <button type="submit" name="update_profile" class="btn btn-warning text-dark">
                                     Update Profile
                                 </button>
                             </div>
@@ -132,11 +175,8 @@ include_once __DIR__ . "/includes/header.php";
 
                         <hr>
 
-                        <!-- Logout -->
                         <form action="logout.php" method="POST" class="text-center">
-                            <button type="submit" class="btn btn-danger">
-                                Logout
-                            </button>
+                            <button type="submit" class="btn btn-danger">Logout</button>
                         </form>
 
                     </div>
