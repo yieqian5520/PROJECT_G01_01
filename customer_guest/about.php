@@ -26,7 +26,7 @@ include_once __DIR__ . "/includes/header.php";
                 We aim to create unforgettable moments with every visit.
             </p>
 
-            <a href="contact.php" class="btn">Visit Us</a>
+            
         </div>
 
         <div class="about-image">

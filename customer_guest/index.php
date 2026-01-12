@@ -63,7 +63,7 @@ include_once __DIR__ . "/includes/header.php";
             brewed to perfection using the finest beans from around the world.
             Our café provides a cozy environment to relax, work, or meet friends.
         </p>
-        <a href="#contact" class="btn secondary-btn">Visit Us</a>
+        <a href="about.php" class="btn">Visit Us</a>
     </div>
 
     <div class="about-img">
