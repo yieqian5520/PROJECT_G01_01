@@ -18,7 +18,7 @@ $stmt = $mysqli->prepare($sql);
 if ($stmt === false) {
     die("Error preparing SQL query: " . $mysqli->error);
 }
-
+    
 $stmt->bind_param("s", $token_hash);
 $stmt->execute();
 
