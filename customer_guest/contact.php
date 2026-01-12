@@ -3,13 +3,13 @@ session_start();
 include_once __DIR__ . "/includes/header.php";
 ?>
 
+<div class="address-img">
+        <img src="image/Address.png" alt="Address">
+    </div>
+
 <!-- ================= CONTACT PAGE ================= -->
 <section id="contact" class="contact container">
     <h2 class="section-title">Contact Us</h2>
-
-    <div class="address-img">
-        <img src="image/Address.png" alt="Address">
-    </div>
 
     <form action="" method="POST">
         <input type="text" name="name" placeholder="Your Name" required>
