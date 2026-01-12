@@ -66,54 +66,21 @@ include_once __DIR__ . "/includes/header.php";
       </div>
 
       <div class="map-box">
-        <!-- Replace the src with your real location embed -->
-        <iframe
-          title="Google Map"
-          src="https://www.google.com/maps?q=Kuala%20Lumpur&output=embed"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade">
-        </iframe>
-      </div>
+  <iframe
+    title="Pucks Coffee Kuala Lumpur"
+    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3975.460327384316!2d101.6949252!3d3.1435798!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc493510da19bb%3A0x8cf52a0e3d40d8d4!2sPucks%20Coffee!5e0!3m2!1sen!2smy!4v1700000000000!5m2!1sen!2smy"
+    width="100%"
+    height="350"
+    style="border:0;"
+    allowfullscreen=""
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade">
+  </iframe>
+</div>
+
     </div>
 
   </div>
-
-  <!-- BOTTOM INFO (3 columns) -->
-  <div class="contact-bottom">
-    <div class="bottom-box">
-      <h4>ADDRESS</h4>
-      <p>Pucks Coffee</p>
-      <p>Setapak, Kuala Lumpur</p>
-    </div>
-
-    <div class="bottom-box">
-      <h4>RESERVATION</h4>
-      <p>+60 11-2222 3333</p>
-      <p>contact@puckscoffee.com</p>
-    </div>
-
-    <div class="bottom-box">
-      <h4>OPEN HOURS</h4>
-      <p>Mon-Fri: 9AM - 10PM</p>
-      <p>Sat-Sun: 9AM - 11PM</p>
-    </div>
-  </div>
-<div class="address-img">
-        <img src="image/Address.png" alt="Address">
-    </div>
-
-<!-- ================= CONTACT PAGE ================= -->
-<section id="contact" class="contact container">
-    <h2 class="section-title">Contact Us</h2>
-
-    <form action="" method="POST">
-        <input type="text" name="name" placeholder="Your Name" required>
-        <input type="tel" name="phone" placeholder="Your Phone" required>
-        <input type="email" name="email" placeholder="Your Email" required>
-        <textarea name="message" placeholder="Your Message..." required></textarea>
-        <button type="submit" class="btn">Send Message</button>
-    </form>
-</section>
 
 <?php
 include_once __DIR__ . "/includes/footer.php";
