@@ -47,6 +47,7 @@ header {
     display: flex;
     list-style: none;
 }
+
 .nav-links li {
     margin-left: 20px;
 }
@@ -304,25 +305,18 @@ footer{
     transform: translateY(-2px);
 }
 
-.contact .row{
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1.5rem;
+
+
+.logout-btn {
+    background-color: yellow;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
 }
 
-.contact .row form{
-    flex: 1 1 40rem;
-    border:var(--border);
-    padding: 2rem;
-    text-align: center;
-}
-
-.contact .row form .box{
-    margin:1rem 0;
-    width:100%;
-    border:var(--border);
-    padding:1.4rem;
-    font-size: 1.8rem;
-    color:var(--black);
+.logout-btn:hover {
+    background-color: gold;
 }

@@ -6,6 +6,9 @@ include_once __DIR__ . "/includes/header.php";
 
 <section id="contact" class="contact container">
 
+<div class="address-img">
+        <img src="image/Address.png" alt="">
+    </div>
     <h2 class="section-title">Contact Us</h2>
 
     <div class="row">
@@ -19,6 +22,7 @@ include_once __DIR__ . "/includes/header.php";
         <button type="submit" class="btn">Send Message</button>
     </form>
 </div>
+
 </section>
 
 

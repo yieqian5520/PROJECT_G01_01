@@ -17,18 +17,25 @@ if(isset($_GET['token']))
             $update_query = "UPDATE users SET verify_status='1' WHERE verify_token='$clicked_token' LIMIT 1";
             $update_run = mysqli_query($con, $update_query);
 
-            if($update_query_run)
+            if($update_run)
             {
-                $SESSION['status'] = "Your Account has been verified successfully!";
+                $_SESSION['status'] = "Your account has been verified successfully!";
                 header("Location: login.php");
                 exit(0);
             }
             else
             {
-                $SESSION["status"] = "Verified Failed!";
+                $_SESSION["status"] = "Verification failed! Please try again.";
                 header("Location: login.php");
                 exit(0);
             }
+        }
+        else
+        {
+            // Token exists but account is already verified
+            $_SESSION['status'] = "Account already verified. Please login.";
+            header("Location: login.php");
+            exit(0);
         }
     }
     else

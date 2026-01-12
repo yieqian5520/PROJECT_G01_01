@@ -38,16 +38,15 @@
             <li><a href="about.php" class="active">About</a></li>
             <li><a href="contact.php" class="active">Contact</a></li>
             <li>
-    <a href="dashboard.php" class="active">
+         <a href="dashboard.php" class="active">
         <i class="bi bi-person-fill"></i>
-    </a>
-</li>
+        </a>
+       </li>
 
             <?php if(!isset($_SESSION['authenticated'])): ?>
             <li><a href="register.php" class="active">Register</a></li>
             <li><a href="login.php" class="active">Login</a></li>
             <?php endif ?>
-            <li><a href="logout.php" class="active">Logout</a></li>
         </ul>
     </nav>
 </header>

@@ -102,7 +102,7 @@ if(isset($_POST['password_update']))
 
         if(!empty($token))
         {
-                if(!empty($email) && !empty($new_password) && !empty($cnfirm_password))
+                if(!empty($email) && !empty($new_password) && !empty($confirm_password))
                 {
                     // Check if token is valid
                     $check_token = "SELECT verify_token FROM users WHERE verify_token='$token' LIMIT 1";
@@ -113,16 +113,27 @@ if(isset($_POST['password_update']))
                         if($new_password == $confirm_password)
                         {
                             // Update password
-                            $update_password = "UPDATE users SET password=' $new_password' WHERE verify_token='$token' LIMIT 1";
+                            $update_password = "UPDATE users SET password='$new_password' WHERE verify_token='$token' LIMIT 1";
                             $update_password_run = mysqli_query($con, $update_password);
 
                             if($update_password_run)
                             {
                                 $new_token = md5(rand())."fund";
                                 $update_to_new_token = "UPDATE users SET verify_token='$new_token' WHERE verify_token='$token' LIMIT 1";
-                                $update_to_new_token_run = mysqli_query($con,$update_new_token);
+                                $update_to_new_token_run = mysqli_query($con,$update_to_new_token);
 
-                                $_SESSION['status'] = "New Password Has Been Updated Successfully";
+                                if($update_to_new_token_run)
+                                {
+                                    $_SESSION['status'] = "New Password Has Been Updated Successfully";
+                                    header("Location: login.php");
+                                    exit(0);
+                                }
+                                else
+                                {
+                                    $_SESSION['status'] = "Password updated but could not refresh token. Please contact support.";
+                                    header("Location: login.php");
+                                    exit(0);
+                                }
                                 header("Location: login.php");
                                 exit(0);
                             }
@@ -142,15 +153,15 @@ if(isset($_POST['password_update']))
                     }
                     else
                     {
-                        $_SESSION['status'] = "Invalid Token";
-                        header("Location: password-change.php?token&email=$email");
+                        $_SESSION['status'] = "Invalid token";
+                        header("Location: password-change.php?token=$token&email=$email");
                         exit(0);
                     }
                 }
                 else
                 {
-                    $_SESSION['status'] = "All Filed are Mandatory";
-                    header("Location: password-change.php?token&email=$email");
+                    $_SESSION['status'] = "All fields are mandatory";
+                    header("Location: password-change.php?token=$token&email=$email");
                     exit(0);
                }
         }

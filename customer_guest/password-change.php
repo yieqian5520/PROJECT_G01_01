@@ -34,7 +34,7 @@ include_once __DIR__ . "/includes/header.php";
 
                             <div class="form-group mb-3">
                                 <label>Email Address</label>
-                                <input type="password" name="email" value="<?php if(isset($_GET['email'])){echo $_GET['email'];} ?>" class="form-control" placeholder="Enter Email Address" required>
+                                <input type="email" name="email" value="<?php if(isset($_GET['email'])){echo $_GET['email'];} ?>" class="form-control" placeholder="Enter Email Address" required>
                             </div>
 
                             <div class="form-group mb-3">

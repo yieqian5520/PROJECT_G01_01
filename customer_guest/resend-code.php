@@ -70,13 +70,19 @@ if (isset($_POST['resend_email_verify_btn'])) {
 
             if ($row['verify_status'] == "0") {
 
-                resend_email_verify(
+                $sent = resend_email_verify(
                     $row['name'],
                     $row['email'],
                     $row['verify_token']
                 );
 
-                $_SESSION['status'] = "Verification email resent successfully.";
+                if ($sent) {
+                    $_SESSION['status'] = "Verification email resent successfully.";
+                } else {
+                    $_SESSION['status'] = "Failed to send verification email. Please try again later.";
+                    error_log("Resend verification email failed for: " . $row['email']);
+                }
+
                 header("Location: login.php");
                 exit();
 
