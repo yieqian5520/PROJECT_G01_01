@@ -519,3 +519,100 @@ footer {
 .menu-panel {
   display: block;
 }
+
+/* ===== ABOUT PAGE (LOCCA STYLE) ===== */
+
+.about-hero {
+  height: 300px;
+  background: url("image/about-hero.jpg") center/cover no-repeat;
+  position: relative;
+}
+
+.about-hero-overlay {
+  background: rgba(0, 0, 0, 0.5);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-hero-content {
+  text-align: center;
+  color: #fff;
+}
+
+.about-hero-content h1 {
+  font-size: 48px;
+  margin: 0;
+  letter-spacing: 2px;
+}
+
+.about-hero-content p {
+  margin-top: 10px;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.about-section {
+  padding: 70px 16px;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
+  align-items: center;
+}
+
+.about-text h2 {
+  font-size: 32px;
+  margin-bottom: 20px;
+}
+
+.about-text p {
+  line-height: 1.8;
+  opacity: 0.85;
+  margin-bottom: 18px;
+}
+
+.about-image img {
+  width: 100%;
+  border-radius: 12px;
+}
+
+.about-values {
+  background: #f9f9f9;
+  padding: 60px 16px;
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  text-align: center;
+}
+
+.value-box h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.value-box p {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .values-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-hero-content h1 {
+    font-size: 32px;
+  }
+}
