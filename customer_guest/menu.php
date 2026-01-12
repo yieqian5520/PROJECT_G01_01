@@ -11,14 +11,6 @@ include_once __DIR__ . "/includes/header.php";
     <div class="menu-grid">
         <div class="menu-item">
             <img src="image/background2.jpg" alt="">
-            <div class="content">
-        <div class="stars">
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-half"></i>
-        </div>
-        </div>
             <h3>Espresso</h3>
             <p>Strong and bold coffee shot</p>
             <span>RM 8.00</span>
@@ -28,14 +20,6 @@ include_once __DIR__ . "/includes/header.php";
 
         <div class="menu-item">
             <img src="image/background2.jpg" alt="">
-            <div class="content">
-        <div class="stars">
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-half"></i>
-        </div>
-        </div>
             <h3>Espresso</h3>
             <p>Strong and bold coffee shot</p>
             <span>RM 8.00</span>
@@ -45,14 +29,6 @@ include_once __DIR__ . "/includes/header.php";
 
         <div class="menu-item">
             <img src="image/background2.jpg" alt="">
-            <div class="content">
-        <div class="stars">
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-half"></i>
-        </div>
-        </div>
             <h3>Espresso</h3>
             <p>Strong and bold coffee shot</p>
             <span>RM 8.00</span>
@@ -62,14 +38,6 @@ include_once __DIR__ . "/includes/header.php";
 
         <div class="menu-item">
             <img src="image/background2.jpg" alt="">
-            <div class="content">
-        <div class="stars">
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-half"></i>
-        </div>
-        </div>
             <h3>Espresso</h3>
             <p>Strong and bold coffee shot</p>
             <span>RM 8.00</span>
@@ -79,14 +47,6 @@ include_once __DIR__ . "/includes/header.php";
 
         <div class="menu-item">
             <img src="image/background2.jpg" alt="">
-            <div class="content">
-        <div class="stars">
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-half"></i>
-        </div>
-        </div>
             <h3>Espresso</h3>
             <p>Strong and bold coffee shot</p>
             <span>RM 8.00</span>
@@ -96,14 +56,6 @@ include_once __DIR__ . "/includes/header.php";
 
         <div class="menu-item">
             <img src="image/background2.jpg" alt="">
-            <div class="content">
-        <div class="stars">
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-half"></i>
-        </div>
-        </div>
             <h3>Espresso</h3>
             <p>Strong and bold coffee shot</p>
             <span>RM 8.00</span>
@@ -113,14 +65,6 @@ include_once __DIR__ . "/includes/header.php";
 
         <div class="menu-item">
             <img src="image/background2.jpg" alt="">
-            <div class="content">
-        <div class="stars">
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-half"></i>
-        </div>
-        </div>
             <h3>Espresso</h3>
             <p>Strong and bold coffee shot</p>
             <span>RM 8.00</span>
@@ -130,14 +74,6 @@ include_once __DIR__ . "/includes/header.php";
 
         <div class="menu-item">
             <img src="image/background2.jpg" alt="">
-            <div class="content">
-        <div class="stars">
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-half"></i>
-        </div>
-        </div>
             <h3>Espresso</h3>
             <p>Strong and bold coffee shot</p>
             <span>RM 8.00</span>
@@ -147,14 +83,6 @@ include_once __DIR__ . "/includes/header.php";
 
         <div class="menu-item">
             <img src="image/background2.jpg" alt="">
-            <div class="content">
-        <div class="stars">
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-half"></i>
-        </div>
-        </div>
             <h3>Espresso</h3>
             <p>Strong and bold coffee shot</p>
             <span>RM 8.00</span>
@@ -164,14 +92,6 @@ include_once __DIR__ . "/includes/header.php";
 
         <div class="menu-item">
             <img src="image/background2.jpg" alt="">
-            <div class="content">
-        <div class="stars">
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-half"></i>
-        </div>
-        </div>
             <h3>Espresso</h3>
             <p>Strong and bold coffee shot</p>
             <span>RM 8.00</span>
@@ -181,14 +101,6 @@ include_once __DIR__ . "/includes/header.php";
 
         <div class="menu-item">
             <img src="image/background2.jpg" alt="">
-            <div class="content">
-        <div class="stars">
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-half"></i>
-        </div>
-        </div>
             <h3>Espresso</h3>
             <p>Strong and bold coffee shot</p>
             <span>RM 8.00</span>
@@ -198,14 +110,6 @@ include_once __DIR__ . "/includes/header.php";
 
         <div class="menu-item">
             <img src="image/background2.jpg" alt="Espresso">
-            <div class="content">
-        <div class="stars">
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-half"></i>
-        </div>
-        </div>
             <h3>Espresso</h3>
             <p>Strong and bold coffee shot</p>
             <span>RM 8.00</span>
