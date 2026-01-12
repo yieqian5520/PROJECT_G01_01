@@ -12,7 +12,7 @@ include_once __DIR__ . "/includes/header.php";
                 Experience the perfect cup every time at
                 <span>Pucks Coffee</span>
             </p>
-            <a href="#menu" class="btn">View Menu</a>
+            <a href="menu.php   " class="btn">View Menu</a>
         </div>
     </div>
 </section>
@@ -28,7 +28,6 @@ include_once __DIR__ . "/includes/header.php";
             <h3>Espresso</h3>
             <p>Strong and bold coffee shot</p>
             <span>RM 8.00</span>
-            <br>
             <a href="#" class="btn">Add to Cart</a>
         </div>
 
@@ -38,7 +37,6 @@ include_once __DIR__ . "/includes/header.php";
             <h3>Cappuccino</h3>
             <p>Rich coffee with foamy milk</p>
             <span>RM 10.00</span>
-            <br>
             <a href="#" class="btn">Add to Cart</a>
         </div>
 
@@ -48,7 +46,15 @@ include_once __DIR__ . "/includes/header.php";
             <h3>Latte</h3>
             <p>Smooth coffee with milk</p>
             <span>RM 12.00</span>
-            <br>
+            <a href="#" class="btn">Add to Cart</a>
+        </div>
+
+        <!-- Menu Item 4 -->
+        <div class="menu-item">
+            <img src="image/background2.jpg" alt="Latte">
+            <h3>Latte</h3>
+            <p>Smooth coffee with milk</p>
+            <span>RM 12.00</span>
             <a href="#" class="btn">Add to Cart</a>
         </div>
     </div>
@@ -71,18 +77,6 @@ include_once __DIR__ . "/includes/header.php";
     </div>
 </section>
 
-<!-- ================= CONTACT SECTION ================= -->
-<section id="contact" class="contact container">
-    <h2 class="section-title">Contact Us</h2>
-
-    <form action="" method="POST">
-        <input type="text" name="name" placeholder="Your Name" required>
-        <input type="tel" name="phone" placeholder="Your Phone" required>
-        <input type="email" name="email" placeholder="Your Email" required>
-        <textarea name="message" placeholder="Your Message..." required></textarea>
-        <button type="submit" class="btn">Send Message</button>
-    </form>
-</section>
 
 <?php
 include_once __DIR__ . "/includes/footer.php";
