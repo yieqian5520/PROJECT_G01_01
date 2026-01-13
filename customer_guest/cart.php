@@ -106,11 +106,11 @@ $total = 0;
                 </td>
                 <td><?= number_format($sub, 2); ?></td>
                 <td>
-                  <a class="btn btn-danger" href="cart.php?remove=<?= (int)$row['cart_id']; ?>">Remove</a>
+                  <a class="btn btn-danger" href="cart.php?remove=<?= (int)$row['cart_id']; ?>">-</a>
                 </td>
               </tr>
             <?php endwhile; ?>
-
+            
             <tr>
               <td colspan="4" class="text-end">Total</td>
               <td colspan="2">RM <?= number_format($total, 2); ?></td>
@@ -125,5 +125,7 @@ $total = 0;
     <?php endif; ?>
   </div>
 </section>
+
+
 
 <?php include_once __DIR__ . "/includes/footer.php"; ?>
