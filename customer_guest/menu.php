@@ -12,19 +12,19 @@ include_once __DIR__ . "/includes/header.php";
 </section>
 
 <div class="menu-tabs" role="tablist" aria-label="Menu Categories">
-  <button class="menu-tab active" type="button" data-target="drinks" role="tab" aria-selected="true">Drinks</button>
-  <button class="menu-tab" type="button" data-target="food" role="tab" aria-selected="false">Food</button>
+  <button class="menu-tab active" type="button" data-target="coffee" role="tab" aria-selected="true">Coffee</button>
+  <button class="menu-tab" type="button" data-target="non-coffee" role="tab" aria-selected="false">Non-Coffee</button>
   <button class="menu-tab" type="button" data-target="dessert" role="tab" aria-selected="false">Dessert</button>
 </div>
 
-<div class="menu-panel active" id="drinks" role="tabpanel">
+<div class="menu-panel active" id="coffee" role="tabpanel">
   <div class="menu-grid">
     <div class="menu-item">
       <img src="image/background2.jpg" alt="Espresso">
       <h3>Espresso</h3>
       <p>Strong and bold coffee shot</p>
       <span>RM 8.00</span>
-      <a href="add_to_cart.php?menu_id=1" class="btn">add to cart</a>
+      <a href="add_to_cart.php?menu_id=1" class="btn">Add to Cart</a>
     </div>
 
     <div class="menu-item">
@@ -32,7 +32,7 @@ include_once __DIR__ . "/includes/header.php";
       <h3>Cappuccino</h3>
       <p>Milk foam with rich espresso</p>
       <span>RM 10.00</span>
-      <a href="add_to_cart.php?menu_id=2" class="btn">add to cart</a>
+      <a href="add_to_cart.php?menu_id=2" class="btn">Add to Cart</a>
     </div>
 
     <div class="menu-item">
@@ -40,19 +40,19 @@ include_once __DIR__ . "/includes/header.php";
       <h3>Iced Latte</h3>
       <p>Chilled coffee with milk</p>
       <span>RM 12.00</span>
-      <a href="add_to_cart.php?menu_id=3" class="btn">add to cart</a>
+      <a href="add_to_cart.php?menu_id=3" class="btn">Add to Cart</a>
     </div>
   </div>
 </div>
 
-<div class="menu-panel" id="food" role="tabpanel" hidden>
+<div class="menu-panel" id="non-coffee" role="tabpanel" hidden>
   <div class="menu-grid">
     <div class="menu-item">
       <img src="image/background2.jpg" alt="Chicken Wrap">
       <h3>Chicken Wrap</h3>
       <p>Grilled chicken with fresh veggies</p>
       <span>RM 14.00</span>
-      <a href="add_to_cart.php?menu_id=4" class="btn">add to cart</a>
+      <a href="add_to_cart.php?menu_id=4" class="btn">Add to Cart</a>
     </div>
 
     <div class="menu-item">
@@ -60,7 +60,7 @@ include_once __DIR__ . "/includes/header.php";
       <h3>Breakfast Sandwich</h3>
       <p>Egg, cheese & turkey slice</p>
       <span>RM 13.00</span>
-      <a href="add_to_cart.php?menu_id=5" class="btn">add to cart</a>
+      <a href="add_to_cart.php?menu_id=5" class="btn">Add to Cart</a>
     </div>
 
     <div class="menu-item">
@@ -68,7 +68,7 @@ include_once __DIR__ . "/includes/header.php";
       <h3>Creamy Pasta</h3>
       <p>Rich creamy sauce with herbs</p>
       <span>RM 18.00</span>
-      <a href="add_to_cart.php?menu_id=6" class="btn">add to cart</a>
+      <a href="add_to_cart.php?menu_id=6" class="btn">Add to Cart</a>
     </div>
   </div>
 </div>
@@ -80,7 +80,7 @@ include_once __DIR__ . "/includes/header.php";
       <h3>Cheesecake</h3>
       <p>Creamy classic cheesecake</p>
       <span>RM 12.00</span>
-      <a href="add_to_cart.php?menu_id=7" class="btn">add to cart</a>
+      <a href="add_to_cart.php?menu_id=7" class="btn">Add to Cart</a>
     </div>
 
     <div class="menu-item">
@@ -88,7 +88,7 @@ include_once __DIR__ . "/includes/header.php";
       <h3>Chocolate Brownie</h3>
       <p>Soft and fudgy chocolate</p>
       <span>RM 9.00</span>
-      <a href="add_to_cart.php?menu_id=8" class="btn">add to cart</a>
+      <a href="add_to_cart.php?menu_id=8" class="btn">Add to Cart</a>
     </div>
 
     <div class="menu-item">
@@ -96,7 +96,7 @@ include_once __DIR__ . "/includes/header.php";
       <h3>Butter Croissant</h3>
       <p>Flaky and buttery</p>
       <span>RM 7.00</span>
-      <a href="add_to_cart.php?menu_id=9" class="btn">add to cart</a>
+      <a href="add_to_cart.php?menu_id=9" class="btn">Add to Cart</a>
     </div>
   </div>
 </div>
