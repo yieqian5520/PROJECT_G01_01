@@ -152,7 +152,7 @@ header {
 }
 
 /* =========================================================
-   MENU PAGE (premium card style + tabs)
+   MENU PAGE (premium card style + tabs)  ✅ UPDATED (button aligned)
    ========================================================= */
 
 .menu.container {
@@ -190,14 +190,17 @@ header {
   display: block;
 }
 
+/* ✅ Important: stretch items so all cards match height */
 .menu-grid {
   max-width: 1100px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 28px;
+  align-items: stretch;              /* ✅ add this */
 }
 
+/* ✅ Make card a flex column so price+button sit at bottom */
 .menu-item {
   background: #ffffff;
   border-radius: 14px;
@@ -206,6 +209,10 @@ header {
   box-shadow: 0 12px 22px rgba(0, 0, 0, 0.06);
   transition: all 0.25s ease;
   border: 1px solid rgba(0, 0, 0, 0.05);
+
+  display: flex;                     /* ✅ add this */
+  flex-direction: column;            /* ✅ add this */
+  height: 100%;                      /* ✅ add this */
 }
 
 .menu-item:hover {
@@ -213,6 +220,7 @@ header {
   box-shadow: 0 18px 30px rgba(0, 0, 0, 0.08);
 }
 
+/* ✅ Keep image consistent */
 .menu-item img {
   width: 100%;
   height: 170px;
@@ -222,23 +230,40 @@ header {
   display: block;
 }
 
+/* ✅ Optional: ensure title area consistent */
 .menu-item h3 {
   font-size: 20px;
   margin: 6px 0;
   color: #4e342e;
+  min-height: 28px;                  /* ✅ helps alignment */
 }
 
+/* ✅ Limit description height so button aligns */
 .menu-item p {
   font-size: 13px;
   opacity: 0.82;
   margin-bottom: 10px;
+
+  min-height: 42px;                  /* ✅ reserve space */
+  overflow: hidden;                  /* ✅ */
+  display: -webkit-box;              /* ✅ */
+  -webkit-line-clamp: 2;             /* ✅ max 2 lines */
+  -webkit-box-orient: vertical;      /* ✅ */
 }
 
+/* ✅ Push price to bottom so button always same level */
 .menu-item span {
   display: block;
   font-size: 13px;
+  margin-top: auto;                  /* ✅ KEY */
   margin-bottom: 12px;
   color: #4e342e;
+}
+
+/* ✅ Make all Add to Cart buttons same width */
+.menu-item .btn {
+  width: 160px;                      /* ✅ same width */
+  margin: 0 auto;                    /* ✅ center */
 }
 
 /* =========================================================
@@ -926,3 +951,81 @@ footer {
     background: #b71c1c;
 }
 
+/* Modal styling */
+.cart-modal{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:2000;
+}
+.cart-modal.show{ display:flex; }
+.cart-modal-content{
+  background:#fff;
+  width:min(720px, 95vw);
+  border-radius:14px;
+  padding:18px;
+  position:relative;
+}
+.cart-modal-close{
+  position:absolute;
+  right:12px; top:8px;
+  border:none;
+  background:transparent;
+  font-size:30px;
+  line-height:1;
+  cursor:pointer;
+}
+.cart-modal-body{
+  display:flex;
+  gap:16px;
+  align-items:flex-start;
+}
+
+/* ===============================
+   NAV ICON STYLE (cart + profile)
+   =============================== */
+
+.nav-icon {
+  color: #fff;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  text-decoration: none;
+  transition: 0.25s ease;
+} 
+
+.nav-icon:hover {
+  color: #ffca28;
+  transform: translateY(-1px);
+}
+
+.profile-icon {
+  width: 34px;
+  height: 34px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* ===============================
+   CART BADGE
+   =============================== */
+
+.cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  background: #ffca28;
+  color: #3e2723;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 999px;
+  min-width: 18px;
+  text-align: center;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}

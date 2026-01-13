@@ -1,4 +1,5 @@
 <?php
+// cart.php
 session_start();
 include_once __DIR__ . "/dbcon.php";
 
@@ -18,12 +19,18 @@ if (isset($_POST['update_cart_all'])) {
 
             if ($quantity <= 0) {
                 $stmt = mysqli_prepare($con, "DELETE FROM cart_items WHERE id=? AND session_id=?");
-                mysqli_stmt_bind_param($stmt, "is", $cart_id, $sid);
-                mysqli_stmt_execute($stmt);
+                if ($stmt) {
+                    mysqli_stmt_bind_param($stmt, "is", $cart_id, $sid);
+                    mysqli_stmt_execute($stmt);
+                    mysqli_stmt_close($stmt);
+                }
             } else {
                 $stmt = mysqli_prepare($con, "UPDATE cart_items SET quantity=? WHERE id=? AND session_id=?");
-                mysqli_stmt_bind_param($stmt, "iis", $quantity, $cart_id, $sid);
-                mysqli_stmt_execute($stmt);
+                if ($stmt) {
+                    mysqli_stmt_bind_param($stmt, "iis", $quantity, $cart_id, $sid);
+                    mysqli_stmt_execute($stmt);
+                    mysqli_stmt_close($stmt);
+                }
             }
         }
     }
@@ -41,8 +48,11 @@ if (isset($_GET['remove'])) {
 
     if ($cart_id > 0) {
         $stmt = mysqli_prepare($con, "DELETE FROM cart_items WHERE id=? AND session_id=?");
-        mysqli_stmt_bind_param($stmt, "is", $cart_id, $sid);
-        mysqli_stmt_execute($stmt);
+        if ($stmt) {
+            mysqli_stmt_bind_param($stmt, "is", $cart_id, $sid);
+            mysqli_stmt_execute($stmt);
+            mysqli_stmt_close($stmt);
+        }
     }
 
     header("Location: cart.php");
@@ -50,12 +60,13 @@ if (isset($_GET['remove'])) {
 }
 
 /* ==========================
-   FETCH CART
+   FETCH CART (with options)
 ========================== */
 $session_id = session_id();
 
 $sql = "
-    SELECT c.id AS cart_id, c.quantity, m.name, m.price, m.image
+    SELECT c.id AS cart_id, c.quantity, m.name, m.price, m.image,
+           c.temp, c.milk, c.syrup, c.addons
     FROM cart_items c
     JOIN menu_items m ON c.menu_id = m.id
     WHERE c.session_id = ?
@@ -63,6 +74,9 @@ $sql = "
 ";
 
 $stmt = mysqli_prepare($con, $sql);
+if (!$stmt) {
+    die("SQL prepare failed: " . mysqli_error($con));
+}
 mysqli_stmt_bind_param($stmt, "s", $session_id);
 mysqli_stmt_execute($stmt);
 $cart_res = mysqli_stmt_get_result($stmt);
@@ -92,6 +106,7 @@ $total = 0;
                 <th>Price (RM)</th>
                 <th>Qty</th>
                 <th>Option</th>
+                <th>Add-ons</th>
                 <th>Subtotal (RM)</th>
               </tr>
             </thead>
@@ -103,6 +118,12 @@ $total = 0;
                 $sub    = $price * $qty;
                 $total += $sub;
                 $cartId = (int)$row['cart_id'];
+
+                // Prepare option strings
+                $temp = htmlspecialchars($row['temp'] ?? '');
+                $milk = htmlspecialchars($row['milk'] ?? '');
+                $syrup = htmlspecialchars($row['syrup'] ?? '');
+                $addons = htmlspecialchars($row['addons'] ?? '');
               ?>
                 <tr>
                   <td><?= htmlspecialchars($row['name']); ?></td>
@@ -123,20 +144,26 @@ $total = 0;
                     >
                   </td>
 
-                  <!-- OPTION COLUMN -->
                   <td>
-                    <select class="form-select">
-                      <option value="Hot">Hot</option>
-                      <option value="Cold">Cold</option>
-                    </select>
+                    <?= $temp ?>
+                    <?php if ($milk): ?>
+                      <br><small>Milk: <?= $milk ?></small>
+                    <?php endif; ?>
+                    <?php if ($syrup): ?>
+                      <br><small>Syrup: <?= $syrup ?></small>
+                    <?php endif; ?>
+                  </td>
+
+                  <td>
+                    <?= $addons ?>
                   </td>
 
                   <td><?= number_format($sub, 2); ?></td>
                 </tr>
 
-                <!-- REMOVE BUTTON OUTSIDE TABLE ROW -->
+                <!-- Remove button outside table row -->
                 <tr>
-                  <td colspan="6" class="text-end">
+                  <td colspan="7" class="text-end">
                     <a href="cart.php?remove=<?= $cartId; ?>" class="btn btn-danger btn-sm">
                       Remove
                     </a>
@@ -146,7 +173,7 @@ $total = 0;
               <?php endwhile; ?>
 
               <tr>
-                <td colspan="4" class="text-end">Total</td>
+                <td colspan="5" class="text-end">Total</td>
                 <td colspan="2">RM <?= number_format($total, 2); ?></td>
               </tr>
             </tbody>

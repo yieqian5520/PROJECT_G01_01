@@ -9,7 +9,23 @@ $user = $_SESSION['auth_user'] ?? [];
 $profileImg = !empty($user['profile_image'])
     ? $user['profile_image']
     : 'https://via.placeholder.com/60';
+
+$cart_count = 0;
+
+if ($isLoggedIn) {
+    include __DIR__ . "/../dbcon.php"; // header.php in /includes, go up 1 level
+    $session_id = session_id();
+
+    $stmt = mysqli_prepare($con, "SELECT COALESCE(SUM(quantity),0) AS total FROM cart_items WHERE session_id=?");
+    mysqli_stmt_bind_param($stmt, "s", $session_id);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $data = mysqli_fetch_assoc($res);
+
+    $cart_count = (int)($data['total'] ?? 0);
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,53 +54,38 @@ $profileImg = !empty($user['profile_image'])
     </div>
 
     <!-- NAV -->
-    <ul class="nav-links d-flex align-items-center gap-3 mb-0">
+    <ul class="nav-links d-flex align-items-center gap-4 mb-0">
 
-        <li><a href="index.php" class="active">Home</a></li>
-        <li><a href="menu.php" class="active">Menu</a></li>
-        <li><a href="about.php" class="active">About</a></li>
-        <li><a href="contact.php" class="active">Contact</a></li>
+        <li><a href="index.php">Home</a></li>
+        <li><a href="menu.php">Menu</a></li>
+        <li><a href="about.php">About</a></li>
+        <li><a href="contact.php">Contact</a></li>
 
         <!-- CART ICON -->
-        <li>
-            <a href="cart.php" class="text-white d-flex align-items-center gap-1 position-relative">
-                <i class="bi bi-cart fs-4"></i>
-                <?php
-                // Optional: Show cart count if you want
-                $cart_count = 0;
-                if(session_id() && isset($_SESSION['authenticated'])){
-                    include __DIR__ . "/dbcon.php";
-                    $session_id = session_id();
-                    $res = mysqli_query($con, "SELECT SUM(quantity) as total FROM cart_items WHERE session_id='$session_id'");
-                    $data = mysqli_fetch_assoc($res);
-                    $cart_count = $data['total'] ?? 0;
-                }
-                ?>
-                <?php if($cart_count > 0): ?>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">
-                        <?= $cart_count ?>
-                    </span>
-                <?php endif; ?>
-            </a>
-        </li>
+       <?php if ($isLoggedIn): ?>
+  <li class="position-relative">
+      <a href="cart.php" class="nav-icon">
+          <i class="bi bi-cart"></i>
+
+          <?php if ($cart_count > 0): ?>
+              <span class="cart-badge"><?= $cart_count ?></span>
+          <?php endif; ?>
+      </a>
+  </li>
+<?php endif; ?>
 
         <!-- USER DROPDOWN -->
         <li class="nav-item dropdown">
-
-            <a class="nav-link dropdown-toggle text-white d-flex align-items-center gap-2"
-               href="#"
-               data-bs-toggle="dropdown">
-
+            <a class="nav-icon dropdown-toggle" href="#" data-bs-toggle="dropdown">
                 <?php if ($isLoggedIn): ?>
-                    <img src="<?= $profileImg ?>" class="rounded-circle" width="34" height="34" style="object-fit:cover;">
+                    <img src="<?= $profileImg ?>" class="rounded-circle profile-icon">
                 <?php else: ?>
-                    <i class="bi bi-person-circle fs-4"></i>
+                    <i class="bi bi-person-circle"></i>
                 <?php endif; ?>
             </a>
 
             <ul class="dropdown-menu dropdown-menu-end p-3 shadow" style="min-width:260px">
 
-                <!-- USER INFO -->
                 <div class="text-center mb-3">
                     <img src="<?= $profileImg ?>" class="rounded-circle mb-2" width="70" height="70">
                     <div class="fw-bold">
@@ -97,7 +98,6 @@ $profileImg = !empty($user['profile_image'])
 
                 <hr>
 
-                <!-- UNIFORM BUTTONS -->
                 <div class="d-grid gap-2">
 
                     <a href="dashboard.php" class="btn btn-outline-dark uniform-btn">
