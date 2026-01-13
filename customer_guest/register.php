@@ -7,19 +7,19 @@ include_once __DIR__ . "/includes/header.php";
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6">
-                <div class="alert">
 
+                <?php
+                if (isset($_SESSION['status'])) {
+                    ?>
+                    <div class="alert alert-info">
+                        <h5><?= $_SESSION['status']; ?></h5>
+                    </div>
                     <?php
-                       if(isset($_SESSION['status']))
-                       {
-                        echo "<h5>".$_SESSION['status']."</h5>";
-                        unset($_SESSION['status']);
-                       }
-                       ?>
+                    unset($_SESSION['status']);
+                }
+                ?>
 
-                </div>
                 <div class="register-card">
-
                     <h5>Create Your Account</h5>
 
                     <form action="code.php" method="POST">
@@ -54,8 +54,8 @@ include_once __DIR__ . "/includes/header.php";
                         </button>
 
                     </form>
-
                 </div>
+
             </div>
         </div>
     </div>

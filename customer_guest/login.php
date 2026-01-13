@@ -1,11 +1,11 @@
 <?php
 session_start();
-if(isset( $_SESSION['authenticated'])){
 
-    $_SESSION['status'] = "Please Login to Access User Dashboard.";
+if (isset($_SESSION['authenticated'])) {
     header("Location: dashboard.php");
     exit(0);
 }
+
 include_once __DIR__ . "/includes/header.php";
 ?>
 
@@ -14,28 +14,19 @@ include_once __DIR__ . "/includes/header.php";
         <div class="row justify-content-center">
             <div class="col-md-6">
 
-            <?php
-            if(isset($_SESSION['status']))
-            {
-                ?>
-                <div class="alert alert-success">
-                    <h5><?= $_SESSION['status'];?></h5>
-                </div>
                 <?php
-                unset($_SESSION['status']);
-            }
-            ?>
+                if (isset($_SESSION['status'])) {
+                    ?>
+                    <div class="alert alert-danger">
+                        <h5><?= $_SESSION['status']; ?></h5>
+                    </div>
+                    <?php
+                    unset($_SESSION['status']);
+                }
+                ?>
+
                 <div class="register-card">
-
                     <h5>Login Form</h5>
-
-                    <!-- SHOW ERROR MESSAGE -->
-                    <?php if (isset($_SESSION['status'])): ?>
-                        <div class="alert alert-danger">
-                            <?= $_SESSION['status']; ?>
-                        </div>
-                        <?php unset($_SESSION['status']); ?>
-                    <?php endif; ?>
 
                     <form action="logincode.php" method="POST">
 
@@ -58,12 +49,13 @@ include_once __DIR__ . "/includes/header.php";
                     </form>
 
                     <hr>
-                    <h5>
+
+                    <h6 class="text-center">
                         Did not receive your verification email?
                         <a href="resend-email-verification.php">Resend</a>
-                    </h5>
-
+                    </h6>
                 </div>
+
             </div>
         </div>
     </div>
