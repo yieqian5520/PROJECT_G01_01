@@ -4,19 +4,19 @@
     <div class="footer-col">
       <h4>ADDRESS</h4>
       <p>Pucks Coffee</p>
-      <p>Setapak, Kuala Lumpur</p>
+      <p>Back Portion, 180, Jalan Tun H S Lee, Kuala Lumpur City Centre, 50000 Kuala Lumpur, Federal Territory of Kuala Lumpur</p>
     </div>
 
     <div class="footer-col">
       <h4>RESERVATION</h4>
-      <p>+60 11-2222 3333</p>
+      <p>012-253 0132</p>
       <p>contact@puckscoffee.com</p>
     </div>
 
     <div class="footer-col">
       <h4>OPEN HOURS</h4>
-      <p>Mon–Fri: 9AM – 10PM</p>
-      <p>Sat–Sun: 9AM – 11PM</p>
+      <p>Mon – Sun: 12PM – 12AM</p>
+      <p>Tuesday : Close</p>
     </div>
 
   </div>

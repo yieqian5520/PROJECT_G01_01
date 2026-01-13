@@ -60,8 +60,8 @@ include_once __DIR__ . "/includes/header.php";
       <h3 class="contact-card__title">FIND US</h3>
 
       <div class="contact-info">
-        <p>Address: 40 Park Ave, Brooklyn, New York 11250</p>
-        <p>Phone: +1 (222) 333 444</p>
+        <p>Address:Back Portion, 180, Jalan Tun H S Lee, Kuala Lumpur City Centre, 50000 Kuala Lumpur, Federal Territory of Kuala Lumpur</p>
+        <p>Phone: 012-253 0132</p>
         <p>Email: contact@puckscoffee.com</p>
       </div>
 
