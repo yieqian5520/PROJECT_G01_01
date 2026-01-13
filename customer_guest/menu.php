@@ -20,7 +20,7 @@ include_once __DIR__ . "/includes/header.php";
 <div class="menu-panel active" id="coffee" role="tabpanel">
   <div class="menu-grid">
     <div class="menu-item">
-      <img src="image/background2.jpg" alt="Espresso">
+      <img src="image/Espresso.jpeg" alt="Espresso">
       <h3>Espresso</h3>
       <p>Strong and bold coffee shot</p>
       <span>RM 8.00</span>
@@ -28,18 +28,42 @@ include_once __DIR__ . "/includes/header.php";
     </div>
 
     <div class="menu-item">
-      <img src="image/background2.jpg" alt="Cappuccino">
-      <h3>Cappuccino</h3>
-      <p>Milk foam with rich espresso</p>
-      <span>RM 10.00</span>
+      <img src="image/Black.jpeg" alt="Black">
+      <h3>Black</h3>
+      <p>Smooth brewed coffee with a deep, robust flavour</p>
+      <span>RM 7.00</span>
       <a href="add_to_cart.php?menu_id=2" class="btn">Add to Cart</a>
     </div>
 
     <div class="menu-item">
-      <img src="image/background2.jpg" alt="Iced Latte">
-      <h3>Iced Latte</h3>
-      <p>Chilled coffee with milk</p>
+      <img src="image/Latte.jpeg" alt="Latte">
+      <h3>Latte</h3>
+      <p>Creamy espresso blended with steamed milk</p>
       <span>RM 12.00</span>
+      <a href="add_to_cart.php?menu_id=3" class="btn">Add to Cart</a>
+    </div>
+
+    <div class="menu-item">
+      <img src="image/Flat White.jpeg" alt="Flat White">
+      <h3>Flat White</h3>
+      <p>Velvety micro-foamed milk over rich espresso</p>
+      <span>RM 12.00</span>
+      <a href="add_to_cart.php?menu_id=3" class="btn">Add to Cart</a>
+    </div>
+
+    <div class="menu-item">
+      <img src="image/Cappuccino.jpeg" alt="Cappuccino">
+      <h3>Cappuccino</h3>
+      <p>Espresso topped with thick, airy milk foam</p>
+      <span>RM 10.00</span>
+      <a href="add_to_cart.php?menu_id=3" class="btn">Add to Cart</a>
+    </div>
+
+    <div class="menu-item">
+      <img src="image/Mocha.jpeg" alt="Mocha">
+      <h3>Mocha</h3>
+      <p>Espresso mixed with chocolate and milk</p>
+      <span>RM 13.00</span>
       <a href="add_to_cart.php?menu_id=3" class="btn">Add to Cart</a>
     </div>
   </div>
