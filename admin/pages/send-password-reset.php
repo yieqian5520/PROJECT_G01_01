@@ -20,16 +20,23 @@ $stmt->bind_param('sss', $token_hash, $expiry, $email);
 
 $stmt->execute();
 
-if($mysqli->affected_rows){
+if ($mysqli->affected_rows) {
     $mail = require __DIR__ . '/mailer.php';
+
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host   = $_SERVER['HTTP_HOST'];
+
+    $scriptDir   = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+    $projectBase = preg_replace('#/admin/pages$#', '', $scriptDir);
+
+    $baseUrl   = $scheme . '://' . $host . $projectBase;
+    $resetLink = $baseUrl . "/admin/pages/reset-password.php?token=" . urlencode($token) . "&email=" . urlencode($email);
 
     $mail->setFrom("noreply@example.com");
     $mail->addAddress($email);
     $mail->Subject = "Password Reset";
-    $mail->Body = <<<END
-
-    Click <a href="http://localhost/MASTER PROJECT - PUCKS COFFEE ORDERING SYSTEM/PROJECT_G01_01/admin/pages/reset-password.php?token=$token&email=$email">here</a> to reset your password. This link will expire in 1 hour.
-    END;
+    $mail->isHTML(true);
+    $mail->Body = "Click <a href=\"$resetLink\">here</a> to reset your password. This link will expire in 1 hour.";
 
     try {
         $mail->send();
