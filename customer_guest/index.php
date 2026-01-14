@@ -24,38 +24,34 @@ include_once __DIR__ . "/includes/header.php";
     <div class="menu-grid">
         <!-- Menu Item 1 -->
         <div class="menu-item">
-            <img src="image/background2.jpg" alt="Espresso">    
+            <img src="image/Espresso.jpeg" alt="Espresso">    
             <h3>Espresso</h3>
             <p>Strong and bold coffee shot</p>
-            <span>RM 8.00</span>
-            <a href="#" class="btn">Add to Cart</a>
+            <h1><span>RM 8.00</span></h1>
         </div>
 
         <!-- Menu Item 2 -->
         <div class="menu-item">
-            <img src="image/background2.jpg" alt="Cappuccino">
-            <h3>Cappuccino</h3>
-            <p>Rich coffee with foamy milk</p>
-            <span>RM 10.00</span>
-            <a href="#" class="btn">Add to Cart</a>
+            <img src="image/Matcha.jpeg" alt="Matcha">
+            <h3>Matcha</h3>
+            <p>Smooth Japanese green tea blended with milk</p>
+            <h1><span>RM 12.00</span></h1>
         </div>
 
         <!-- Menu Item 3 -->
         <div class="menu-item">
-            <img src="image/background2.jpg" alt="Latte">
-            <h3>Latte</h3>
-            <p>Smooth coffee with milk</p>
-            <span>RM 12.00</span>
-            <a href="#" class="btn">Add to Cart</a>
+            <img src="image/Biscoff Cake.jpg" alt="Biscoff Cake">
+            <h3>Biscoff Cake</h3>
+            <p>Soft cake layered with Biscoff spread</p>
+            <h1><span>RM 12.00</span></h1>
         </div>
 
         <!-- Menu Item 4 -->
         <div class="menu-item">
-            <img src="image/background2.jpg" alt="Latte">
-            <h3>Latte</h3>
-            <p>Smooth coffee with milk</p>
-            <span>RM 12.00</span>
-            <a href="#" class="btn">Add to Cart</a>
+            <img src="image/Japanese Cream Puff.jpg" alt="Japanese Cream Puff">
+            <h3>Japanese Cream Puff</h3>
+            <p>Light pastry filled with creamy custard</p>
+            <h1><span>RM 6.00</span></h1>
         </div>
     </div>
 </section>
