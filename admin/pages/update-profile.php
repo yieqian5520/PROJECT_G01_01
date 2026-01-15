@@ -80,5 +80,11 @@ $stmt->execute();
 // optional: update session if you display name from session elsewhere
 $_SESSION['name'] = $name;
 
-header("Location: dashboard.php?saved=1#dashboard"); // change dashboard.php to your file
+if (isset($_SESSION['role']) && $_SESSION['role'] === 'staff') {
+    header("Location: staff_dashboard.php?saved=1#dashboard");
+} else {
+    header("Location: dashboard.php?saved=1#dashboard");
+}
+exit();
+  
 exit();
