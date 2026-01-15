@@ -45,4 +45,36 @@ if ($mysqli->affected_rows) {
     }
 }
 
-echo "Message sent, please check your inbox.";
+// --- Replace the plain echo with this styled page ---
+?>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Check your inbox</title>
+  <link rel="stylesheet" href="../css/auth-ui.css">
+</head>
+<body>
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-head">
+        <div>
+          <h2 class="auth-title">Check your inbox</h2>
+          <p class="auth-subtitle">If the email is registered, we’ve sent a password reset link.</p>
+        </div>
+        <div class="badge badge-success">✅ Sent</div>
+      </div>
+
+      <div class="auth-body">
+        <div class="note" style="margin-top:0;">
+          Message sent, please check your inbox.
+          <br><br>
+          If you don’t see it, check your Spam/Junk folder or try again in a few minutes.
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+<?php
