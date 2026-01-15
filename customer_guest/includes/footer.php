@@ -23,7 +23,7 @@
 
   <div class="footer-bottom">
     <div class="container">
-      <p>© 2025 Pucks Coffee. All Rights Reserved.</p>
+      <p>© 2026 Pucks Coffee. All Rights Reserved.</p>
     </div>
   </div>
 </footer>

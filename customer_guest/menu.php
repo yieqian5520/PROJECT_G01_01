@@ -5,9 +5,9 @@ include_once __DIR__ . "/includes/header.php";
 
 $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
 ?>
-<section class="about-hero">
-  <div class="about-hero-overlay">
-    <div class="about-hero-content">
+<section class="menu-hero">
+  <div class="menu-hero-overlay">
+    <div class="menu-hero-content">
       <h1>Our Menu</h1>
     </div>
   </div>

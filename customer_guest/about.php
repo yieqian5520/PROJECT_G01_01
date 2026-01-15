@@ -19,7 +19,7 @@ include_once __DIR__ . "/includes/header.php";
     <div class="about-text">
       <h2>Our Story</h2>
       <p>
-        At Pucks Coffee, we believe coffee is more than a drink — it’s an experience.
+        At Pucks Coffee, we believe coffee is more than a drink — it's an experience.
         From carefully sourced beans to expert brewing, every cup is made with passion.
       </p>
       <p>
