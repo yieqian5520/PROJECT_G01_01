@@ -28,14 +28,25 @@ if (isset($_POST['update_profile'])) {
     $new_password_hash = null;
     if (!empty($_POST['password']) || !empty($_POST['confirm_password'])) {
 
-        if ($_POST['password'] !== $_POST['confirm_password']) {
-            $_SESSION['status'] = "Password and Confirm Password do not match!";
-            header("Location: dashboard.php");
-            exit();
-        }
+    // Password requirement: min 8 chars, letters + numbers
+    $pattern = "/^(?=.*[A-Za-z])(?=.*\d).{8,}$/";
 
-        $new_password_hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    if ($_POST['password'] !== $_POST['confirm_password']) {
+        $_SESSION['status'] = "Password and Confirm Password do not match!";
+        header("Location: dashboard.php");
+        exit();
     }
+
+    if (!preg_match($pattern, $_POST['password'])) {
+        $_SESSION['status'] =
+            "Password must be at least 8 characters and contain letters and numbers.";
+        header("Location: dashboard.php");
+        exit();
+    }
+
+    $new_password_hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
+}
+
 
     // Image upload (optional)
     $profile_path = null;
