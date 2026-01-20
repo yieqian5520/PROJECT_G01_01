@@ -50,6 +50,26 @@ function renderResult($type, $title, $message, $primaryText = null, $primaryHref
   exit;
 }
 
+// Password validation function
+function validatePassword($password) {
+  // At least 8 characters
+  if (strlen($password) < 8) {
+    return "Password must be at least 8 characters long.";
+  }
+  
+  // Must contain at least one letter
+  if (!preg_match('/[a-zA-Z]/', $password)) {
+    return "Password must contain at least one letter.";
+  }
+  
+  // Must contain at least one number
+  if (!preg_match('/[0-9]/', $password)) {
+    return "Password must contain at least one number.";
+  }
+  
+  return null; // Valid password
+}
+
 // Ensure valid connection
 if (!($mysqli instanceof mysqli)) {
   renderResult("danger", "Database connection failed", "Unable to connect. Please try again later.");
@@ -93,6 +113,12 @@ if ($password === "" || $password_confirmation === "") {
 
 if ($password !== $password_confirmation) {
   renderResult("danger", "Passwords do not match", "Please make sure both password fields are the same.");
+}
+
+// Validate password strength
+$validationError = validatePassword($password);
+if ($validationError !== null) {
+  renderResult("danger", "Invalid password", $validationError, "Try Again", "reset-password.php?token=" . urlencode($token));
 }
 
 // Hash new password

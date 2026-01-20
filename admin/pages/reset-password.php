@@ -1,29 +1,41 @@
 <?php
 
-$token = $_GET["token"];
+$token = $_GET["token"] ?? "";
+
+if ($token === "") {
+  die("Invalid reset link. Token is missing.");
+}
 
 $token_hash = hash("sha256", $token);
 
 $mysqli = require __DIR__ . '/../config/config.php';
 
+// Ensure valid connection
+if (!($mysqli instanceof mysqli)) {
+  die("Database connection failed. Please try again later.");
+}
+
 $sql = "SELECT * FROM users WHERE reset_token_hash = ?";
 
 $stmt = $mysqli->prepare($sql);
 
-$stmt->bind_param("s", $token_hash);
+if ($stmt === false) {
+  die("Server error. Please try again later.");
+}
 
+$stmt->bind_param("s", $token_hash);
 $stmt->execute();
 
 $result = $stmt->get_result();
 
 $user = $result->fetch_assoc();
 
-if($user === null){
-  die("Token not found");
+if ($user === null) {
+  die("Invalid reset link. Token not found.");
 }
 
-if(strtotime($user["reset_token_expires_at"]) <= time()){
-  die("Token has expired");
+if (strtotime($user["reset_token_expires_at"]) <= time()) {
+  die("This reset link has expired. Please request a new password reset.");
 }
 
 ?>
@@ -60,6 +72,9 @@ if(strtotime($user["reset_token_expires_at"]) <= time()){
               <input class="input" type="password" id="password" name="password" required>
               <span class="toggle-password" onclick="togglePassword('password', this)">👁️</span>
             </div>
+            <small style="color: #666; font-size: 0.875rem; display: block; margin-top: 0.25rem;">
+              Must be at least 8 characters with letters and numbers
+            </small>
           </div>
 
           <div>
@@ -70,9 +85,8 @@ if(strtotime($user["reset_token_expires_at"]) <= time()){
             </div>
           </div>
 
-
           <div class="actions">
-            <button class="btn btn-primary" type="submit">Send</button>
+            <button class="btn btn-primary" type="submit">Reset Password</button>
           </div>
         </form>
       </div>
@@ -95,6 +109,3 @@ function togglePassword(inputId, el) {
 
 </body>
 </html>
-
-  
-  
