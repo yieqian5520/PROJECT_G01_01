@@ -73,6 +73,78 @@ include_once __DIR__ . "/includes/header.php";
     </div>
 </section>
 
+<!-- ================= FEEDBACK SECTION ================= -->
+<section class="container py-5">
+    <h2 class="section-title">What Our Customers Say</h2>
+
+    <div class="row justify-content-center">
+
+        <?php
+        include_once __DIR__ . "/dbcon.php";
+
+        $query = "
+            SELECT f.comment, f.rating, f.created_at,
+                   u.name, u.profile_image
+            FROM feedback_message f
+            JOIN users u ON f.user_id = u.id
+            ORDER BY f.created_at DESC
+            LIMIT 3
+        ";
+
+        $result = mysqli_query($con, $query);
+
+        if (mysqli_num_rows($result) > 0):
+            while ($row = mysqli_fetch_assoc($result)):
+        ?>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+
+                    <img
+                      src="<?= !empty($row['profile_image']) ? $row['profile_image'] : 'https://via.placeholder.com/80' ?>"
+                      class="rounded-circle mb-3"
+                      width="80"
+                      height="80"
+                      style="object-fit:cover;"
+                    >
+
+                    <h6><?= htmlspecialchars($row['name']) ?></h6>
+
+                    <!-- Stars -->
+                    <div class="mb-2">
+                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                            <?= $i <= $row['rating'] ? '⭐' : '☆' ?>
+                        <?php endfor; ?>
+                    </div>
+
+                    <p class="small">
+                        “<?= htmlspecialchars($row['comment']) ?>”
+                    </p>
+
+                    <small class="text-muted">
+                        <?= date("d M Y", strtotime($row['created_at'])) ?>
+                    </small>
+
+                </div>
+            </div>
+        </div>
+
+        <?php
+            endwhile;
+        else:
+        ?>
+            <p class="text-center">No feedback yet. Be the first to review us!</p>
+        <?php endif; ?>
+
+    </div>
+
+    <!-- View All Feedback -->
+    <div class="text-center mt-3">
+        <a href="feedback.php" class="btn">View All Feedback</a>
+    </div>
+</section>
+
 
 <?php
 include_once __DIR__ . "/includes/footer.php";
