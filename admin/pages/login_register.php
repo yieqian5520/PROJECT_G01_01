@@ -11,12 +11,12 @@ if(isset($_POST['register'])){
   $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
   $role = $_POST['role'];
 
-  $checkEmail = $mysqli->query("SELECT email FROM users WHERE email='$email'");
+  $checkEmail = $mysqli->query("SELECT email FROM user WHERE email='$email'");
   if($checkEmail->num_rows > 0){
     $_SESSION['register_error'] = "Email already registered.";
     $_SESSION['active_form'] = "register";
   } else {
-    $mysqli->query("INSERT INTO users (name, email, password, role) VALUES ('$name', '$email', '$password', '$role')");
+    $mysqli->query("INSERT INTO user (name, email, password, role) VALUES ('$name', '$email', '$password', '$role')");
   }
 
   header("Location: index1.php");
@@ -28,7 +28,7 @@ if(isset($_POST['login'])){
   $email = $_POST['email'];
   $password = $_POST['password'];
 
-  $result = $mysqli->query("SELECT * FROM users WHERE email='$email'");
+  $result = $mysqli->query("SELECT * FROM user WHERE email='$email'");
   if($result->num_rows > 0){
     $user = $result->fetch_assoc();
     if(password_verify($password, $user['password'])){

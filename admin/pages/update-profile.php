@@ -11,7 +11,7 @@ $userId = $_SESSION['id'] ?? null;
 if (!$userId) {
   // fallback: find by email
   $email = $_SESSION['email'];
-  $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
+  $stmt = $db->prepare("SELECT id FROM user WHERE email = ?");
   $stmt->bind_param("s", $email);
   $stmt->execute();
   $res = $stmt->get_result()->fetch_assoc();
@@ -68,23 +68,20 @@ if (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] === UPL
 
 // update DB (with or without photo)
 if ($newImagePath !== null) {
-  $stmt = $db->prepare("UPDATE users SET name = ?, phone = ?, profile_image = ? WHERE id = ?");
+  $stmt = $db->prepare("UPDATE user SET name = ?, phone = ?, profile_image = ? WHERE id = ?");
   $stmt->bind_param("sssi", $name, $phone, $newImagePath, $userId);
 } else {
-  $stmt = $db->prepare("UPDATE users SET name = ?, phone = ? WHERE id = ?");
+  $stmt = $db->prepare("UPDATE user SET name = ?, phone = ? WHERE id = ?");
   $stmt->bind_param("ssi", $name, $phone, $userId);
 }
 
 $stmt->execute();
 
-// optional: update session if you display name from session elsewhere
-$_SESSION['name'] = $name;
-
 if (isset($_SESSION['role']) && $_SESSION['role'] === 'staff') {
-    header("Location: staff_dashboard.php?saved=1#dashboard");
+    header("Location: staff_dashboard.php?tab=profile&saved=1");
 } else {
-    header("Location: dashboard.php?saved=1#dashboard");
+    header("Location: dashboard.php?tab=profile&saved=1");
 }
-exit();
-  
+exit();                           
+
 exit();

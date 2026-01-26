@@ -61,7 +61,7 @@ if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
 $dbPath = "../uploads/profile/" . $filename;
 
 // (Optional) delete old file (avoid deleting default image)
-$stmtOld = $db->prepare("SELECT profile_image FROM users WHERE id = ?");
+$stmtOld = $db->prepare("SELECT profile_image FROM user WHERE id = ?");
 $stmtOld->bind_param("i", $userId);
 $stmtOld->execute();
 $old = $stmtOld->get_result()->fetch_assoc();
@@ -73,7 +73,7 @@ if (!empty($old['profile_image']) && str_starts_with($old['profile_image'], "../
 }
 
 // Update DB
-$stmt = $db->prepare("UPDATE users SET profile_image = ? WHERE id = ?");
+$stmt = $db->prepare("UPDATE user SET profile_image = ? WHERE id = ?");
 $stmt->bind_param("si", $dbPath, $userId);
 $stmt->execute();
 $stmt->close();

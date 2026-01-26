@@ -13,7 +13,7 @@ $userId = $_SESSION['id'] ?? null;
 if ($userId) {
     $stmt = $db->prepare(
         "SELECT id, name, email, phone, role, profile_image
-         FROM users 
+         FROM user
          WHERE id = ?"
     );
     $stmt->bind_param("i", $userId);
@@ -21,7 +21,7 @@ if ($userId) {
     $email = $_SESSION['email'];
     $stmt = $db->prepare(
         "SELECT id, name, email, phone, role, profile_image
-         FROM users 
+         FROM user
          WHERE email = ?"
     );
     $stmt->bind_param("s", $email);
@@ -37,6 +37,17 @@ if (!$user) {
     session_destroy();
     header("Location: index1.php");
     exit();
+}
+
+$allowedTabs = ['dashboard','customers','orders','staff','feedback','reports','profile'];
+
+$activeTab = $_GET['tab'] ?? 'dashboard';
+if (!in_array($activeTab, $allowedTabs, true)) {
+    $activeTab = 'dashboard';
+}
+
+if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']) !== '') {
+    $activeTab = 'customers';
 }
 ?>
 
@@ -54,6 +65,7 @@ if (!$user) {
     <div class="container">
         
         <aside>
+            <div class="right"></div>
             <div class="top">
                 <div class="logo">
                     <img src="../assets/img/puckslogo.jpg" alt="">
@@ -65,39 +77,34 @@ if (!$user) {
             </div>
 
             <div class="sidebar">
-                <a href="#">
+                <a href="staff_dashboard.php?tab=dashboard">
                     <span class="material-symbols-sharp">grid_view</span>
-                    <h3>Dashboard</h3> 
+                    <h3>Dashboard</h3>
                 </a>
 
-                <a href="#">
+                <a href="staff_dashboard.php?tab=customers">
                     <span class="material-symbols-sharp">person</span>
-                    <h3>Customers</h3> 
+                    <h3>Customers</h3>
                 </a>
 
-                <a href="#">
+                <a href="staff_dashboard.php?tab=orders">
                     <span class="material-symbols-sharp">receipt_long</span>
-                    <h3>Orders</h3> 
+                    <h3>Orders</h3>
                 </a>
 
-                <a href="#">
+                <a href="staff_dashboard.php?tab=staff">
                     <span class="material-symbols-sharp">person_3</span>
-                    <h3>Staff</h3> 
+                    <h3>Staff</h3>
                 </a>
 
-                <a href="#">
-                    <span class="material-symbols-sharp">feedback</span>
-                    <h3>Feedback</h3> 
-                </a>
-
-                <a href="#">
+                <a href="staff_dashboard.php?tab=reports">
                     <span class="material-symbols-sharp">report_gmailerrorred</span>
-                    <h3>Reports</h3> 
+                    <h3>Reports</h3>
                 </a>
 
-                <a href="#">
+                <a href="staff_dashboard.php?tab=profile">
                     <span class="material-symbols-sharp">account_circle</span>
-                    <h3>Profile</h3> 
+                    <h3>Profile</h3>
                 </a>
 
                 <a href="logout1.php" id="logout-link">
@@ -109,7 +116,7 @@ if (!$user) {
         <!-- END OF ASIDE -->
 
         <main>
-            <div id="dashboard" class="tab-content active" >
+            <div id="dashboard" class="tab-content <?= $activeTab === 'dashboard' ? 'active' : '' ?>">
                 <h1>Dashboard</h1>
                 <div class="date">
                     <input type="date">
@@ -218,27 +225,126 @@ if (!$user) {
                     <a href="#">Show All</a>
                 </div>
             </div>
-            <div id="customers" class="tab-content">
+            <div id="customers" class="tab-content <?= $activeTab === 'customers' ? 'active' : '' ?>">
                 <h1>Customers</h1>
-                <p>Customer management content goes here.</p>
+
+                <?php
+                // Simple search
+                $search = trim($_GET['search'] ?? '');
+                $like = "%{$search}%";
+
+                if ($search !== '') {
+                    $stmt = $db->prepare("
+                        SELECT id, name, phone, email, address, verify_status, created_at
+                        FROM users
+                        WHERE name LIKE ? OR email LIKE ? OR phone LIKE ?
+                        ORDER BY created_at DESC
+                    ");
+                    $stmt->bind_param("sss", $like, $like, $like);
+                } else {
+                    $stmt = $db->prepare("
+                        SELECT id, name, phone, email, address, verify_status, created_at
+                        FROM users
+                        ORDER BY created_at DESC
+                    ");
+                }
+
+                $stmt->execute();
+                $customers = $stmt->get_result();
+
+                // CSRF token for delete
+                if (empty($_SESSION['csrf'])) {
+                    $_SESSION['csrf'] = bin2hex(random_bytes(16));
+                }
+                ?>
+
+                <form method="GET" style="margin: 12px 0; display:flex; gap:10px; align-items:center;">
+                    <input type="hidden" name="tab" value="customers">
+                    <input
+                        type="text"
+                        name="search"
+                        placeholder="Search name / email / phone..."
+                        value="<?= htmlspecialchars($search) ?>"
+                        style="padding:10px; border-radius:10px; border:1px solid #333; width: 320px;"
+                    />
+                    <button type="submit" class="btn-primary" style="padding:10px 14px; border-radius:10px; border:none; cursor:pointer;">
+                        Search
+                    </button>
+                    <?php if ($search !== ''): ?>
+                        <a href="staff_dashboard.php?tab=customers" style="margin-left:6px;">Clear</a>
+                    <?php endif; ?>
+                </form>
+
+                <div class="recent-orders">
+                    <h2>Customer List</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Address</th>
+                                <th>Verified</th>
+                                <th>Joined</th>
+                                <th style="text-align:right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php if ($customers->num_rows === 0): ?>
+                            <tr>
+                                <td colspan="8" style="text-align:center; padding:16px;">No customers found.</td>
+                            </tr>
+                        <?php else: ?>
+                            <?php while ($row = $customers->fetch_assoc()): ?>
+                                <tr>
+                                    <td><?= (int)$row['id'] ?></td>
+                                    <td><?= htmlspecialchars($row['name']) ?></td>
+                                    <td><?= htmlspecialchars($row['phone']) ?></td>
+                                    <td><?= htmlspecialchars($row['email']) ?></td>
+                                    <td><?= htmlspecialchars($row['address']) ?></td>
+                                    <td>
+                                        <span class="status <?= ((int)$row['verify_status'] === 1) ? 'delivered' : 'pending' ?>">
+                                            <?= ((int)$row['verify_status'] === 1) ? 'Yes' : 'No' ?>
+                                        </span>
+                                    </td>
+                                    <td><?= htmlspecialchars($row['created_at']) ?></td>
+
+                                    <td style="text-align:right;">
+                                        <a class="primary" href="edit-customer.php?id=<?= (int)$row['id'] ?>">Edit</a>
+
+                                        <form method="POST" action="delete-customer.php" style="display:inline;" onsubmit="return confirm('Delete this customer?');">
+                                            <input type="hidden" name="id" value="<?= (int)$row['id'] ?>">
+                                            <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
+                                            <button type="submit" class="primary" style="background:none;border:none;color:#ff5c5c;cursor:pointer;">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div id="orders" class="tab-content">
+            <div id="orders"   class="tab-content <?= $activeTab === 'orders' ? 'active' : '' ?>">
                 <h1>Orders</h1>
                 <p>Order management content goes here.</p>
             </div>
-            <div id="staff" class="tab-content">
+            <div id="staff"    class="tab-content <?= $activeTab === 'staff' ? 'active' : '' ?>">
                 <h1>Staff</h1>
                 <p>Staff management content goes here.</p>
             </div>
-            <div id="feedback" class="tab-content">
+            <div id="feedback" class="tab-content <?= $activeTab === 'feedback' ? 'active' : '' ?>">
                 <h1>Feedback</h1>
                 <p>Feedback content goes here.</p>
             </div>
-            <div id="reports" class="tab-content">
+            <div id="reports"  class="tab-content <?= $activeTab === 'reports' ? 'active' : '' ?>">
                 <h1>Reports</h1>
                 <p>Reports content goes here.</p>
             </div>           
-            <div id="profile" class="tab-content">
+            <div id="profile"  class="tab-content <?= $activeTab === 'profile' ? 'active' : '' ?>">
                 <h1>Profile</h1>
                 <div class="profile-container">
                     <div class="profile-header">
@@ -306,65 +412,70 @@ if (!$user) {
                 </div>
             </div>
             <!--------END OF TOP------------>
-            <div class="feedback">
-                <h2>Feedback</h2>
-                <div class="fback">
-                    <div class="fb">
-                        <div class="profile-photo">
-                            <img src="../assets/img/profile-2.jpg">
+                <div class="feedback">
+                    <h2>Feedback</h2>
+                    <div class="fback">
+                        <div class="fb">
+                            <div class="profile-photo">
+                                <img src="../assets/img/profile-2.jpg">
+                            </div>
+                            <div class="message">
+                                <p><b>John Doe</b> rated 5 star</p>
+                                <small class="text-muted">2 minutes ago</small>
+                            </div>
                         </div>
-                        <div class="message">
-                            <p><b>John Doe</b> rated 5 star</p>
-                            <small class="text-muted">2 minutes ago</small>
+
+                        <div class="fb">
+                            <div class="profile-photo">
+                                <img src="../assets/img/profile-3.jpg">
+                            </div>
+                            <div class="message">
+                                <p><b>John Doe</b> rated 5 star</p>
+                                <small class="text-muted">2 minutes ago</small>
+                            </div>
                         </div>
-                    </div>
-                    <div class="fb">
-                        <div class="profile-photo">
-                            <img src="../assets/img/profile-3.jpg">
+
+                        <div class="fb">
+                            <div class="profile-photo">
+                                <img src="../assets/img/profile-4.jpg">
+                            </div>
+                            <div class="message">
+                                <p><b>John Doe</b> rated 5 star</p>
+                                <small class="text-muted">2 minutes ago</small>
+                            </div>
                         </div>
-                        <div class="message">
-                            <p><b>John Doe</b> rated 5 star</p>
-                            <small class="text-muted">2 minutes ago</small>
+
+                        <div class="fb">
+                            <div class="profile-photo">
+                                <img src="../assets/img/profile-3.jpg">
+                            </div>
+                            <div class="message">
+                                <p><b>John Doe</b> rated 5 star</p>
+                                <small class="text-muted">2 minutes ago</small>
+                            </div>
                         </div>
-                    </div>
-                    <div class="fb">
-                        <div class="profile-photo">
-                            <img src="../assets/img/profile-4.jpg">
+
+                        <div class="fb">
+                            <div class="profile-photo">
+                                <img src="../assets/img/profile-3.jpg">
+                            </div>
+                            <div class="message">
+                                <p><b>John Doe</b> rated 5 star</p>
+                                <small class="text-muted">2 minutes ago</small>
+                            </div>
                         </div>
-                        <div class="message">
-                            <p><b>John Doe</b> rated 5 star</p>
-                            <small class="text-muted">2 minutes ago</small>
-                        </div>
-                    </div>
-                    <div class="fb">
-                        <div class="profile-photo">
-                            <img src="../assets/img/profile-3.jpg">
-                        </div>
-                        <div class="message">
-                            <p><b>John Doe</b> rated 5 star</p>
-                            <small class="text-muted">2 minutes ago</small>
-                        </div>
-                    </div>
-                    <div class="fb">
-                        <div class="profile-photo">
-                            <img src="../assets/img/profile-3.jpg">
-                        </div>
-                        <div class="message">
-                            <p><b>John Doe</b> rated 5 star</p>
-                            <small class="text-muted">2 minutes ago</small>
-                        </div>
-                    </div>
-                    <div class="fb">
-                        <div class="profile-photo">
-                            <img src="../assets/img/profile-3.jpg">
-                        </div>
-                        <div class="message">
-                            <p><b>John Doe</b> rated 5 star</p>
-                            <small class="text-muted">2 minutes ago</small>
+
+                        <div class="fb">
+                            <div class="profile-photo">
+                                <img src="../assets/img/profile-3.jpg">
+                            </div>
+                            <div class="message">
+                                <p><b>John Doe</b> rated 5 star</p>
+                                <small class="text-muted">2 minutes ago</small>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
         </div>
 
     <script src="../js/index.js"></script>

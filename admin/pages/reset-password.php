@@ -15,7 +15,7 @@ if (!($mysqli instanceof mysqli)) {
   die("Database connection failed. Please try again later.");
 }
 
-$sql = "SELECT * FROM users WHERE reset_token_hash = ?";
+$sql = "SELECT * FROM user WHERE reset_token_hash = ?";
 
 $stmt = $mysqli->prepare($sql);
 

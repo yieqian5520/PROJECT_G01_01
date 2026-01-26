@@ -10,7 +10,7 @@ $expiry = date("Y-m-d H:i:s", time() + 3600);
 
 $mysqli = require __DIR__ . '/../config/config.php';
 
-$sql = "UPDATE users
+$sql = "UPDATE user
         SET reset_token_hash = ?, reset_token_expires_at = ?
         WHERE email = ?";
 

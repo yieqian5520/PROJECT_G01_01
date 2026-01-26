@@ -40,3 +40,60 @@ themeToggler.addEventListener("click", () => {
 
   localStorage.setItem("theme", isDark ? "dark" : "light");
 });
+
+function openTabById(tabId) {
+  if (!tabId) return;
+
+  // remove active from all
+  sidebarLinks.forEach((l) => l.classList.remove("active"));
+  tabContents.forEach((tab) => tab.classList.remove("active"));
+
+  // activate tab content
+  const target = document.getElementById(tabId);
+  if (target) target.classList.add("active");
+
+  // activate sidebar link (match by h3 text)
+  sidebarLinks.forEach((link) => {
+    const text = link.querySelector("h3")?.textContent?.toLowerCase().replace(" ", "");
+    if (text === tabId) link.classList.add("active");
+  });
+}
+
+// On page load: read tab= from URL
+const params = new URLSearchParams(window.location.search);
+const tabFromUrl = params.get("tab");
+openTabById(tabFromUrl);
+
+// ---- Customers AJAX (Edit/Delete) ----
+const modal = document.getElementById("customerModal");
+const closeModalBtn = document.getElementById("closeCustomerModal");
+const editForm = document.getElementById("customerEditForm");
+
+function showModal() {
+  if (!modal) return;
+  modal.style.display = "flex";
+}
+function hideModal() {
+  if (!modal) return;
+  modal.style.display = "none";
+}
+
+closeModalBtn?.addEventListener("click", hideModal);
+modal?.addEventListener("click", (e) => {
+  if (e.target === modal) hideModal();
+});
+
+// Open modal and fill data
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-edit-customer]");
+  if (!btn) return;
+
+  document.getElementById("edit_id").value = btn.dataset.id;
+  document.getElementById("edit_name").value = btn.dataset.name;
+  document.getElementById("edit_phone").value = btn.dataset.phone;
+  document.getElementById("edit_email").value = btn.dataset.email;
+  document.getElementById("edit_address").value = btn.dataset.address;
+  document.getElementById("edit_verify").value = btn.dataset.verify;
+
+  showModal();
+});

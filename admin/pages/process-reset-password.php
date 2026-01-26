@@ -83,7 +83,7 @@ if ($token === "") {
 $token_hash = hash("sha256", $token);
 
 // Check token
-$sql = "SELECT * FROM users WHERE reset_token_hash = ?";
+$sql = "SELECT * FROM user WHERE reset_token_hash = ?";
 $stmt = $mysqli->prepare($sql);
 if ($stmt === false) {
   renderResult("danger", "Server error", "Error preparing SQL query.");
@@ -125,7 +125,7 @@ if ($validationError !== null) {
 $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
 // Update password
-$sql = "UPDATE users
+$sql = "UPDATE user
         SET password = ?, reset_token_hash = NULL, reset_token_expires_at = NULL
         WHERE id = ?";
 $stmt = $mysqli->prepare($sql);
