@@ -32,20 +32,28 @@ include_once __DIR__ . "/includes/header.php";
                         </div>
 
                         <div class="mb-3 password-wrapper">
-                         <label>Password</label>
-                           <div class="password-input-group">
-                               <input type="password"
-                                   name="password"
+                            <label>Password</label>
+                            <div class="password-input-group">
+                                <input type="password"
+                                       name="password"
                                        class="form-control"
                                        placeholder="********"
                                        required>
-                                      <span class="password-toggle">
-                                        <br>
-                                          <i class="bi bi-eye"></i>
-                                       </span>
-                             </div>
+                                <span class="password-toggle">
+                                    <br>
+                                    <i class="bi bi-eye"></i>
+                                </span>
+                            </div>
                         </div>
 
+                        <!-- Forgot Password Link -->
+                        <div class="mb-3 text-end">
+                            <a href="forgot_password.php" 
+                               class="text-warning text-decoration-none" 
+                               style="font-weight: 500;">
+                                Forgot Password?
+                            </a>
+                        </div>
 
                         <button type="submit"
                                 name="login_now_btn"
