@@ -40,7 +40,6 @@ include_once __DIR__ . "/includes/header.php";
                                        placeholder="********"
                                        required>
                                 <span class="password-toggle">
-                                    <br>
                                     <i class="bi bi-eye"></i>
                                 </span>
                             </div>

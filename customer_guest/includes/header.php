@@ -86,14 +86,14 @@ if ($isLoggedIn) {
         <!-- CART ICON -->
         <?php if ($isLoggedIn): ?>
         <li class="position-relative ms-3">
-            <a href="cart.php" class="nav-icon position-relative">
-                <i class="bi bi-cart fs-4"></i>
-                <?php if ($cart_count > 0): ?>
-                    <span class="cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                        <?= $cart_count ?>
-                    </span>
-                <?php endif; ?>
-            </a>
+            <a href="cart.php" class="position-relative cart-icon">
+    <i class="bi bi-cart fs-4"></i>
+
+    <span class="cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill">
+        1
+    </span>
+</a>
+
         </li>
         <?php endif; ?>
 

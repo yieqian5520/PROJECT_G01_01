@@ -1028,19 +1028,22 @@ footer {
    =============================== */
 
 .cart-badge {
-  position: absolute;
-  top: -6px;
-  right: -10px;
-  background: #ffca28;
-  color: #3e2723;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 3px 7px;
-  border-radius: 999px;
-  min-width: 18px;
-  text-align: center;
-  line-height: 1;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    background-color: #ffca28 !important; /* coffee yellow */
+    color: #000 !important;               /* black text */
+    font-size: 0.7rem;
+    padding: 5px 7px;
+    min-width: 20px;
+    height: 20px;
+    line-height: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+
+.cart-icon .cart-badge {
+    transform: translate(40%, -40%);
 }
 
 /* ===============================
@@ -1084,5 +1087,68 @@ footer {
   font-weight: 700;
 }
 
+/* ===== PUCKS COFFEE ORDER UI ===== */
+
+.order-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    margin-bottom: 16px;
+}
+
+.order-title {
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px dashed #ddd;
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.order-item-name {
+    font-weight: 600;
+}
+
+.order-item-meta {
+    font-size: 0.85rem;
+    color: #777;
+}
+
+.order-total {
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-align: right;
+    margin-top: 15px;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-weight: 600;
+    background: #ffca28;
+    color: #000;
+}
+
+.history-table th {
+    background: #ffca28;
+    color: #000;
+    text-align: center;
+}
+
+.history-table td {
+    vertical-align: middle;
+    text-align: center;
+}
 
 
