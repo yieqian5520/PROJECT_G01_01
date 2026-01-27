@@ -145,30 +145,16 @@ include_once __DIR__ . "/includes/header.php";
 
                         <div class="mb-3 password-wrapper">
                             <label>Password</label>
-                            <div class="password-input-group">
-                                <input type="password"
-                                       name="password"
-                                       class="form-control"
-                                       placeholder="********"
-                                       required>
-                                <span class="password-toggle">
-                                    <i class="bi bi-eye"></i>
-                                </span>
-                            </div>
+                            <input type="password" name="password" class="form-control password-input" placeholder="********" required>
+                            <span class="password-toggle">
+                                <i class="bi bi-eye"></i>
+                            </span>
                         </div>
 
-                        <div class="mb-3 password-wrapper">
+                        <div class="mb-4 password-wrapper">
                             <label>Confirm Password</label>
-                            <div class="password-input-group">
-                                <input type="password"
-                                       name="password"
-                                       class="form-control"
-                                       placeholder="********"
-                                       required>
-                                <span class="password-toggle">
-                                    <i class="bi bi-eye"></i>
-                                </span>
-                            </div>
+                            <input type="password" name="confirm_password" class="form-control password-input" placeholder="********" required>
+                            <span class="password-toggle"><i class="bi bi-eye"></i></span>
                         </div>
 
                         <button type="submit" name="register_btn" class="register-btn w-100">Register Now</button>

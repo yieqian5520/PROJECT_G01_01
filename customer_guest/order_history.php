@@ -13,7 +13,7 @@ $res = mysqli_query($con, "
 ?>
 
 <section class="container" style="padding:60px 16px;">
-  <h2 class="section-title">My Orders</h2>
+  <h2 class="section-title">My Orders History</h2>
 
   <table class="table table-bordered">
     <tr>
