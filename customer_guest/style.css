@@ -1151,3 +1151,43 @@ footer {
 }
 
 
+.order-container {
+    max-width: 420px;
+    margin: auto;
+}
+
+.order-card {
+    border-radius: 18px;
+    box-shadow: 0 8px 22px rgba(0,0,0,.1);
+}
+
+.profile-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.payment-option input {
+    display: none;
+}
+
+.payment-option label {
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.payment-option input:checked + label {
+    border-color: #198754;
+    background-color: #eaf7f0;
+}
