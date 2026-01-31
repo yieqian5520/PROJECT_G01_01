@@ -8,5 +8,10 @@ define("SMTP_FROM_EMAIL", "bananacoffee06@gmail.com");
 define("SMTP_FROM_NAME", "Pucks Coffee");
 
 // ========== BASE URL (change to your project path) ==========
-define("BASE_URL", "http://localhost/Master%20Project%20-Pucks%20Coffee/PROJECT_G01_01/PROJECT_G01_01/customer_guest");
+define("BASE_URL",
+    (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http")
+    . "://"
+    . $_SERVER['HTTP_HOST']
+    . dirname($_SERVER['SCRIPT_NAME'])
+);
 ?>
