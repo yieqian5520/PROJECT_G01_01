@@ -47,6 +47,42 @@ $profileImg = !empty($user['profile_image'])
 
 </head>
 <body>
+    <!-- CART DRAWER (ADD ONLY) -->
+<div id="cartDrawer" style="
+position:fixed;
+top:0;
+right:-420px;
+width:420px;
+height:100%;
+background:#fff;
+z-index:9999;
+transition:.3s;
+box-shadow:-4px 0 20px rgba(0,0,0,.15);
+">
+    <iframe src="cart.php" style="width:100%;height:100%;border:none;"></iframe>
+</div>
+
+<div id="cartOverlay" style="
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.4);
+z-index:9998;
+display:none;
+" onclick="closeCart()"></div>
+
+<script>
+function openCart(e){
+    e.preventDefault();
+    document.getElementById('cartDrawer').style.right='0';
+    document.getElementById('cartOverlay').style.display='block';
+}
+
+function closeCart(){
+    document.getElementById('cartDrawer').style.right='-420px';
+    document.getElementById('cartOverlay').style.display='none';
+}
+</script>
+
 
 <header>
 <nav class="navbar container">
@@ -70,12 +106,13 @@ $profileImg = !empty($user['profile_image'])
 
         <!-- CART ICON -->
         <li class="position-relative ms-3">
-            <a href="cart.php" class="nav-icon position-relative">
+            <a href="cart.php" class="nav-icon position-relative" onclick="openCart(event)">
+
                 <i class="bi bi-cart fs-4"></i>
                 <span class="cart-badge"></span>
             </a>
         </li>
-
+    
         <!-- USER DROPDOWN -->
         <li class="nav-item dropdown ms-3">
             <a class="nav-icon dropdown-toggle" href="#" data-bs-toggle="dropdown">
@@ -126,9 +163,11 @@ $profileImg = !empty($user['profile_image'])
     <?php endif; ?>
 </div>
 
-
             </ul>
         </li>
+<a href="order_status.php?latest=1" class="btn btn-outline-dark uniform-btn">
+    <i class="bi bi-receipt me-2"></i> Latest Order
+</a>
 
     </ul>
 </nav>

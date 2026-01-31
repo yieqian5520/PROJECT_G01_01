@@ -4,6 +4,7 @@ include_once "dbcon.php";
 
 $user_id = $_SESSION['auth_user']['id'];
 $sid = session_id();
+$type = $_SESSION['order_type'] ?? 'Dine In';
 
 $order_code = "PUCKS" . time();
 $total = 0;
@@ -24,8 +25,8 @@ while ($row = mysqli_fetch_assoc($cart)) {
 
 // Insert order
 mysqli_query($con, "
-    INSERT INTO orders (user_id, order_code, total)
-    VALUES ($user_id, '$order_code', $total)
+    INSERT INTO orders (user_id, order_code, total, order_type, status)
+    VALUES ($user_id, '$order_code', $total, '$type', 'Pending')
 ");
 
 $order_id = mysqli_insert_id($con);
@@ -49,7 +50,9 @@ foreach ($items as $i) {
 }
 
 // Clear cart
-mysqli_query($con, "DELETE FROM cart_items WHERE session_id='$sid'");
+mysqli_query($con,"DELETE FROM cart_items WHERE session_id='$sid'");
 
-header("Location: payment.php?order=$order_code");
+unset($_SESSION['order_type']);
+
+header("Location: order_status.php?order=$order_code");
 exit;

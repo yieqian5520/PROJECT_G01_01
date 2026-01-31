@@ -111,7 +111,7 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
 
     <div class="menu-item">
       <img src="image/Cappuccino.jpeg" alt="Cappuccino">
-      <h3></h3>Cappuccino</h3>
+      <h3>Cappuccino</h3>
       <p>Espresso topped with thick, airy milk foam</p>
       <span>RM 10.00</span>
 
@@ -165,7 +165,6 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Chocolate</h3>
       <p>Rich and creamy chocolate indulgence</p>
       <span>RM 11.00</span>
-
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="7"
@@ -186,7 +185,6 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Matcha</h3>
       <p>Smooth Japanese green tea blended with milk</p>
       <span>RM 12.00</span>
-
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="8"
@@ -207,7 +205,6 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Peach Tea</h3>
       <p>Refreshing tea with sweet peach notes</p>
       <span>RM 9.00</span>
-
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="9"
@@ -228,7 +225,6 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Peppermint Tea</h3>
       <p>Light and refreshing herbal mint tea</p>
       <span>RM 8.00</span>
-
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="10"
@@ -247,6 +243,7 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
   </div>
 </div>
 
+
 <!-- =================================================
      DESSERT
 ================================================== -->
@@ -258,7 +255,6 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Batik Indulgence</h3>
       <p>Classic chocolate biscuit cake</p>
       <span>RM 8.00</span>
-
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="11"
@@ -279,7 +275,6 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Matcha Batik Indulgence</h3>
       <p>Batik cake with aromatic matcha flavour</p>
       <span>RM 9.00</span>
-
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="12"
@@ -300,7 +295,6 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Biscoff Cake</h3>
       <p>Soft cake layered with Biscoff spread</p>
       <span>RM 12.00</span>
-
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="13"
@@ -321,13 +315,12 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Japanese Cream Puff</h3>
       <p>Light pastry filled with creamy custard</p>
       <span>RM 6.00</span>
-
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="14"
                 data-name="Japanese Cream Puff"
                 data-price="6.00"
-                data-image="image/Japanese Cream Puff.jpg">
+                data-image="image/Japanese Cream Puff.jpeg">
           Add to Cart
         </button>
       <?php else: ?>
@@ -342,7 +335,6 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Cookies</h3>
       <p>Freshly baked cookies</p>
       <span>RM 4.00</span>
-
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="15"
@@ -363,7 +355,6 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Banana Choc Loaf</h3>
       <p>Moist banana loaf with chocolate</p>
       <span>RM 7.00</span>
-
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="16"
@@ -384,12 +375,11 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Banana Walnut Loaf</h3>
       <p>Soft banana loaf topped with walnuts</p>
       <span>RM 8.00</span>
-
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="17"
                 data-name="Banana Walnut Loaf"
-                data-price="8 .00"
+                data-price="8.00"
                 data-image="image/Banana Walnut Loaf.jpg">
           Add to Cart
         </button>
@@ -402,6 +392,7 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
 
   </div>
 </div>
+
 
 <!-- =================================================
      MODAL WINDOW (customer only)
@@ -461,6 +452,42 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
 </div>
 <?php endif; ?>
 
+<!-- =================================================
+     MINI CART (ORDER-SHELL STYLE)
+================================================== -->
+<div id="miniCart" class="mini-cart" style="display:none;">
+  <div class="mini-cart-header">
+    <h4>Your Order</h4>
+    <button id="closeMiniCart">&times;</button>
+  </div>
+  <div id="miniCartBody"></div>
+  <div class="mini-cart-footer">
+    <strong>Total: RM <span id="miniCartTotal">0.00</span></strong>
+    <a href="order_status.php?latest=1" class="btn btn-warning w-100 mt-2">Place Order</a>
+  </div>
+</div>
+
+<style>
+.mini-cart {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  height: 100%;
+  background: #fff;
+  box-shadow: -4px 0 20px rgba(0,0,0,.2);
+  transition: right 0.3s;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+}
+.mini-cart.show { right: 0; }
+.mini-cart-header { display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #ddd; }
+#miniCartBody { flex:1; overflow-y:auto; padding:10px; }
+.mini-cart-footer { padding:10px; border-top:1px solid #ddd; }
+#closeMiniCart { background:none; border:none; font-size:1.5rem; cursor:pointer; }
+</style>
+
 <script>
   // Tabs switching
   const tabs = document.querySelectorAll(".menu-tab");
@@ -479,9 +506,9 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
     });
   });
 
-  // Modal logic (only if modal exists)
+  // Modal logic
   const modal = document.getElementById("cartModal");
-  if (modal) {
+  if(modal){
     const modalMenuId = document.getElementById("modalMenuId");
     const modalName   = document.getElementById("modalName");
     const modalPrice  = document.getElementById("modalPrice");
@@ -490,26 +517,65 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
     function openModal(btn){
       modalMenuId.value = btn.dataset.menuId;
       modalName.textContent = btn.dataset.name;
-      modalPrice.textContent = "RM " + btn.dataset.price;
+      modalPrice.textContent = "RM "+btn.dataset.price;
       modalImage.src = btn.dataset.image;
       modal.classList.add("show");
-      modal.setAttribute("aria-hidden", "false");
+      modal.setAttribute("aria-hidden","false");
     }
 
     function closeModal(){
       modal.classList.remove("show");
-      modal.setAttribute("aria-hidden", "true");
+      modal.setAttribute("aria-hidden","true");
     }
 
-    document.querySelectorAll(".open-modal").forEach(btn=>{
-      btn.addEventListener("click", ()=> openModal(btn));
-    });
-
+    document.querySelectorAll(".open-modal").forEach(btn=>btn.addEventListener("click",()=>openModal(btn)));
     document.getElementById("closeModal").addEventListener("click", closeModal);
     document.getElementById("cancelModal").addEventListener("click", closeModal);
+    modal.addEventListener("click", (e)=>{ if(e.target===modal) closeModal(); });
+  }
 
-    modal.addEventListener("click", (e)=>{
-      if(e.target === modal) closeModal();
+  // Mini-cart
+  const miniCart = document.getElementById("miniCart");
+  const miniCartBody = document.getElementById("miniCartBody");
+  const miniCartTotal = document.getElementById("miniCartTotal");
+  document.getElementById("closeMiniCart").addEventListener("click", ()=> miniCart.classList.remove("show"));
+
+  function showMiniCart(){
+    fetch('fetch_cart.php').then(res=>res.json()).then(data=>{
+      miniCartBody.innerHTML = '';
+      let total=0;
+      data.items.forEach(item=>{
+        let line=item.price*item.quantity;
+        total+=line;
+        miniCartBody.innerHTML+=`
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+            <div>
+              <strong>${item.name}</strong><br>
+              ${item.quantity} x RM ${item.price.toFixed(2)}
+            </div>
+            <div>RM ${line.toFixed(2)}</div>
+          </div>`;
+      });
+      miniCartTotal.textContent = total.toFixed(2);
+      miniCart.classList.add("show");
+    });
+  }
+
+  const addCartForm = document.getElementById("addCartForm");
+  if(addCartForm){
+    addCartForm.addEventListener("submit", function(e){
+      e.preventDefault();
+      const formData = new FormData(this);
+      fetch('add_to_cart.php',{
+        method:'POST',
+        body:formData
+      }).then(res=>res.json())
+        .then(res=>{
+          if(res.status==='success'){
+            showMiniCart();
+            closeModal();
+          }
+        });
     });
   }
 </script>
