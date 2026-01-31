@@ -3,52 +3,53 @@ session_start();
 include_once "dbcon.php";
 include_once "includes/header.php";
 
-// Ensure user is logged in if checking latest order
-if (isset($_GET['latest'])) {
-    if (!isset($_SESSION['authenticated'])) {
-        echo "<h3 style='padding:40px;text-align:center;'>Please login to view your latest order</h3>";
-        include_once "includes/footer.php";
-        exit;
-    }
-    $uid = $_SESSION['auth_user']['id'];
-    $res = mysqli_query($con, "
-        SELECT * FROM orders
-        WHERE user_id=$uid
-        ORDER BY id DESC
-        LIMIT 1
-    ");
-} else {
-    $order = $_GET['order'] ?? '';
-    $res = mysqli_query($con, "
-        SELECT * FROM orders
-        WHERE order_code='" . mysqli_real_escape_string($con, $order) . "'
-        LIMIT 1
-    ");
-}
+$order = $_GET['order'] ?? '';
+$order = mysqli_real_escape_string($con, $order);
 
-// Handle no orders found
+// Find order by code
+$res = mysqli_query($con, "
+    SELECT id, order_code, status, created_at, total_amount, pickup_code
+    FROM orders
+    WHERE order_code='$order'
+    LIMIT 1
+");
+
 if (!$res || mysqli_num_rows($res) == 0) {
     echo "<h3 style='padding:40px;text-align:center;'>Order Not Found</h3>";
+
+    // Debug (temporarily)
+    // echo "<pre>SQL error: " . mysqli_error($con) . "</pre>";
+
     include_once "includes/footer.php";
     exit;
 }
 
 $o = mysqli_fetch_assoc($res);
 
-// Fetch order items safely
-$items_res = mysqli_query($con, "SELECT * FROM order_items WHERE order_id=" . ($o['id'] ?? 0));
+// Get order items (use your actual inserted columns)
+$items_res = mysqli_query($con, "
+    SELECT item_name, item_image, quantity, price
+    FROM order_items
+    WHERE order_id=".(int)$o['id']."
+");
+
 $items = [];
 if ($items_res && mysqli_num_rows($items_res) > 0) {
     while ($row = mysqli_fetch_assoc($items_res)) {
-        $items[] = [
-    'item_name' => $row['menu_name'],   // ✅ correct column
-    'item_image' => 'image/default.jpg', // optional placeholder
-    'quantity' => $row['quantity'],
-    'price' => $row['price'],
-];
+        $img = !empty($row['item_image']) ? $row['item_image'] : 'image/default.jpg';
+        $img = str_replace(' ', '%20', $img);
 
+        $items[] = [
+            'item_name'  => $row['item_name'],
+            'item_image' => $img,
+            'quantity'   => $row['quantity'],
+            'price'      => $row['price'],
+        ];
     }
 }
+?>
+
+
 
 // Map order status to step
 $statusSteps = [
@@ -61,76 +62,123 @@ $currentStep = $statusSteps[$o['status']] ?? 0;
 
 ?>
 
-<link rel="stylesheet" href="assets/styleorder.css">
+<link rel="stylesheet" href="styleorder.css">
 
 
-<section class="order-wrapper">
-    <!-- Header -->
-    <div class="order-header">
-        <h2>Order Details #<?= htmlspecialchars($o['order_code'] ?? 'N/A') ?></h2>
-        <p>Order Date: <?= !empty($o['created_at']) ? date("M d, Y H:i", strtotime($o['created_at'])) : 'N/A' ?></p>
+<section class="os-page">
+
+  <!-- Top header -->
+  <div class="os-header">
+    <a class="os-back" href="javascript:history.back()">&#8592;</a>
+
+    <div class="os-headtext">
+      <h2>Order details <span>#<?= htmlspecialchars($o['order_code'] ?? 'N/A') ?></span></h2>
+      <p>Date: <?= !empty($o['created_at']) ? date("d/m/Y", strtotime($o['created_at'])) : 'N/A' ?></p>
     </div>
 
-    <!-- Order Status Steps -->
-    <div class="order-steps">
-        <div class="step <?= $currentStep >= 1 ? 'active' : '' ?>">
-            <div class="step-icon">✓</div>
-            <p>Order Confirmed</p>
+    <div class="os-badge">
+      <?= strtoupper(htmlspecialchars($o['status'] ?? '')) ?>
+    </div>
+  </div>
+
+  <!-- Step tracker -->
+  <div class="os-tracker card">
+    <div class="os-steps">
+
+      <div class="os-step <?= $currentStep >= 1 ? 'active' : '' ?>">
+        <div class="dot"><span>1</span></div>
+        <div class="label">
+          <b>ORDER CONFIRMED</b>
+          <small><?= !empty($o['created_at']) ? date("g:i A, M j, Y", strtotime($o['created_at'])) : '' ?></small>
         </div>
-        <div class="step <?= $currentStep >= 2 ? 'active' : '' ?>">
-            <div class="step-icon">⌛</div>
-            <p>Preparing</p>
+      </div>
+
+      <div class="os-line <?= $currentStep >= 2 ? 'active' : '' ?>"></div>
+
+      <div class="os-step <?= $currentStep >= 2 ? 'active' : '' ?>">
+        <div class="dot"><span>2</span></div>
+        <div class="label">
+          <b>PREPARING</b>
+          <small>We’re making your drink</small>
         </div>
-        <div class="step <?= $currentStep >= 3 ? 'active' : '' ?>">
-            <div class="step-icon">📦</div>
-            <p>Ready for Pickup</p>
+      </div>
+
+      <div class="os-line <?= $currentStep >= 3 ? 'active' : '' ?>"></div>
+
+      <div class="os-step <?= $currentStep >= 3 ? 'active' : '' ?>">
+        <div class="dot"><span>3</span></div>
+        <div class="label">
+          <b>READY FOR PICKUP</b>
+          <small>Collect at counter</small>
         </div>
+      </div>
+
     </div>
 
-    <!-- Pickup Code -->
     <?php if (!empty($o['pickup_code'])): ?>
-        <div class="pickup-code">
-            <h4>Pickup Code</h4>
-            <p><?= htmlspecialchars($o['pickup_code']) ?></p>
+      <div class="os-pickup">
+        <div>
+          <h4>Pickup code</h4>
+          <p><?= htmlspecialchars($o['pickup_code']) ?></p>
         </div>
+      </div>
     <?php endif; ?>
+  </div>
 
-    <!-- Items -->
-    <?php if (!empty($items)): ?>
-    <?php foreach ($items as $item): ?>
-        <div class="order-item">
+  <!-- Body -->
+  <div class="os-grid">
+
+    <!-- Items card -->
+    <div class="card os-items">
+      <h3>Item ordered</h3>
+
+      <?php if (!empty($items)): ?>
+        <?php foreach ($items as $item): ?>
+          <div class="os-item">
             <img src="<?= htmlspecialchars($item['item_image']) ?>" alt="<?= htmlspecialchars($item['item_name']) ?>">
-            <div class="item-info">
-                <p class="item-name"><?= htmlspecialchars($item['item_name']) ?></p>
-                <p class="item-qty">Qty: <?= $item['quantity'] ?></p>
-                <p class="item-price">RM<?= number_format($item['price'], 2) ?> </p>
+            <div class="os-item-info">
+              <p class="name"><?= htmlspecialchars($item['item_name']) ?></p>
+              <p class="meta">Qty: <?= (int)$item['quantity'] ?></p>
             </div>
-        </div>
-    <?php endforeach; ?>
-<?php else: ?>
-    <p>No items found for this order.</p>
-<?php endif; ?>
-
-
-<!-- Payment Methods -->
-<form action="order_history.php" method="GET" class="payment-methods">
-    <h4>Payment Method</h4>
-
-    <input type="hidden" name="order_id" value="<?= $o['id'] ?>">
-
-    <?php foreach (['Cash','TNG','Credit Card'] as $method): ?>
-        <label>
-            <input type="radio" name="payment_method" value="<?= $method ?>" required>
-            <?= $method ?>
-        </label>
-    <?php endforeach; ?>
-
-    <div class="order-summary">
-        <p><strong>Total Amount:</strong> RM <?= number_format($o['total'], 2) ?></p>
-        <button type="submit" class="btn-pay">Pay Now</button>
+            <div class="os-item-price">
+              RM<?= number_format((float)$item['price'], 2) ?>
+            </div>
+          </div>
+        <?php endforeach; ?>
+      <?php else: ?>
+        <p class="os-empty">No items found for this order.</p>
+      <?php endif; ?>
     </div>
-</form>
 
+    <!-- Payment card -->
+    <div class="card os-pay">
+      <h3>Payment</h3>
+
+      <form action="order_history.php" method="GET" class="os-pay-form">
+        <input type="hidden" name="order_id" value="<?= (int)($o['id'] ?? 0) ?>">
+
+        <div class="os-radio">
+          <?php foreach (['Cash','TNG','Credit Card'] as $method): ?>
+            <label class="radio">
+              <input type="radio" name="payment_method" value="<?= $method ?>" required>
+              <span><?= $method ?></span>
+            </label>
+          <?php endforeach; ?>
+        </div>
+
+        <div class="os-summary">
+          <div class="row">
+            <span>Total</span>
+            <b>RM <?= number_format((float)($o['total'] ?? 0), 2) ?></b>
+          </div>
+
+          <button type="submit" class="os-btn">Pay now</button>
+        </div>
+      </form>
+    </div>
+
+  </div>
 </section>
+
 
 <?php include_once "includes/footer.php"; ?>
