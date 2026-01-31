@@ -47,12 +47,14 @@ if (isset($_POST['update_profile'])) {
     $new_password_hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
 }
 
-
     // Image upload (optional)
     $profile_path = null;
+
     if (!empty($_FILES['profile_image']['name'])) {
 
-        $folder = __DIR__ . "/uploads/";
+        // ✅ filesystem path: PROJECT_G01_01/uploads/profile/
+        $folder = dirname(__DIR__) . "/uploads/profile/";
+
         if (!is_dir($folder)) {
             mkdir($folder, 0777, true);
         }
@@ -70,7 +72,13 @@ if (isset($_POST['update_profile'])) {
         $target = $folder . $file_name;
 
         if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $target)) {
-            $profile_path = "uploads/" . $file_name; // save relative for browser
+
+            // ✅ URL base: /PROJECT_G01_01 (auto-detect)
+            $baseUrl = dirname(dirname($_SERVER['SCRIPT_NAME'])); // /PROJECT_G01_01
+
+            // ✅ save correct browser path
+            $profile_path = $baseUrl . "/uploads/profile/" . $file_name;
+
         } else {
             $_SESSION['status'] = "Upload failed. Check folder permissions.";
             header("Location: dashboard.php");

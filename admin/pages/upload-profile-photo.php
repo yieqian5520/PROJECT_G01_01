@@ -43,7 +43,7 @@ if (!isset($allowed[$mime])) {
 $ext = $allowed[$mime];
 
 // Ensure upload folder exists
-$uploadDir = __DIR__ . "/../uploads/profile/";
+$uploadDir = __DIR__ . "/../../uploads/profile/";
 if (!is_dir($uploadDir)) {
   mkdir($uploadDir, 0777, true);
 }
@@ -58,7 +58,7 @@ if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
 }
 
 // Save relative path to DB (relative to your dashboard page)
-$dbPath = "../uploads/profile/" . $filename;
+$dbPath = "../../uploads/profile/" . $filename;
 
 // (Optional) delete old file (avoid deleting default image)
 $stmtOld = $db->prepare("SELECT profile_image FROM user WHERE id = ?");

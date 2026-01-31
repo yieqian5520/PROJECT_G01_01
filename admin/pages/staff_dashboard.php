@@ -461,6 +461,7 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
                     <div class="profile-card">
                         <h3><span class="material-symbols-sharp">edit</span> Edit Your Details</h3>
                         <form method="POST" action="update-profile.php" enctype="multipart/form-data" class="profile-form">
+                            <input type="hidden" name="return_to" value="staff_dashboard.php?tab=profile">
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="name"><span class="material-symbols-sharp">person</span> Full Name</label>

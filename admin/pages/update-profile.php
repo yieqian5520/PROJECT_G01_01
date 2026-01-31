@@ -1,72 +1,91 @@
 <?php
 session_start();
+
 if (!isset($_SESSION['email'])) {
   header('Location: index1.php');
   exit();
 }
 
+// FIX #2: correct path because this file is in admin/pages/
 $db = require __DIR__ . "/../config/config.php";
 
 $userId = $_SESSION['id'] ?? null;
+
 if (!$userId) {
-  // fallback: find by email
   $email = $_SESSION['email'];
   $stmt = $db->prepare("SELECT id FROM user WHERE email = ?");
   $stmt->bind_param("s", $email);
   $stmt->execute();
   $res = $stmt->get_result()->fetch_assoc();
+  $stmt->close();
+
   if (!$res) {
     session_destroy();
     header('Location: index1.php');
     exit();
   }
+
   $userId = (int)$res['id'];
   $_SESSION['id'] = $userId;
+}
+
+$returnTo = $_POST['return_to'] ?? 'staff_dashboard.php?tab=profile';
+
+// basic safety: only allow local redirects
+if (str_contains($returnTo, '://') || str_starts_with($returnTo, '//')) {
+  $returnTo = 'staff_dashboard.php?tab=profile';
 }
 
 $name  = trim($_POST['name'] ?? '');
 $phone = trim($_POST['phone'] ?? '');
 
 if ($name === '' || $phone === '') {
-  header("Location: dashboard.php?err=missing"); // change to your page name
+  header("Location: {$returnTo}&err=missing");
   exit();
 }
 
-// handle photo if provided
 $newImagePath = null;
 
+// handle photo if provided
 if (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] === UPLOAD_ERR_OK) {
-  $tmpName = $_FILES['profile_photo']['tmp_name'];
-  $origName = $_FILES['profile_photo']['name'];
+  $tmpName  = $_FILES['profile_photo']['tmp_name'];
 
-  $ext = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
-  $allowed = ['jpg', 'jpeg', 'png', 'webp'];
+  // (recommended) validate by MIME instead of extension
+  $finfo = new finfo(FILEINFO_MIME_TYPE);
+  $mime  = $finfo->file($tmpName);
 
-  if (!in_array($ext, $allowed, true)) {
-    header("Location: dashboard.php?err=badfile");
+  $allowed = [
+    'image/jpeg' => 'jpg',
+    'image/png'  => 'png',
+    'image/webp' => 'webp'
+  ];
+
+  if (!isset($allowed[$mime])) {
+    header("Location: {$returnTo}&err=badfile");
     exit();
   }
 
-  // make sure folder exists
-  $uploadDir = __DIR__ . "/../uploads/profile/";
+  $ext = $allowed[$mime];
+
+  // Correct folder: PROJECT_G01_01/uploads/profile/
+  $uploadDir = __DIR__ . "/../../uploads/profile/";
   if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0755, true);
   }
 
-  // unique filename
-  $fileName = "u{$userId}_" . time() . "." . $ext;
+  $fileName   = "u{$userId}_" . time() . "." . $ext;
   $destFsPath = $uploadDir . $fileName;
 
   if (!move_uploaded_file($tmpName, $destFsPath)) {
-    header("Location: dashboard.php?err=uploadfail");
+    header("Location: {$returnTo}&err=uploadfail");
     exit();
   }
 
-  // path saved in DB (relative to dashboard file)
-  $newImagePath = "../uploads/profile/" . $fileName;
+  // FIX #1: must use $fileName (not $filename)
+  $newImagePath = "../../uploads/profile/" . $fileName;
 }
 
-// update DB (with or without photo)
+// update DB
 if ($newImagePath !== null) {
   $stmt = $db->prepare("UPDATE user SET name = ?, phone = ?, profile_image = ? WHERE id = ?");
   $stmt->bind_param("sssi", $name, $phone, $newImagePath, $userId);
@@ -76,12 +95,9 @@ if ($newImagePath !== null) {
 }
 
 $stmt->execute();
+$stmt->close();
 
-if (isset($_SESSION['role']) && $_SESSION['role'] === 'staff') {
-    header("Location: staff_dashboard.php?tab=profile&saved=1");
-} else {
-    header("Location: dashboard.php?tab=profile&saved=1");
-}
-exit();                           
-
+$join = str_contains($returnTo, '?') ? '&' : '?';
+header("Location: {$returnTo}{$join}saved=1");
+exit();
 exit();
