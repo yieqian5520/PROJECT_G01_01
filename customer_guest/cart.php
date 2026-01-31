@@ -4,6 +4,8 @@ include_once "dbcon.php";
 
 $sid = session_id();
 
+
+
 /* AJAX update & remove */
 if(isset($_POST['action'])){
     $id = intval($_POST['id']);
@@ -53,6 +55,29 @@ while($r = mysqli_fetch_assoc($q)){
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Your Cart</title>
 <link rel="stylesheet" href="style1.css">
+<style>
+/* Basic cart styling */
+body { font-family: Arial, sans-serif; background:#f8f8f8; }
+.order-shell { max-width:400px; margin:20px auto; background:#fff; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); overflow:hidden; }
+.order-top { padding:15px; font-weight:bold; font-size:18px; border-bottom:1px solid #eee; }
+.order-type { display:flex; }
+.order-type button { flex:1; padding:10px 0; border:none; cursor:pointer; background:#f0f0f0; font-weight:bold; }
+.order-type button.active { background:#2e7d32; color:#fff; }
+.order-list { padding:10px; }
+.order-card { display:flex; margin-bottom:10px; background:#fafafa; border-radius:8px; padding:10px; align-items:center; }
+.order-card img { width:60px; height:60px; object-fit:cover; border-radius:5px; margin-right:10px; }
+.card-body { flex:1; }
+.card-title { font-weight:bold; margin-bottom:5px; }
+.card-price { color:#2e7d32; margin-bottom:8px; }
+.qty-row { display:flex; justify-content:space-between; align-items:center; }
+.qty-control { display:flex; align-items:center; }
+.qty-btn { padding:4px 10px; margin:0 5px; border:none; background:#ddd; border-radius:4px; cursor:pointer; font-size:16px; }
+.remove-btn { border:none; background:none; color:red; font-size:18px; cursor:pointer; }
+.order-bottom { padding:15px; border-top:1px solid #eee; }
+.total-row { display:flex; justify-content:space-between; font-weight:bold; margin-bottom:10px; }
+.place-btn { width:100%; padding:12px; background:#2e7d32; color:#fff; border:none; border-radius:6px; font-size:16px; cursor:pointer; }
+.empty { text-align:center; padding:20px; color:#888; }
+</style>
 </head>
 
 <body>
@@ -81,10 +106,9 @@ while($r = mysqli_fetch_assoc($q)){
 
     <div class="qty-row">
       <div class="qty-control">
-        <button class="qty-btn minus"><i class="bi bi-dash"></i></button>
-
+        <button class="qty-btn minus">−</button>
         <span class="qty-num"><?= $i['quantity'] ?></span>
-        <button class="qty-btn plus"><i class="bi bi-plus"></i></button>
+        <button class="qty-btn plus">+</button>
       </div>
 
       <button class="remove-btn">✖</button>
