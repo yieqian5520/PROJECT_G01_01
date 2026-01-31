@@ -39,6 +39,25 @@ if (!$user) {
     exit();
 }
 
+if (empty($_SESSION['csrf'])) {
+    $_SESSION['csrf'] = bin2hex(random_bytes(16));
+}
+
+$latestFeedback = [];
+$latestFbStmt = $db->prepare("
+    SELECT fm.id, fm.rating, fm.comment, fm.created_at,
+           u.name, u.profile_image
+    FROM feedback_message fm
+    JOIN users u ON u.id = fm.user_id
+    ORDER BY fm.created_at DESC
+    LIMIT 6
+");
+$latestFbStmt->execute();
+$latestFeedbackRes = $latestFbStmt->get_result();
+while ($fb = $latestFeedbackRes->fetch_assoc()) {
+    $latestFeedback[] = $fb;
+}
+
 $allowedTabs = ['dashboard','customers','orders','staff','feedback','reports','profile'];
 
 $activeTab = $_GET['tab'] ?? 'dashboard';
@@ -100,6 +119,11 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
                 <a href="dashboard.php?tab=reports">
                     <span class="material-symbols-sharp">report_gmailerrorred</span>
                     <h3>Reports</h3>
+                </a>
+
+                <a href="dashboard.php?tab=feedback">
+                    <span class="material-symbols-sharp">reviews</span>
+                    <h3>Feedback</h3>
                 </a>
 
                 <a href="dashboard.php?tab=profile">
@@ -238,10 +262,10 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
                     $stmt = $db->prepare("
                         SELECT id, name, phone, email, address, verify_status, created_at
                         FROM users
-                        WHERE name LIKE ? OR email LIKE ? OR phone LIKE ?
+                        WHERE name LIKE ?
                         ORDER BY created_at DESC
                     ");
-                    $stmt->bind_param("sss", $like, $like, $like);
+                    $stmt->bind_param("s", $like);
                 } else {
                     $stmt = $db->prepare("
                         SELECT id, name, phone, email, address, verify_status, created_at
@@ -264,7 +288,7 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
                     <input
                         type="text"
                         name="search"
-                        placeholder="Search name / email / phone..."
+                        placeholder="Search customer name..."
                         value="<?= htmlspecialchars($search) ?>"
                         style="padding:10px; border-radius:10px; border:1px solid #333; width: 320px;"
                     />
@@ -282,7 +306,7 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>#</th>
                                 <th>Name</th>
                                 <th>Phone</th>
                                 <th>Email</th>
@@ -298,9 +322,10 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
                                 <td colspan="8" style="text-align:center; padding:16px;">No customers found.</td>
                             </tr>
                         <?php else: ?>
+                            <?php $no = 1; ?>
                             <?php while ($row = $customers->fetch_assoc()): ?>
                                 <tr>
-                                    <td><?= (int)$row['id'] ?></td>
+                                    <td><?= $no++ ?></td>
                                     <td><?= htmlspecialchars($row['name']) ?></td>
                                     <td><?= htmlspecialchars($row['phone']) ?></td>
                                     <td><?= htmlspecialchars($row['email']) ?></td>
@@ -341,7 +366,106 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
             </div>
             <div id="feedback" class="tab-content <?= $activeTab === 'feedback' ? 'active' : '' ?>">
                 <h1>Feedback</h1>
-                <p>Feedback content goes here.</p>
+
+                <?php
+                $fb_search = trim($_GET['fb_search'] ?? '');
+                $fb_like = "%{$fb_search}%";
+
+                if ($fb_search !== '') {
+                    $fbStmt = $db->prepare("
+                        SELECT fm.id, fm.rating, fm.comment, fm.created_at,
+                            u.id AS user_id, u.name, u.email, u.phone
+                        FROM feedback_message fm
+                        JOIN users u ON u.id = fm.user_id
+                        WHERE u.name LIKE ?
+                        ORDER BY fm.created_at DESC
+                    ");
+                    $fbStmt->bind_param("s", $fb_like);
+                } else {
+                    $fbStmt = $db->prepare("
+                        SELECT fm.id, fm.rating, fm.comment, fm.created_at,
+                            u.id AS user_id, u.name, u.email, u.phone
+                        FROM feedback_message fm
+                        JOIN users u ON u.id = fm.user_id
+                        ORDER BY fm.created_at DESC
+                    ");
+                }
+
+                $fbStmt->execute();
+                $fbRes = $fbStmt->get_result();
+                ?>
+
+                <form method="GET" style="margin: 12px 0; display:flex; gap:10px; align-items:center;">
+                    <input type="hidden" name="tab" value="feedback">
+                    <input
+                        type="text"
+                        name="fb_search"
+                        placeholder="Search customer name..."
+                        value="<?= htmlspecialchars($fb_search) ?>"
+                        style="padding:10px; border-radius:10px; border:1px solid #333; width: 360px;"
+                    />
+                    <button type="submit" class="btn-primary" style="padding:10px 14px; border-radius:10px; border:none; cursor:pointer;">
+                        Search
+                    </button>
+
+                    <?php if ($fb_search !== ''): ?>
+                        <a href="dashboard.php?tab=feedback" style="margin-left:6px;">Clear</a>
+                    <?php endif; ?>
+                </form>
+
+                <div class="recent-orders">
+                    <h2>All Feedback</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Customer</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Rating</th>
+                                <th>Comment</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if ($fbRes->num_rows === 0): ?>
+                                <tr>
+                                    <td colspan="7" style="text-align:center; padding:16px;">No customer found.</td>
+                                </tr>
+                            <?php else: ?>
+                                <?php $fbNo = 1; ?>
+                                <?php while ($row = $fbRes->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><?= $fbNo++ ?></td>
+                                        <td><?= htmlspecialchars($row['name']) ?></td>
+                                        <td><?= htmlspecialchars($row['email']) ?></td>
+                                        <td><?= htmlspecialchars($row['phone']) ?></td>
+                                        <td>
+                                            <span class="status delivered">
+                                                <?= (int)$row['rating'] ?>/5
+                                            </span>
+                                        </td>
+                                        <td><?= htmlspecialchars($row['comment']) ?></td>
+                                        <td><?= htmlspecialchars($row['created_at']) ?></td>
+                                        <td style="text-align:right;">
+                                            <form method="POST" action="delete-feedback.php"
+                                                style="display:inline;"
+                                                onsubmit="return confirm('Delete this feedback?');">
+                                                <input type="hidden" name="id" value="<?= (int)$row['id'] ?>">
+                                                <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
+                                                <button type="submit"
+                                                        class="primary"
+                                                        style="background:none;border:none;color:#ff5c5c;cursor:pointer;">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div id="reports"  class="tab-content <?= $activeTab === 'reports' ? 'active' : '' ?>">
                 <h1>Reports</h1>
@@ -416,67 +540,37 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
             </div>
             <!--------END OF TOP------------>
                 <div class="feedback">
-                    <h2>Feedback</h2>
-                    <div class="fback">
-                        <div class="fb">
-                            <div class="profile-photo">
-                                <img src="../assets/img/profile-2.jpg">
-                            </div>
-                            <div class="message">
-                                <p><b>John Doe</b> rated 5 star</p>
-                                <small class="text-muted">2 minutes ago</small>
-                            </div>
-                        </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h2 style="margin:0;">Feedback</h2>
+                        <a href="dashboard.php?tab=feedback" class="primary" style="font-size:14px;">See all</a>
+                    </div>
 
-                        <div class="fb">
-                            <div class="profile-photo">
-                                <img src="../assets/img/profile-3.jpg">
-                            </div>
-                            <div class="message">
-                                <p><b>John Doe</b> rated 5 star</p>
-                                <small class="text-muted">2 minutes ago</small>
-                            </div>
-                        </div>
+                    <div class="fback" style="margin-top:10px;">
+                        <?php if (empty($latestFeedback)): ?>
+                            <p class="text-muted" style="padding:10px 0;">No feedback yet.</p>
+                        <?php else: ?>
+                            <?php foreach ($latestFeedback as $fb): ?>
+                                <div class="fb">
+                                    <div class="profile-photo">
+                                        <img src="<?= htmlspecialchars($fb['profile_image'] ?: '../assets/img/profile-1.jpg') ?>" alt="">
+                                    </div>
 
-                        <div class="fb">
-                            <div class="profile-photo">
-                                <img src="../assets/img/profile-4.jpg">
-                            </div>
-                            <div class="message">
-                                <p><b>John Doe</b> rated 5 star</p>
-                                <small class="text-muted">2 minutes ago</small>
-                            </div>
-                        </div>
-
-                        <div class="fb">
-                            <div class="profile-photo">
-                                <img src="../assets/img/profile-3.jpg">
-                            </div>
-                            <div class="message">
-                                <p><b>John Doe</b> rated 5 star</p>
-                                <small class="text-muted">2 minutes ago</small>
-                            </div>
-                        </div>
-
-                        <div class="fb">
-                            <div class="profile-photo">
-                                <img src="../assets/img/profile-3.jpg">
-                            </div>
-                            <div class="message">
-                                <p><b>John Doe</b> rated 5 star</p>
-                                <small class="text-muted">2 minutes ago</small>
-                            </div>
-                        </div>
-
-                        <div class="fb">
-                            <div class="profile-photo">
-                                <img src="../assets/img/profile-3.jpg">
-                            </div>
-                            <div class="message">
-                                <p><b>John Doe</b> rated 5 star</p>
-                                <small class="text-muted">2 minutes ago</small>
-                            </div>
-                        </div>
+                                    <div class="message">
+                                        <p>
+                                            <b><?= htmlspecialchars($fb['name']) ?></b>
+                                            rated <?= (int)$fb['rating'] ?> star<?= ((int)$fb['rating'] !== 1) ? 's' : '' ?>
+                                        </p>
+                                        <small class="text-muted">
+                                            <?= htmlspecialchars($fb['comment']) ?>
+                                        </small>
+                                        <br>
+                                        <small class="text-muted">
+                                            <?= htmlspecialchars($fb['created_at']) ?>
+                                        </small>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
         </div>
