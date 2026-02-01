@@ -38,8 +38,6 @@ if (!$user) {
   exit();
 }
 
-
-
 $latestFeedback = [];
 $latestFbStmt = $db->prepare("
     SELECT fm.id, fm.rating, fm.comment, fm.created_at,
@@ -61,7 +59,7 @@ $activeTab = $_GET['tab'] ?? 'dashboard';
 if (!in_array($activeTab, $allowedTabs, true)) {
     $activeTab = 'dashboard';
 }
-
+$focusOrderId = isset($_GET['focus']) ? (int)$_GET['focus'] : 0;
 if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']) !== '') {
     $activeTab = 'customers';
 }
@@ -204,46 +202,71 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
                 </div>
                 <!-- END OF INSIGHTS -->
 
+                <?php
+                $recentOrders = [];
+
+                $recentStmt = $db->prepare("
+                    SELECT 
+                        o.id,
+                        o.order_code,
+                        o.total,
+                        o.status,
+                        o.created_at,
+                        u.name AS customer_name
+                    FROM orders o
+                    JOIN users u ON u.id = o.user_id
+                    ORDER BY o.created_at DESC
+                    LIMIT 5
+                ");
+
+                $recentStmt->execute();
+                $recentRes = $recentStmt->get_result();
+                while ($r = $recentRes->fetch_assoc()) {
+                    $recentOrders[] = $r;
+                }
+                ?>
+
                 <div class="recent-orders">
                     <h2>Recent Orders</h2>
                     <table>
                         <thead>
                             <tr>
-                                <th>Customer Name</th>
-                                <th>Product Name</th>
-                                <th>Price</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                            </tr>
+                            <th>Customer Name</th>
+                            <th>Order Code</th>
+                            <th>Total</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                        </tr>
                         </thead>
                         <tbody>
+                        <?php if (empty($recentOrders)): ?>
                             <tr>
-                                <td>John Doe</td>
-                                <td>Cappuccino</td>
-                                <td>RM12.00</td>
-                                <td>2026-01-15</td>
-                                <td><span class="status delivered">Served</span></td>
-                                <td class="primary">Details</td>
+                                <td colspan="6" style="text-align:center; padding:16px;">No recent orders.</td>
                             </tr>
-                            <tr>
-                                <td>Jane Smith</td>
-                                <td>Latte</td>
-                                <td>RM10.00</td>
-                                <td>2026-01-15</td>
-                                <td><span class="status pending">Preparing</span></td>
-                                <td class="primary">Details</td>
-                            </tr>
-                            <tr>
-                                <td>Mike Johnson</td>
-                                <td>Espresso</td>
-                                <td>RM8.00</td>
-                                <td>2026-01-15</td>
-                                <td><span class="status cancelled">Cancelled</span></td>
-                                <td class="primary">Details</td>
-                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($recentOrders as $ro): ?>
+                                <?php
+                                    $oid = (int)$ro['id'];
+                                    $status = trim($ro['status'] ?? 'Confirmed');
+
+                                    // map status to your CSS class names (edit if needed)
+                                    $statusClass = 'pending';
+                                    if (strcasecmp($status, 'Ready') === 0) $statusClass = 'delivered';
+                                    if (strcasecmp($status, 'Cancelled') === 0) $statusClass = 'cancelled';
+                                ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($ro['customer_name']) ?></td>
+                                    <td><small class="text-muted"><?= htmlspecialchars($ro['order_code']) ?></small></td>
+                                    <td>RM<?= number_format((float)$ro['total'], 2) ?></td>
+                                    <td><?= htmlspecialchars($ro['created_at']) ?></td>
+                                    <td><span class="status <?= $statusClass ?>"><?= htmlspecialchars($status) ?></span></td>
+                                    
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                         </tbody>
                     </table>
-                    <a href="#">Show All</a>
+                    <a href="staff_dashboard.php?tab=orders">Show All</a>
                 </div>
             </div>
             <div id="customers" class="tab-content <?= $activeTab === 'customers' ? 'active' : '' ?>">
