@@ -8,7 +8,7 @@ $order = mysqli_real_escape_string($con, $order);
 
 // Find order by code
 $res = mysqli_query($con, "
-    SELECT id, order_code, status, created_at, total_amount, pickup_code
+    SELECT id, order_code, status, created_at, total
     FROM orders
     WHERE order_code='$order'
     LIMIT 1
@@ -28,28 +28,38 @@ $o = mysqli_fetch_assoc($res);
 
 // Get order items (use your actual inserted columns)
 $items_res = mysqli_query($con, "
-    SELECT item_name, item_image, quantity, price
-    FROM order_items
-    WHERE order_id=".(int)$o['id']."
+    SELECT 
+        oi.menu_name,
+        oi.quantity,
+        oi.price,
+        oi.temp,
+        oi.milk,
+        oi.syrup,
+        oi.addons,
+        m.image
+    FROM order_items oi
+    LEFT JOIN menu_items m ON m.name = oi.menu_name
+    WHERE oi.order_id = " . (int)$o['id'] . "
 ");
 
 $items = [];
 if ($items_res && mysqli_num_rows($items_res) > 0) {
     while ($row = mysqli_fetch_assoc($items_res)) {
-        $img = !empty($row['item_image']) ? $row['item_image'] : 'image/default.jpg';
+        $img = !empty($row['image']) ? $row['image'] : 'image/default.jpg';
         $img = str_replace(' ', '%20', $img);
 
         $items[] = [
-            'item_name'  => $row['item_name'],
-            'item_image' => $img,
-            'quantity'   => $row['quantity'],
-            'price'      => $row['price'],
+            'menu_name' => $row['menu_name'],
+            'item_image'=> $img,
+            'quantity'  => $row['quantity'],
+            'price'     => $row['price'],
+            'temp'      => $row['temp'] ?? '',
+            'milk'      => $row['milk'] ?? '',
+            'syrup'     => $row['syrup'] ?? '',
+            'addons'    => $row['addons'] ?? '',
         ];
     }
 }
-?>
-
-
 
 // Map order status to step
 $statusSteps = [
@@ -131,23 +141,32 @@ $currentStep = $statusSteps[$o['status']] ?? 0;
     <!-- Items card -->
     <div class="card os-items">
       <h3>Item ordered</h3>
-
+      <div class="os-items-scroll">
       <?php if (!empty($items)): ?>
         <?php foreach ($items as $item): ?>
           <div class="os-item">
-            <img src="<?= htmlspecialchars($item['item_image']) ?>" alt="<?= htmlspecialchars($item['item_name']) ?>">
+            <img src="<?= htmlspecialchars($item['item_image']) ?>" alt="<?= htmlspecialchars($item['menu_name']) ?>">
             <div class="os-item-info">
-              <p class="name"><?= htmlspecialchars($item['item_name']) ?></p>
+              <p class="name"><?= htmlspecialchars($item['menu_name']) ?></p>
               <p class="meta">Qty: <?= (int)$item['quantity'] ?></p>
             </div>
+            <?php
+            $unit = (float)$item['price'];
+            $qty  = (int)$item['quantity'];
+            $lineTotal = $unit * $qty;
+            ?>
             <div class="os-item-price">
-              RM<?= number_format((float)$item['price'], 2) ?>
+              RM<?= number_format($lineTotal, 2) ?>
+              <small style="display:block;opacity:.7;">
+                (RM<?= number_format($unit, 2) ?> × <?= $qty ?>)
+              </small>
             </div>
           </div>
         <?php endforeach; ?>
       <?php else: ?>
         <p class="os-empty">No items found for this order.</p>
       <?php endif; ?>
+      </div>
     </div>
 
     <!-- Payment card -->

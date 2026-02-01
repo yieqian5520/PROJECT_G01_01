@@ -274,3 +274,30 @@ body{
   .os-line{ width: 36px; }
   .os-step{ min-width: 200px; }
 }
+
+/* Scroll only item list */
+.os-items-scroll{
+  max-height: 420px;      /* adjust as you like */
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+/* Nice scrollbar (Chrome / Edge) */
+.os-items-scroll::-webkit-scrollbar{
+  width: 6px;
+}
+
+.os-items-scroll::-webkit-scrollbar-thumb{
+  background: rgba(37,99,235,.35);
+  border-radius: 10px;
+}
+
+.os-items-scroll::-webkit-scrollbar-track{
+  background: transparent;
+}
+
+/* Firefox */
+.os-items-scroll{
+  scrollbar-width: thin;
+  scrollbar-color: rgba(37,99,235,.35) transparent;
+}

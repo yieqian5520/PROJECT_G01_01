@@ -320,7 +320,7 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
                 data-menu-id="14"
                 data-name="Japanese Cream Puff"
                 data-price="6.00"
-                data-image="image/Japanese Cream Puff.jpeg">
+                data-image="image/Japanese Cream Puff.jpg">
           Add to Cart
         </button>
       <?php else: ?>
