@@ -29,16 +29,23 @@ if (!$userId) {
   $_SESSION['id'] = $userId;
 }
 
-$returnTo = $_POST['return_to'] ?? 'dashboard.php?tab=profile';
-$returnTo = trim($returnTo);
+// Decide return page based on logged-in role
+$role = $_SESSION['role'] ?? ''; // set this during login
 
-if ($returnTo === '') {
-  $returnTo = 'dashboard.php?tab=profile';
-}
+$defaultReturn = ($role === 'admin')
+  ? 'dashboard.php?tab=profile'
+  : 'staff_dashboard.php?tab=profile';
 
-// basic safety: only allow local redirects
-if (str_contains($returnTo, '://') || str_starts_with($returnTo, '//')) {
-  $returnTo = 'staff_dashboard.php?tab=profile';
+// Take posted return_to only if it matches allowed values
+$returnTo = trim($_POST['return_to'] ?? '');
+
+$allowedReturn = [
+  'dashboard.php?tab=profile',
+  'staff_dashboard.php?tab=profile',
+];
+
+if (!in_array($returnTo, $allowedReturn, true)) {
+  $returnTo = $defaultReturn;
 }
 
 $name  = trim($_POST['name'] ?? '');
@@ -112,4 +119,4 @@ $stmt->close();
 $join = str_contains($returnTo, '?') ? '&' : '?';
 header("Location: {$returnTo}{$join}saved=1");
 exit();
-exit();
+

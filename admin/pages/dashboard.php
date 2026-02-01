@@ -30,13 +30,19 @@ if ($userId) {
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
-$_SESSION['id'] = $user['id']; 
-
 
 if (!$user) {
-    session_destroy();
-    header("Location: index1.php");
-    exit();
+  session_destroy();
+  header("Location: index1.php");
+  exit();
+}
+
+$_SESSION['id'] = (int)$user['id'];
+$_SESSION['role'] = $user['role'];
+
+if (($_SESSION['role'] ?? '') !== 'admin') {
+  header('Location: staff_dashboard.php?tab=dashboard');
+  exit();
 }
 
 if (empty($_SESSION['csrf'])) {
