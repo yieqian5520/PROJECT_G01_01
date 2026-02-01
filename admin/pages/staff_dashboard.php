@@ -341,10 +341,299 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
                     </table>
                 </div>
             </div>
-            <div id="orders"   class="tab-content <?= $activeTab === 'orders' ? 'active' : '' ?>">
-                <h1>Orders</h1>
-                <p>Order management content goes here.</p>
+            <div id="orders" class="tab-content <?= $activeTab === 'orders' ? 'active' : '' ?>">
+    <h1>Orders</h1>
+
+    <?php
+    // Filters
+    $order_search = trim($_GET['order_search'] ?? '');
+    $status_filter = trim($_GET['status'] ?? '');
+
+    $like = "%{$order_search}%";
+
+    // Allowed statuses (adjust to your flow)
+    $statusSteps = [
+        'Confirmed' => 1,
+        'Preparing' => 2,
+        'Ready'     => 3,
+    ];
+
+    $statusOptions = array_keys($statusSteps);
+
+    // Query orders + customer
+    $sql = "
+        SELECT o.id, o.user_id, o.order_code, o.total, o.status, o.created_at,
+            u.name AS customer_name, u.email AS customer_email, u.phone AS customer_phone
+        FROM orders o
+        JOIN users u ON u.id = o.user_id
+        WHERE 1=1
+    ";
+
+    $types = "";
+    $params = [];
+
+    if ($order_search !== '') {
+        $sql .= " AND (o.order_code LIKE ? OR u.name LIKE ? OR u.email LIKE ? OR o.id LIKE ?) ";
+        $types .= "ssss";
+        $params[] = $like;
+        $params[] = $like;
+        $params[] = $like;
+        $params[] = $like;
+    }
+
+    if ($status_filter !== '' && in_array($status_filter, $statusOptions, true)) {
+        $sql .= " AND o.status = ? ";
+        $types .= "s";
+        $params[] = $status_filter;
+    }
+
+    $sql .= " ORDER BY o.created_at DESC";
+
+    $stmt = $db->prepare($sql);
+    if ($types !== "") $stmt->bind_param($types, ...$params);
+    $stmt->execute();
+    $ordersRes = $stmt->get_result();
+
+    $orders = [];
+    $orderIds = [];
+    while ($r = $ordersRes->fetch_assoc()) {
+        $orders[] = $r;
+        $orderIds[] = (int)$r['id'];
+    }
+
+    // Load items for all shown orders
+    $itemsByOrder = [];
+    if (!empty($orderIds)) {
+        $in = implode(',', array_fill(0, count($orderIds), '?'));
+        $itemSql = "
+            SELECT id, order_id, menu_name, price, quantity, temp, milk, syrup, addons
+            FROM order_items
+            WHERE order_id IN ($in)
+            ORDER BY order_id DESC, id ASC
+        ";
+        $itemStmt = $db->prepare($itemSql);
+        $itemTypes = str_repeat("i", count($orderIds));
+        $itemStmt->bind_param($itemTypes, ...$orderIds);
+        $itemStmt->execute();
+        $itemRes = $itemStmt->get_result();
+
+        while ($it = $itemRes->fetch_assoc()) {
+            $oid = (int)$it['order_id'];
+            if (!isset($itemsByOrder[$oid])) $itemsByOrder[$oid] = [];
+            $itemsByOrder[$oid][] = $it;
+        }
+    }
+
+    // Ensure CSRF exists
+    if (empty($_SESSION['csrf'])) {
+        $_SESSION['csrf'] = bin2hex(random_bytes(16));
+    }
+    ?>
+
+    <form method="GET" style="margin: 12px 0; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <input type="hidden" name="tab" value="orders">
+
+        <input
+            type="text"
+            name="order_search"
+            placeholder="Search order code / customer name / email..."
+            value="<?= htmlspecialchars($order_search) ?>"
+            style="padding:10px; border-radius:10px; border:1px solid #333; width: 360px;"
+        />
+
+        <select name="status" style="padding:10px; border-radius:10px; border:1px solid #333; min-width:180px;">
+            <option value="">All Status</option>
+            <?php foreach ($statusOptions as $s): ?>
+                <option value="<?= htmlspecialchars($s) ?>" <?= ($status_filter === $s) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($s) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+
+        <button type="submit" class="btn-primary"
+                style="padding:10px 14px; border-radius:10px; border:none; cursor:pointer;">
+            Filter
+        </button>
+
+        <?php if ($order_search !== '' || $status_filter !== ''): ?>
+            <a href="staff_dashboard.php?tab=orders" style="margin-left:6px;">Clear</a>
+        <?php endif; ?>
+    </form>
+
+    <div class="recent-orders">
+        <h2>Order List</h2>
+
+        <form method="POST" action="bulk-update-order-status.php" id="bulkStatusForm">
+            <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
+            <input type="hidden" name="return_to" value="staff_dashboard.php?tab=orders">
+            <div style="margin: 8px 0 14px 0; display:flex; justify-content:flex-end; gap:10px;">
+                <button type="submit"
+                        class="btn-primary"
+                        style="padding:10px 14px; border-radius:10px; border:none; cursor:pointer;">
+                    Update All
+                </button>
             </div>
+
+            <table>
+                <thead>
+                <tr>
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Contact</th>
+                    <th>Total</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th style="text-align:right;">Actions</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <?php if (empty($orders)): ?>
+                    <tr>
+                        <td colspan="7" style="text-align:center; padding:16px;">No orders found.</td>
+                    </tr>
+                <?php else: ?>
+                    <?php foreach ($orders as $o): ?>
+                        <?php
+                        $oid = (int)$o['id'];
+                        $status = trim($o['status'] ?? 'Confirmed');
+
+    
+                        ?>
+
+                        <tr>
+                            <td>
+                                <b>#<?= $oid ?></b><br>
+                                <small class="text-muted"><?= htmlspecialchars($o['order_code']) ?></small>
+                            </td>
+
+                            <td>
+                                <?= htmlspecialchars($o['customer_name']) ?><br>
+                                <small class="text-muted"><?= htmlspecialchars($o['customer_email']) ?></small>
+                            </td>
+
+                            <td><?= htmlspecialchars($o['customer_phone'] ?? '-') ?></td>
+
+                            <td>RM<?= number_format((float)$o['total'], 2) ?></td>
+
+                            <td><?= htmlspecialchars($o['created_at']) ?></td>
+
+                            <td>
+                                <select name="statuses[<?= (int)$oid ?>]"
+                                        style="padding:6px 8px; border-radius:8px; border:1px solid #333;">
+                                    <?php foreach ($statusOptions as $s): ?>
+                                        <option value="<?= htmlspecialchars($s) ?>" <?= ($status === $s) ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($s) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+
+                            <td style="text-align:right; white-space:nowrap;">
+                                <button type="button"
+                                        onclick="toggleDetails('od-<?= $oid ?>')"
+                                        class="primary"
+                                        style="background:none;border:none;cursor:pointer;">
+                                    Details
+                                </button>
+
+                                <button type="submit"
+                                        name="order_id"
+                                        value="<?= $oid ?>"
+                                        formaction="delete-order.php"
+                                        formmethod="POST"
+                                        onclick="return confirm('Delete this order? This will also delete all its items.');"
+                                        class="primary"
+                                        style="background:none;border:none;color:#ff5c5c;cursor:pointer;">
+                                    Delete
+                                </button>
+                            </td>
+
+                        </tr>
+
+                        <tr id="od-<?= $oid ?>" style="display:none; background: rgba(255,255,255,0.02);">
+                            <td colspan="7" style="padding:14px 16px;">
+                                <div style="display:flex; gap:18px; flex-wrap:wrap;">
+                                    <div style="min-width:260px;">
+                                        <b>Order Code</b><br>
+                                        <?= htmlspecialchars($o['order_code']) ?><br><br>
+                                        <b>Customer</b><br>
+                                        <?= htmlspecialchars($o['customer_name']) ?><br>
+                                        <small class="text-muted"><?= htmlspecialchars($o['customer_email']) ?></small>
+                                    </div>
+
+                                    <div style="flex:1; min-width:360px;">
+                                        <b>Items</b>
+                                        <div style="margin-top:8px;">
+                                            <?php $items = $itemsByOrder[$oid] ?? []; ?>
+                                            <?php if (empty($items)): ?>
+                                                <small class="text-muted">No items found for this order.</small>
+                                            <?php else: ?>
+                                                <table style="width:100%; border-collapse:collapse;">
+                                                    <thead>
+                                                    <tr>
+                                                        <th style="text-align:left; padding:6px 0;">Menu</th>
+                                                        <th style="text-align:left; padding:6px 0;">Options</th>
+                                                        <th style="text-align:left; padding:6px 0;">Qty</th>
+                                                        <th style="text-align:left; padding:6px 0;">Price</th>
+                                                        <th style="text-align:left; padding:6px 0;">Subtotal</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <?php foreach ($items as $it): ?>
+                                                        <?php
+                                                        $qty = (int)$it['quantity'];
+                                                        $price = (float)$it['price'];
+                                                        $sub = $qty * $price;
+
+                                                        $optParts = [];
+                                                        if (!empty($it['temp'])) $optParts[] = "Temp: " . $it['temp'];
+                                                        if (!empty($it['milk'])) $optParts[] = "Milk: " . $it['milk'];
+                                                        if (!empty($it['syrup'])) $optParts[] = "Syrup: " . $it['syrup'];
+                                                        if (!empty($it['addons'])) $optParts[] = "Add-ons: " . $it['addons'];
+                                                        $opts = !empty($optParts) ? implode(" | ", array_map('htmlspecialchars', $optParts)) : "-";
+                                                        ?>
+
+                                                        <tr>
+                                                            <td style="padding:6px 0;"><?= htmlspecialchars($it['menu_name']) ?></td>
+                                                            <td style="padding:6px 0;"><small class="text-muted"><?= $opts ?></small></td>
+                                                            <td style="padding:6px 0;"><?= $qty ?></td>
+                                                            <td style="padding:6px 0;">RM<?= number_format($price, 2) ?></td>
+                                                            <td style="padding:6px 0;">RM<?= number_format($sub, 2) ?></td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                    </tbody>
+                                                </table>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+
+                                    <div style="min-width:220px;">
+                                        <b>Total</b><br>
+                                        RM<?= number_format((float)$o['total'], 2) ?><br><br>
+                                        <b>Status</b><br>
+                                        <?= htmlspecialchars(ucfirst($status)) ?>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                    <?php endforeach; ?>
+                <?php endif; ?>
+                </tbody>
+            </table>
+        </form>
+    </div>
+
+    <script>
+        function toggleDetails(id) {
+            const row = document.getElementById(id);
+            if (!row) return;
+            row.style.display = (row.style.display === 'none' || row.style.display === '') ? 'table-row' : 'none';
+        }
+    </script>
+</div>
+
             <div id="staff"    class="tab-content <?= $activeTab === 'staff' ? 'active' : '' ?>">
                 <h1>Staff</h1>
                 <p>Staff management content goes here.</p>
