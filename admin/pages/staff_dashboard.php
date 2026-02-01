@@ -1,12 +1,11 @@
 <?php
 
 session_start();
+
 if(!isset($_SESSION['email'])) {
     header('Location: index1.php');
     exit();
 }
-
-
 
 $db = require __DIR__ . "/../config/config.php";
 
@@ -781,7 +780,7 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
                                 </div>
                                 <div class="form-group">
                                     <label for="role"><span class="material-symbols-sharp">badge</span> Role</label>
-                                    <input type="text" id="role" name="role" value="staff" readonly>
+                                    <input type="text" id="role" name="role" value="<?= htmlspecialchars($user['role']) ?>" readonly>
                                 </div>
                             </div>
                             <input type="file" id="profile_photo" name="profile_photo" accept="image/*" style="display: none;">
@@ -803,7 +802,7 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
                 <div class="profile">
                     <div class="info">
                         <p>Hey, <?= htmlspecialchars($user['name']) ?></p>
-                        <small class="text-muted">Staff</small>
+                        <small class="text-muted"><?= htmlspecialchars($user['role']) ?></small>
                     </div>
                     <div class="profile-photo">
                         <img

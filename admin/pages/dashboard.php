@@ -797,7 +797,7 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
                                 </div>
                                 <div class="form-group">
                                     <label for="role"><span class="material-symbols-sharp">badge</span> Role</label>
-                                    <input type="text" id="role" name="role" value="admin" readonly>
+                                    <input type="text" id="role" name="role" value="<?= htmlspecialchars($user['role']) ?>" readonly>
                                 </div>
                             </div>
                             <input type="file" id="profile_photo" name="profile_photo" accept="image/*" style="display: none;">
@@ -819,7 +819,7 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
                 <div class="profile">
                     <div class="info">
                         <p>Hey, <?= htmlspecialchars($user['name']) ?></p>
-                        <small class="text-muted">Admin</small>
+                        <small class="text-muted"><?= htmlspecialchars($user['role']) ?></small>
                     </div>
                     <div class="profile-photo">
                         <img
