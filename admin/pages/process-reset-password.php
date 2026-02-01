@@ -96,11 +96,11 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
 if ($user === null) {
-  renderResult("danger", "Invalid link", "This reset link is invalid. Please request a new password reset.", "Request New Reset", "forgot-password.php");
+  renderResult("danger", "Invalid link", "This reset link is invalid. Please request a new password reset.", "Request New Reset", "forgot_password.php");
 }
 
 if (strtotime($user["reset_token_expires_at"]) <= time()) {
-  renderResult("danger", "Link expired", "This reset link has expired. Please request a new password reset.", "Request New Reset", "forgot-password.php");
+  renderResult("danger", "Link expired", "This reset link has expired. Please request a new password reset.", "Request New Reset", "forgot_password.php");
 }
 
 // Check passwords
@@ -140,6 +140,6 @@ $stmt->execute();
 if ($stmt->affected_rows > 0) {
   renderResult("success", "Password reset successfully", "Your password has been updated. You can now log in.", "Return to Login", "index1.php");
 } else {
-  renderResult("danger", "Update failed", "Could not reset your password. Please try again.", "Request New Reset", "forgot-password.php");
+  renderResult("danger", "Update failed", "Could not reset your password. Please try again.", "Request New Reset", "forgot_password.php");
 }
 ?>

@@ -1,24 +1,46 @@
 <?php
-
-$email = $_POST['email'];
-
-$token = bin2hex(random_bytes(16));
-
-$token_hash = hash('sha256', $token);
-
-$expiry = date("Y-m-d H:i:s", time() + 3600);
+session_start();
 
 $mysqli = require __DIR__ . '/../config/config.php';
 
-$sql = "UPDATE user
-        SET reset_token_hash = ?, reset_token_expires_at = ?
-        WHERE email = ?";
+$email = trim($_POST['email'] ?? '');
 
-$stmt = $mysqli->prepare($sql);
+if ($email === '') {
+    $_SESSION['forgot_error'] = "Please enter your email.";
+    header("Location: forgot_password.php"); // <-- change to your actual forgot page
+    exit;
+}
 
-$stmt->bind_param('sss', $token_hash, $expiry, $email);
+/**
+ * 1) Check if email exists
+ */
+$checkSql = "SELECT id FROM user WHERE email = ? LIMIT 1";
+$checkStmt = $mysqli->prepare($checkSql);
+$checkStmt->bind_param("s", $email);
+$checkStmt->execute();
+$checkResult = $checkStmt->get_result();
 
-$stmt->execute();
+if ($checkResult->num_rows === 0) {
+    // Email not found -> show message on forgot page
+    $_SESSION['forgot_error'] = "We couldn’t find an account with that email address.";
+    header("Location: forgot_password.php"); // <-- change to your actual forgot page
+    exit;
+}
+
+/**
+ * 2) If exists, generate token and update
+ */
+$token = bin2hex(random_bytes(16));
+$token_hash = hash('sha256', $token);
+$expiry = date("Y-m-d H:i:s", time() + 3600);
+
+$updateSql = "UPDATE user
+             SET reset_token_hash = ?, reset_token_expires_at = ?
+             WHERE email = ?";
+
+$updateStmt = $mysqli->prepare($updateSql);
+$updateStmt->bind_param('sss', $token_hash, $expiry, $email);
+$updateStmt->execute();
 
 if ($mysqli->affected_rows) {
     $mail = require __DIR__ . '/mailer.php';
@@ -41,11 +63,14 @@ if ($mysqli->affected_rows) {
     try {
         $mail->send();
     } catch (Exception $e) {
-        echo "Failed to send email. Mailer Error: {$mail->ErrorInfo}";
+        // optional: store mail error and redirect
+        $_SESSION['forgot_error'] = "We couldn’t find an account with that email address.";
+        header("Location: forgot_password.php");
+        exit;
     }
 }
 
-// --- Replace the plain echo with this styled page ---
+// If success, show your success HTML page (what you already have)
 ?>
 <!doctype html>
 <html lang="en">
@@ -61,7 +86,7 @@ if ($mysqli->affected_rows) {
       <div class="auth-head">
         <div>
           <h2 class="auth-title">Check your inbox</h2>
-          <p class="auth-subtitle">If the email is registered, we’ve sent a password reset link.</p>
+          <p class="auth-subtitle">We’ve sent a password reset link.</p>
         </div>
         <div class="badge badge-success">✅ Sent</div>
       </div>
@@ -77,4 +102,3 @@ if ($mysqli->affected_rows) {
   </div>
 </body>
 </html>
-<?php
