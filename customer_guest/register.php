@@ -89,10 +89,20 @@ if(isset($_POST['register_btn']))
     mysqli_stmt_close($check);
 
     $verify_token = md5(rand());
+    $verify_expires = date("Y-m-d H:i:s", strtotime("+24 hours"));
     $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
-    $stmt = mysqli_prepare($con, "INSERT INTO users (name, phone, email, password, verify_token, verify_status) VALUES (?, ?, ?, ?, ?, 0)");
-    mysqli_stmt_bind_param($stmt, "sssss", $name, $phone, $email, $password_hash, $verify_token);
+    $stmt = mysqli_prepare($con, "INSERT INTO users (name, phone, email, password, verify_token, verify_expires, verify_status) VALUES (?, ?, ?, ?, ?, ?, 0)");
+    mysqli_stmt_bind_param(
+    $stmt,
+    "ssssss",
+    $name,
+    $phone,
+    $email,
+    $password_hash,
+    $verify_token,
+    $verify_expires
+);
 
     if (mysqli_stmt_execute($stmt)) {
         $sent = sendemail_verify($name, $email, $verify_token);

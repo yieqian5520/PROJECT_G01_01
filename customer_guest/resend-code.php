@@ -38,8 +38,10 @@ function resend_email_verify($name, $email, $verify_token)
         $mail->Subject = "Resend Verification - Pucks Coffee";
         $mail->Body = "
             <h2>Hi {$name}</h2>
+            <p>Your previous verification link has expired.</p>
             <p>Please verify your email:</p>
             <p><a href='{$verify_link}'>Click Here to Verify</a></p>
+            <small>This link will expire in 24 hours.</small>
         ";
 
         $mail->send();
@@ -63,7 +65,12 @@ if (isset($_POST['resend_email_verify_btn'])) {
 
     $email = mysqli_real_escape_string($con, $email);
 
-    $q = "SELECT name, email, verify_token, verify_status FROM users WHERE email='$email' LIMIT 1";
+    $q = "
+        SELECT id, name, email, verify_status
+        FROM users
+        WHERE email='$email'
+        LIMIT 1
+    ";
     $r = mysqli_query($con, $q);
 
     if (mysqli_num_rows($r) === 0) {
@@ -80,10 +87,24 @@ if (isset($_POST['resend_email_verify_btn'])) {
         exit();
     }
 
-    $sent = resend_email_verify($row['name'], $row['email'], $row['verify_token']);
+    // 🔑 Generate NEW token + expiry
+    $new_token   = md5(uniqid(rand(), true));
+    $new_expiry  = date("Y-m-d H:i:s", strtotime("+24 hours"));
+
+    $update = "
+        UPDATE users
+        SET verify_token='$new_token',
+            verify_expires='$new_expiry'
+        WHERE id='{$row['id']}'
+        LIMIT 1
+    ";
+    mysqli_query($con, $update);
+
+    // 📧 Send new email
+    $sent = resend_email_verify($row['name'], $row['email'], $new_token);
 
     $_SESSION['status'] = $sent
-        ? "Verification email resent successfully."
+        ? "Verification email resent successfully. Please check your inbox."
         : "Failed to send email. Please try again later.";
 
     header("Location: login.php");
