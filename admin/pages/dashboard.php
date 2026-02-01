@@ -400,8 +400,10 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
 
                 // Query orders + customer (users table is used in your customers/feedback code)
                 $sql = "
-                    SELECT o.id, o.user_id, o.order_code, o.total, o.status, o.created_at,
-                        u.name AS customer_name, u.email AS customer_email, u.phone AS customer_phone
+                    SELECT 
+                        o.id, o.user_id, o.order_code, o.total, o.status, o.created_at,
+                        o.payment_status, o.payment_method, o.paid_at,
+                        u.name AS customer_name, u.email AS customer_email
                     FROM orders o
                     JOIN users u ON u.id = o.user_id
                     WHERE 1=1
@@ -514,15 +516,15 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
 
     <table>
         <thead>
-            <tr>
-                <th>Order</th>
-                <th>Customer</th>
-                <th>Contact</th>
-                <th>Total</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th style="text-align:right;">Actions</th>
-            </tr>
+        <tr>
+            <th>Order</th>
+            <th>Customer</th>
+            <th>Total</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Payment</th>
+            <th style="text-align:right;">Actions</th>
+        </tr>
         </thead>
 
         <tbody>
@@ -542,21 +544,27 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
                     <small class="text-muted"><?= htmlspecialchars($o['customer_email']) ?></small>
                 </td>
 
-                <td><?= htmlspecialchars($o['customer_phone'] ?? '-') ?></td>
-
                 <td>RM<?= number_format((float)$o['total'], 2) ?></td>
 
                 <td><?= htmlspecialchars($o['created_at']) ?></td>
 
                 <td>
-                    <select name="statuses[<?= $oid ?>]"
-                            style="padding:6px 8px; border-radius:8px; border:1px solid #333;">
-                        <?php foreach ($statusOptions as $s): ?>
-                            <option value="<?= htmlspecialchars($s) ?>" <?= ($status === $s) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($s) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+                <select name="statuses[<?= $oid ?>]"
+                        style="padding:6px 8px; border-radius:8px; border:1px solid #333;">
+                    <?php foreach ($statusOptions as $s): ?>
+                    <option value="<?= htmlspecialchars($s) ?>" <?= ($status === $s) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($s) ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+                </td>
+
+                <td>
+                <?php
+                    $pay = strtoupper(trim($o['payment_status'] ?? 'UNPAID'));
+                    $payClass = ($pay === 'PAID') ? 'delivered' : 'pending';
+                ?>
+                <span class="status <?= $payClass ?>"><?= htmlspecialchars($pay) ?></span>
                 </td>
 
                 <td style="text-align:right; white-space:nowrap;">
@@ -639,11 +647,21 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
                                                 </div>
                                             </div>
 
-                                            <div style="min-width:220px;">
-                                                <b>Total</b><br>
-                                                RM<?= number_format((float)$o['total'], 2) ?><br><br>
-                                                <b>Status</b><br>
-                                                <?= htmlspecialchars(ucfirst($status)) ?>
+                                            <div style="min-width:240px;">
+                                            <b>Total</b><br>
+                                            RM<?= number_format((float)$o['total'], 2) ?><br><br>
+
+                                            <b>Status</b><br>
+                                            <?= htmlspecialchars($status) ?><br><br>
+
+                                            <b>Payment Status</b><br>
+                                            <?= htmlspecialchars($o['payment_status'] ?? 'UNPAID') ?><br><br>
+
+                                            <b>Payment Method</b><br>
+                                            <?= !empty($o['payment_method']) ? htmlspecialchars($o['payment_method']) : '-' ?><br><br>
+
+                                            <b>Paid At</b><br>
+                                            <?= !empty($o['paid_at']) ? htmlspecialchars($o['paid_at']) : '-' ?>
                                             </div>
                                         </div>
                                     </td>

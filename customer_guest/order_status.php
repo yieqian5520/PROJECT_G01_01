@@ -1,14 +1,52 @@
 <?php
 session_start();
 include_once "dbcon.php";
+
+/* ============================
+   1) LATEST ORDER REDIRECT
+   MUST BE BEFORE header.php
+============================ */
+if (isset($_GET['latest'])) {
+
+    if (!isset($_SESSION['auth_user']['id'])) {
+        // No header included yet, so safe to echo
+        echo "<h3 style='padding:40px;text-align:center;'>Please login to view your order</h3>";
+        exit;
+    }
+
+    $uid = (int)$_SESSION['auth_user']['id'];
+
+    $latest = mysqli_query($con, "
+        SELECT order_code
+        FROM orders
+        WHERE user_id = $uid
+        ORDER BY id DESC
+        LIMIT 1
+    ");
+
+    if ($latest && mysqli_num_rows($latest) > 0) {
+        $row = mysqli_fetch_assoc($latest);
+        header("Location: order_status.php?order=" . urlencode($row['order_code']));
+        exit;
+    } else {
+        echo "<h3 style='padding:40px;text-align:center;'>No orders found</h3>";
+        exit;
+    }
+}
+
+/* ============================
+   2) NOW SAFE TO OUTPUT HTML
+============================ */
 include_once "includes/header.php";
 
+/* ============================
+   3) LOAD ORDER DETAILS
+============================ */
 $order = $_GET['order'] ?? '';
 $order = mysqli_real_escape_string($con, $order);
 
-// Find order by code
 $res = mysqli_query($con, "
-    SELECT id, order_code, status, created_at, total
+    SELECT id, order_code, status, created_at, total, payment_status, payment_method
     FROM orders
     WHERE order_code='$order'
     LIMIT 1
@@ -16,17 +54,15 @@ $res = mysqli_query($con, "
 
 if (!$res || mysqli_num_rows($res) == 0) {
     echo "<h3 style='padding:40px;text-align:center;'>Order Not Found</h3>";
-
-    // Debug (temporarily)
-    // echo "<pre>SQL error: " . mysqli_error($con) . "</pre>";
-
     include_once "includes/footer.php";
     exit;
 }
 
 $o = mysqli_fetch_assoc($res);
 
-// Get order items (use your actual inserted columns)
+/* ============================
+   4) LOAD ORDER ITEMS
+============================ */
 $items_res = mysqli_query($con, "
     SELECT 
         oi.menu_name,
@@ -61,23 +97,21 @@ if ($items_res && mysqli_num_rows($items_res) > 0) {
     }
 }
 
-// Map order status to step
+/* ============================
+   5) STATUS STEPS
+============================ */
 $statusSteps = [
     'Confirmed' => 1,
     'Preparing' => 2,
     'Ready' => 3,
 ];
-
 $currentStep = $statusSteps[$o['status']] ?? 0;
-
 ?>
 
 <link rel="stylesheet" href="styleorder.css">
 
-
 <section class="os-page">
 
-  <!-- Top header -->
   <div class="os-header">
     <a class="os-back" href="javascript:history.back()">&#8592;</a>
 
@@ -91,7 +125,6 @@ $currentStep = $statusSteps[$o['status']] ?? 0;
     </div>
   </div>
 
-  <!-- Step tracker -->
   <div class="os-tracker card">
     <div class="os-steps">
 
@@ -124,21 +157,10 @@ $currentStep = $statusSteps[$o['status']] ?? 0;
       </div>
 
     </div>
-
-    <?php if (!empty($o['pickup_code'])): ?>
-      <div class="os-pickup">
-        <div>
-          <h4>Pickup code</h4>
-          <p><?= htmlspecialchars($o['pickup_code']) ?></p>
-        </div>
-      </div>
-    <?php endif; ?>
   </div>
 
-  <!-- Body -->
   <div class="os-grid">
 
-    <!-- Items card -->
     <div class="card os-items">
       <h3>Item ordered</h3>
       <div class="os-items-scroll">
@@ -151,9 +173,9 @@ $currentStep = $statusSteps[$o['status']] ?? 0;
               <p class="meta">Qty: <?= (int)$item['quantity'] ?></p>
             </div>
             <?php
-            $unit = (float)$item['price'];
-            $qty  = (int)$item['quantity'];
-            $lineTotal = $unit * $qty;
+              $unit = (float)$item['price'];
+              $qty  = (int)$item['quantity'];
+              $lineTotal = $unit * $qty;
             ?>
             <div class="os-item-price">
               RM<?= number_format($lineTotal, 2) ?>
@@ -169,35 +191,42 @@ $currentStep = $statusSteps[$o['status']] ?? 0;
       </div>
     </div>
 
-    <!-- Payment card -->
-    <div class="card os-pay">
-      <h3>Payment</h3>
+    <?php if (($o['payment_status'] ?? 'UNPAID') !== 'PAID'): ?>
+      <div class="card os-pay">
+        <h3>Payment</h3>
 
-      <form action="order_history.php" method="GET" class="os-pay-form">
-        <input type="hidden" name="order_id" value="<?= (int)($o['id'] ?? 0) ?>">
+        <form action="pay_order.php" method="POST" class="os-pay-form">
+          <input type="hidden" name="order_id" value="<?= (int)$o['id'] ?>">
 
-        <div class="os-radio">
-          <?php foreach (['Cash','TNG','Credit Card'] as $method): ?>
-            <label class="radio">
-              <input type="radio" name="payment_method" value="<?= $method ?>" required>
-              <span><?= $method ?></span>
-            </label>
-          <?php endforeach; ?>
-        </div>
-
-        <div class="os-summary">
-          <div class="row">
-            <span>Total</span>
-            <b>RM <?= number_format((float)($o['total'] ?? 0), 2) ?></b>
+          <div class="os-radio">
+            <?php foreach (['Cash','TNG','Credit Card'] as $method): ?>
+              <label class="radio">
+                <input type="radio" name="payment_method" value="<?= $method ?>" required>
+                <span><?= $method ?></span>
+              </label>
+            <?php endforeach; ?>
           </div>
 
-          <button type="submit" class="os-btn">Pay now</button>
-        </div>
-      </form>
-    </div>
+          <div class="os-summary">
+            <div class="row">
+              <span>Total</span>
+              <b>RM <?= number_format((float)$o['total'], 2) ?></b>
+            </div>
+
+            <button type="submit" class="os-btn">Pay now</button>
+          </div>
+        </form>
+      </div>
+    <?php else: ?>
+      <div class="card os-pay" style="padding:18px;">
+        <h3>Payment</h3>
+        <p style="margin:0;">
+          ✅ Paid<?= !empty($o['payment_method']) ? " via <b>" . htmlspecialchars($o['payment_method']) . "</b>" : "" ?>.
+        </p>
+      </div>
+    <?php endif; ?>
 
   </div>
 </section>
-
 
 <?php include_once "includes/footer.php"; ?>

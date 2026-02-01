@@ -9,5 +9,5 @@ mysqli_query($con, "
     WHERE order_code='$order'
 ");
 
-header("Location: order_status.php?order=$order");
+header("Location: order_status.php?latest=1");
 exit;
