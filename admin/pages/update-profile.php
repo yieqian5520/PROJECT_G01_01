@@ -29,7 +29,12 @@ if (!$userId) {
   $_SESSION['id'] = $userId;
 }
 
-$returnTo = $_POST['return_to'] ?? 'staff_dashboard.php?tab=profile';
+$returnTo = $_POST['return_to'] ?? 'dashboard.php?tab=profile';
+$returnTo = trim($returnTo);
+
+if ($returnTo === '') {
+  $returnTo = 'dashboard.php?tab=profile';
+}
 
 // basic safety: only allow local redirects
 if (str_contains($returnTo, '://') || str_starts_with($returnTo, '//')) {
@@ -38,6 +43,13 @@ if (str_contains($returnTo, '://') || str_starts_with($returnTo, '//')) {
 
 $name  = trim($_POST['name'] ?? '');
 $phone = trim($_POST['phone'] ?? '');
+$phone = preg_replace('/\D+/', '', $phone);
+
+if (str_starts_with($phone, '011')) {
+  if (strlen($phone) !== 11) { header("Location: {$returnTo}&err=badphone"); exit(); }
+} else {
+  if (strlen($phone) !== 10) { header("Location: {$returnTo}&err=badphone"); exit(); }
+}
 
 if ($name === '' || $phone === '') {
   header("Location: {$returnTo}&err=missing");

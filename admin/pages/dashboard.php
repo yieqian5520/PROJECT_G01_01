@@ -784,7 +784,18 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="phone"><span class="material-symbols-sharp">phone</span> Phone Number</label>
-                                    <input type="tel" id="phone" name="phone" value="<?= htmlspecialchars($user['phone'] ?? '') ?>" required>
+                                    <input
+                                    type="tel"
+                                    id="phone"
+                                    name="phone"
+                                    value="<?= htmlspecialchars($user['phone'] ?? '') ?>"
+                                    required
+                                    inputmode="numeric"
+                                    maxlength="11"
+                                    pattern="^01[0-9]{8,9}$"
+                                    title="Enter a valid phone number"
+                                    oninput="this.value = this.value.replace(/\D/g,'').slice(0,11);"
+                                    />
                                 </div>
                                 <div class="form-group">
                                     <label for="role"><span class="material-symbols-sharp">badge</span> Role</label>
