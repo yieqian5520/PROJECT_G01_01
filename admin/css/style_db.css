@@ -293,36 +293,43 @@ main .insights .progress {
   width: 92px;
   height: 92px;
   border-radius: 50%;
+  --p: 0;
+  --circ: 226.2; /* 2 * PI * 36 */
 }
 
-main .insights svg {
+main .insights .progress svg {
   width: 7rem;
   height: 7rem;
 }
 
-main .insights svg circle {
+main .insights .progress circle {
   fill: none;
-  stroke: var(--color-primary);
   stroke-width: 14;
   stroke-linecap: round;
-  transform: translate(5px, 5px);
-  stroke-dasharray: 110;
-  stroke-dashoffset: 92;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  stroke-dasharray: var(--circ);
 }
 
-main .insights .sales svg circle {
-  stroke-dashoffset: -30;
-  stroke-dasharray: 200;
+/* background ring */
+main .insights .progress circle.bg {
+  stroke: var(--color-light);
 }
 
-main .insights .expenses svg circle {
-  stroke-dashoffset: 20;
-  stroke-dasharray: 80;
+/* progress ring (this one changes with --p) */
+main .insights .progress circle.bar {
+  stroke-dashoffset: calc(var(--circ) - (var(--circ) * var(--p) / 100));
 }
 
-main .insights .income svg circle {
-  stroke-dashoffset: 35;
-  stroke-dasharray: 110;
+/* color by card */
+main .insights .sales   .progress circle.bar { stroke: var(--color-primary); }
+main .insights .expenses .progress circle.bar { stroke: var(--color-danger); }
+main .insights .income  .progress circle.bar { stroke: var(--color-success); }
+
+
+main .insights svg {
+  width: 7rem;
+  height: 7rem;
 }
 
 main .insights .progress .number {

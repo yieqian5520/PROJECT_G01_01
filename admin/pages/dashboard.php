@@ -41,6 +41,64 @@ if (empty($_SESSION['csrf'])) {
     $_SESSION['csrf'] = bin2hex(random_bytes(16));
 }
 
+// --- Date picker support (Dashboard) ---
+$selectedDate = $_GET['date'] ?? date('Y-m-d');
+
+// Basic validation (prevents weird values)
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $selectedDate)) {
+    $selectedDate = date('Y-m-d');
+}
+
+$todayTotals = [
+  'total_sales' => 0,
+  'total_expenses' => 0,
+  'total_income' => 0
+];
+
+$todayStmt = $db->prepare("
+  SELECT
+    COALESCE(SUM(o.total),0) AS total_sales,
+
+    COALESCE(SUM(GREATEST(oi.price - 4, 0) * oi.quantity),0) AS total_expenses,
+
+    COALESCE(
+      (SUM(o.total) - SUM(GREATEST(oi.price - 4, 0) * oi.quantity)),
+      0
+    ) AS total_income
+
+  FROM orders o
+  JOIN order_items oi ON oi.order_id = o.id
+  WHERE DATE(o.created_at) = ?
+  AND UPPER(TRIM(o.payment_status)) = 'PAID'
+");
+
+$todayStmt->bind_param("s", $selectedDate);
+$todayStmt->execute();
+$todayTotals = $todayStmt->get_result()->fetch_assoc();
+
+$sales    = (float)($todayTotals['total_sales'] ?? 0);
+$expenses = (float)($todayTotals['total_expenses'] ?? 0);
+$income   = (float)($todayTotals['total_income'] ?? 0);
+
+/**
+ * DAILY TARGETS (edit these to your goals)
+ * You can also load these from DB later if you want.
+ */
+$salesTarget    = 700;  // RM per day (example)
+$expensesLimit  = 280;  // RM max expenses per day (example)
+$incomeTarget   = 420;  // RM per day (example)
+
+// Percent helper
+$calcPct = function(float $value, float $target): int {
+    if ($target <= 0) return 0;
+    $pct = (int) round(($value / $target) * 100);
+    return max(0, min(100, $pct));
+};
+
+$salesPct    = $calcPct($sales, $salesTarget);
+$expensesPct = $calcPct($expenses, $expensesLimit);
+$incomePct   = $calcPct($income, $incomeTarget);
+
 $latestFeedback = [];
 $latestFbStmt = $db->prepare("
     SELECT fm.id, fm.rating, fm.comment, fm.created_at,
@@ -68,6 +126,8 @@ $focusOrderId = isset($_GET['focus']) ? (int)$_GET['focus'] : 0;
 if (isset($_GET['search']) && trim($_GET['search']) !== '') {
     $activeTab = 'customers';
 }
+
+
 ?>
 
 <!DOCTYPE html>
@@ -143,7 +203,15 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
             <div id="dashboard" class="tab-content <?= $activeTab === 'dashboard' ? 'active' : '' ?>">
                 <h1>Dashboard</h1>
                 <div class="date">
-                    <input type="date">
+                <form method="GET">
+                    <input type="hidden" name="tab" value="dashboard">
+                    <input
+                    type="date"
+                    name="date"
+                    value="<?= htmlspecialchars($selectedDate) ?>"
+                    onchange="this.form.submit()"
+                    >
+                </form>
                 </div>
 
                 <div class="insights">
@@ -152,14 +220,16 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
                         <div class="middle">
                             <div class="left">
                                 <h3>Total Sales</h3>
-                                <h1>RM25,024</h1>
+                                <h1>RM<?= number_format((float)$todayTotals['total_sales'], 2) ?></h1>
+                                <small class="text-muted">Target: RM<?= number_format($salesTarget, 2) ?></small>
                             </div>
-                            <div class="progress">
-                                <svg>
-                                    <circle cx='38' cy='38' r='36'></circle>
+                            <div class="progress" style="--p: <?= $salesPct ?>;">
+                                <svg viewBox="0 0 80 80">
+                                    <circle class="bg"  cx="40" cy="40" r="32"></circle>
+                                    <circle class="bar" cx="40" cy="40" r="32"></circle>
                                 </svg>
                                 <div class="number">
-                                    <p>81%</p>
+                                    <p><?= $salesPct ?>%</p>
                                 </div>
                             </div>
                         </div>
@@ -171,14 +241,16 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
                         <div class="middle">
                             <div class="left">
                                 <h3>Total Expenses</h3>
-                                <h1>RM14,160</h1>
+                                <h1>RM<?= number_format((float)$todayTotals['total_expenses'], 2) ?></h1>
+                                <small class="text-muted">Limit: RM<?= number_format($expensesLimit, 2) ?></small>
                             </div>
-                            <div class="progress">
-                                <svg>
-                                    <circle cx='38' cy='38' r='36'></circle>
+                            <div class="progress" style="--p: <?= $expensesPct ?>;">
+                                <svg viewBox="0 0 80 80">
+                                    <circle class="bg"  cx="40" cy="40" r="32"></circle>
+                                    <circle class="bar" cx="40" cy="40" r="32"></circle>
                                 </svg>
                                 <div class="number">
-                                    <p>62%</p>
+                                    <p><?= $expensesPct ?>%</p>
                                 </div>
                             </div>
                         </div>
@@ -190,14 +262,16 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
                         <div class="middle">
                             <div class="left">
                                 <h3>Total Income</h3>
-                                <h1>RM10,864</h1>
+                                <h1>RM<?= number_format((float)$todayTotals['total_income'], 2) ?></h1>
+                                <small class="text-muted">Target: RM<?= number_format($incomeTarget, 2) ?></small>
                             </div>
-                            <div class="progress">
-                                <svg>
-                                    <circle cx='38' cy='38' r='36'></circle>
+                            <div class="progress" style="--p: <?= $incomePct ?>;">
+                                <svg viewBox="0 0 80 80">
+                                    <circle class="bg"  cx="40" cy="40" r="32"></circle>
+                                    <circle class="bar" cx="40" cy="40" r="32"></circle>
                                 </svg>
                                 <div class="number">
-                                    <p>44%</p>
+                                    <p><?= $incomePct ?>%</p>
                                 </div>
                             </div>
                         </div>
