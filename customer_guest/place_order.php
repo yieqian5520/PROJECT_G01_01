@@ -72,7 +72,7 @@ foreach ($items as $i) {
 mysqli_query($con,"DELETE FROM cart_items WHERE session_id='$sid'");
 unset($_SESSION['order_type']);
 
-echo "<script>
-    window.top.location.href = 'order_status.php?order=$order_code';
-</script>";
+header("Location: order_status.php?latest=1");
 exit;
+
+

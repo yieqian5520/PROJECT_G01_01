@@ -16,21 +16,32 @@ $res = mysqli_query($con, "
   <h2 class="section-title">My Orders History</h2>
 
   <table class="table table-bordered">
-    <tr>
-      <th>Order Code</th>
-      <th>Total</th>
-      <th>Status</th>
-      <th>Date</th>
-    </tr>
-
+    <thead>
+      <tr>
+        <th>Order Code</th>
+        <th>Total</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th>Record</th> <!-- New column -->
+      </tr>
+    </thead>
+    <tbody>
     <?php while ($o = mysqli_fetch_assoc($res)): ?>
       <tr>
-        <td><?= $o['order_code'] ?></td>
+        <td><?= htmlspecialchars($o['order_code']) ?></td>
         <td>RM <?= number_format($o['total'],2) ?></td>
-        <td><?= $o['status'] ?></td>
-        <td><?= $o['created_at'] ?></td>
+        <td><?= htmlspecialchars($o['status']) ?></td>
+        <td><?= date("d/m/Y H:i", strtotime($o['created_at'])) ?></td>
+        <td style="text-align:center;">
+          <!-- Details icon -->
+          <a href="order_status.php?order=<?= urlencode($o['order_code']) ?>" title="View Details">
+    <i class="bi bi-card-list" style="font-size:18px;color:#2e7d32;"></i>
+</a>
+
+        </td>
       </tr>
     <?php endwhile; ?>
+    </tbody>
   </table>
 </section>
 

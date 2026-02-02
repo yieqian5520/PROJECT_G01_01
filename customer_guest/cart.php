@@ -125,11 +125,17 @@ body { font-family: Arial, sans-serif; background:#f8f8f8; }
   </div>
 
   <?php if($items): ?>
-  <form action="place_order.php" method="POST">
-      <button class="place-btn">Place Order</button>
-  </form>
-  <?php endif; ?>
-</div>
+    <button class="place-btn" onclick="placeOrder()">Place Order</button>
+<?php endif; ?>
+
+<script>
+function placeOrder() {
+    // Force the entire window to navigate, not just the modal
+    window.top.location.href = 'place_order.php';
+}
+</script>
+
+
 
 </div>
 

@@ -223,7 +223,12 @@ $currentStep = $statusSteps[$o['status']] ?? 0;
         <p style="margin:0;">
           ✅ Paid<?= !empty($o['payment_method']) ? " via <b>" . htmlspecialchars($o['payment_method']) . "</b>" : "" ?>.
         </p>
+
+        <p style="margin-top:8px;font-weight:bold;">
+         Total: RM <?= number_format((float)$o['total'], 2) ?>
+        </p>
       </div>
+      
     <?php endif; ?>
 
   </div>
