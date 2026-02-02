@@ -349,7 +349,21 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
             </div>
             <div id="customers" class="tab-content <?= $activeTab === 'customers' ? 'active' : '' ?>">
                 <h1>Customers</h1>
+                <?php if (!empty($_SESSION['flash_success'])): ?>
+                <div class="alert success" style="margin-top:12px;">
+                    <span class="material-symbols-sharp">check_circle</span>
+                    <?= htmlspecialchars($_SESSION['flash_success']) ?>
+                </div>
+                <?php unset($_SESSION['flash_success']); ?>
+                <?php endif; ?>
 
+                <?php if (!empty($_SESSION['flash_error'])): ?>
+                <div class="alert error" style="margin-top:12px;">
+                    <span class="material-symbols-sharp">error</span>
+                    <?= htmlspecialchars($_SESSION['flash_error']) ?>
+                </div>
+                <?php unset($_SESSION['flash_error']); ?>
+                <?php endif; ?>               
                 <?php
                 // Simple search
                 $search = trim($_GET['search'] ?? '');
@@ -435,8 +449,7 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
                                     <td><?= htmlspecialchars($row['created_at']) ?></td>
 
                                     <td style="text-align:right;">
-                                        <a class="primary" href="edit-customer.php?id=<?= (int)$row['id'] ?>">Edit</a>
-
+                                        <a class="primary" href="edit-customer-admin.php?id=<?= (int)$row['id'] ?>">Edit</a>
                                         <form method="POST" action="delete-customer.php" style="display:inline;" onsubmit="return confirm('Delete this customer?');">
                                             <input type="hidden" name="id" value="<?= (int)$row['id'] ?>">
                                             <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
