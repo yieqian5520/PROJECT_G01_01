@@ -676,5 +676,8 @@ main .profile-form .btn-primary:hover {
   color: var(--color-white);
 }
 
-
+tr.row-selected {
+  outline: 2px solid rgba(255, 92, 92, 0.65);
+  background: rgba(255, 92, 92, 0.08) !important;
+}
 
