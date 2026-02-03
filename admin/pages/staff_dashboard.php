@@ -58,29 +58,35 @@ $todayTotals = [
 
 $todayStmt = $db->prepare("
   SELECT
-    COALESCE(SUM(o.total),0) AS total_sales,
-
-    COALESCE(SUM(GREATEST(oi.price - 4, 0) * oi.quantity),0) AS total_expenses,
-
-    COALESCE(
-      (SUM(o.total) - SUM(GREATEST(oi.price - 4, 0) * oi.quantity)),
-      0
-    ) AS total_income
-
-  FROM orders o
-  JOIN order_items oi ON oi.order_id = o.id
-  WHERE DATE(o.created_at) = ?
-  AND UPPER(TRIM(o.payment_status)) = 'PAID'
+    (COALESCE(s.sales,0)    + COALESCE(a.sales,0))    AS total_sales,
+    (COALESCE(e.expenses,0) + COALESCE(a.expenses,0)) AS total_expenses,
+    (COALESCE(s.sales,0) - COALESCE(e.expenses,0) + COALESCE(a.income,0)) AS total_income
+  FROM
+    (
+      SELECT COALESCE(SUM(o.total),0) AS sales
+      FROM orders o
+      WHERE DATE(o.created_at) = ?
+        AND UPPER(TRIM(o.payment_status)) = 'PAID'
+    ) s
+  CROSS JOIN
+    (
+      SELECT COALESCE(SUM(GREATEST(oi.price - 4, 0) * oi.quantity),0) AS expenses
+      FROM order_items oi
+      JOIN orders o ON o.id = oi.order_id
+      WHERE DATE(o.created_at) = ?
+        AND UPPER(TRIM(o.payment_status)) = 'PAID'
+    ) e
+  LEFT JOIN dashboard_daily_totals a
+    ON a.day = ?
 ");
+$todayStmt->bind_param("sss", $selectedDate, $selectedDate, $selectedDate);
 
-$todayStmt->bind_param("s", $selectedDate);
 $todayStmt->execute();
 $todayTotals = $todayStmt->get_result()->fetch_assoc();
 
 $sales    = (float)($todayTotals['total_sales'] ?? 0);
-$expenses = (float)($todayTotals['total_expenses'] ?? 0);
-$income   = (float)($todayTotals['total_income'] ?? 0);
-
+    $expenses = (float)($todayTotals['total_expenses'] ?? 0);
+    $income   = (float)($todayTotals['total_income'] ?? 0);
 /**
  * DAILY TARGETS (edit these to your goals)
  * You can also load these from DB later if you want.
@@ -460,9 +466,8 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
 
     <?php
     // Filters
-    $order_search = trim($_GET['order_search'] ?? '');
+    $order_search  = trim($_GET['order_search'] ?? '');
     $status_filter = trim($_GET['status'] ?? '');
-
     $like = "%{$order_search}%";
 
     // Allowed statuses (adjust to your flow)
@@ -471,20 +476,18 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
         'Preparing' => 2,
         'Ready'     => 3,
     ];
-
     $statusOptions = array_keys($statusSteps);
 
     // Query orders + customer
     $sql = "
-    SELECT 
-        o.id, o.user_id, o.order_code, o.total, o.status, o.created_at,
-        o.payment_status, o.payment_method, o.paid_at,
-        u.name AS customer_name, u.email AS customer_email
-    FROM orders o
-    JOIN users u ON u.id = o.user_id
-    WHERE 1=1
-";
-
+        SELECT 
+            o.id, o.user_id, o.order_code, o.total, o.status, o.created_at,
+            o.payment_status, o.payment_method, o.paid_at,
+            u.name AS customer_name, u.email AS customer_email
+        FROM orders o
+        JOIN users u ON u.id = o.user_id
+        WHERE 1=1
+    ";
 
     $types = "";
     $params = [];
@@ -547,7 +550,9 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
     }
     ?>
 
-    <form method="GET" style="margin: 12px 0; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+    <!-- FILTER BAR (same as admin but staff link) -->
+    <form method="GET" id="orderFilterForm"
+          style="margin: 12px 0; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
         <input type="hidden" name="tab" value="orders">
 
         <input
@@ -572,28 +577,62 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
             Filter
         </button>
 
+        <!-- Bulk Delete Toggle -->
+        <button type="button"
+                id="toggleBulkDeleteOrders"
+                class="btn-primary"
+                style="padding:10px 14px; border-radius:10px; border:none; cursor:pointer; background:#ff5c5c;">
+            Delete
+        </button>
+
+        <span id="selectedCounterOrders"
+              style="display:none; margin-left:6px; font-size:13px; opacity:.85;">
+            0 selected
+        </span>
+
         <?php if ($order_search !== '' || $status_filter !== ''): ?>
             <a href="staff_dashboard.php?tab=orders" style="margin-left:6px;">Clear</a>
         <?php endif; ?>
     </form>
 
     <div class="recent-orders">
-        <h2>Order List</h2>
+    <h2 style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+        <span>Order List</span>
 
-        <form method="POST" action="bulk-update-order-status.php" id="bulkStatusForm">
-            <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
-            <input type="hidden" name="return_to" value="staff_dashboard.php?tab=orders">
-            <div style="margin: 8px 0 14px 0; display:flex; justify-content:flex-end; gap:10px;">
-                <button type="submit"
-                        class="btn-primary"
-                        style="padding:10px 14px; border-radius:10px; border:none; cursor:pointer;">
-                    Update All
-                </button>
-            </div>
+        <!-- Cancel button (only shows in delete mode) -->
+        <button type="button" id="cancelBulkDeleteOrders"
+            style="display:none; background:none; border:1px solid rgba(255,255,255,.2); color:#fff; padding:8px 12px; border-radius:10px; cursor:pointer;">
+            Cancel
+        </button>
+    </h2>
 
-            <table>
-                <thead>
+    <!-- DELETE FORM (hidden) - this is what the JS submits -->
+    <form id="ordersDeleteForm" method="POST" action="bulk-delete-orders.php">
+        <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
+        <input type="hidden" name="return_to" value="staff_dashboard.php?tab=orders">
+    </form>
+
+    <!-- UPDATE STATUS FORM (main) -->
+    <form method="POST" action="update-order-status.php" id="ordersActionForm">
+        <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
+        <input type="hidden" name="return_to" value="staff_dashboard.php?tab=orders">
+
+        <div style="margin: 8px 0 14px 0; display:flex; justify-content:flex-end; gap:10px;">
+            <button type="submit"
+                    class="btn-primary"
+                    style="padding:10px 14px; border-radius:10px; border:none; cursor:pointer;">
+                Update All
+            </button>
+        </div>
+
+        <table id="ordersTable">
+            <thead>
                 <tr>
+                    <!-- Checkbox column (hidden until delete mode) -->
+                    <th class="select-col-orders" style="width:46px; text-align:center; display:none;">
+                        <input type="checkbox" id="checkAllOrders">
+                    </th>
+
                     <th>Order</th>
                     <th>Customer</th>
                     <th>Total</th>
@@ -602,98 +641,94 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
                     <th>Payment</th>
                     <th style="text-align:right;">Actions</th>
                 </tr>
-                </thead>
+            </thead>
 
-                <tbody>
-                <?php if (empty($orders)): ?>
-                    <tr>
-                        <td colspan="7" style="text-align:center; padding:16px;">No orders found.</td>
-                    </tr>
-                <?php else: ?>
-                    <?php foreach ($orders as $o): ?>
-                        <?php
+            <tbody>
+            <?php if (empty($orders)): ?>
+                <tr>
+                    <td colspan="8" style="text-align:center; padding:16px;">No orders found.</td>
+                </tr>
+            <?php else: ?>
+                <?php foreach ($orders as $o): ?>
+                    <?php
                         $oid = (int)$o['id'];
                         $status = trim($o['status'] ?? 'Confirmed');
+                    ?>
 
-    
-                        ?>
+                    <tr class="order-row" data-id="<?= $oid ?>">
+                        <!-- Checkbox column (hidden until delete mode) -->
+                        <td class="select-col-orders" style="text-align:center; display:none;">
+                            <!-- IMPORTANT: checkbox belongs to ordersDeleteForm -->
+                            <input type="checkbox"
+                                   class="order-check"
+                                   name="order_ids[]"
+                                   value="<?= $oid ?>"
+                                   form="ordersDeleteForm">
+                        </td>
 
-                        <tr>
-                            <td>
-                                <b>#<?= $oid ?></b><br>
-                                <small class="text-muted"><?= htmlspecialchars($o['order_code']) ?></small>
-                            </td>
+                        <td>
+                            <b>#<?= $oid ?></b><br>
+                            <small class="text-muted"><?= htmlspecialchars($o['order_code']) ?></small>
+                        </td>
 
-                            <td>
-                                <?= htmlspecialchars($o['customer_name']) ?><br>
-                                <small class="text-muted"><?= htmlspecialchars($o['customer_email']) ?></small>
-                            </td>
+                        <td>
+                            <?= htmlspecialchars($o['customer_name']) ?><br>
+                            <small class="text-muted"><?= htmlspecialchars($o['customer_email']) ?></small>
+                        </td>
 
-                            <td>RM<?= number_format((float)$o['total'], 2) ?></td>
+                        <td>RM<?= number_format((float)$o['total'], 2) ?></td>
+                        <td><?= htmlspecialchars($o['created_at']) ?></td>
 
-                            <td><?= htmlspecialchars($o['created_at']) ?></td>
-
-                            <td>
+                        <td>
                             <select name="statuses[<?= $oid ?>]"
                                     style="padding:6px 8px; border-radius:8px; border:1px solid #333;">
                                 <?php foreach ($statusOptions as $s): ?>
-                                <option value="<?= htmlspecialchars($s) ?>" <?= ($status === $s) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($s) ?>
-                                </option>
+                                    <option value="<?= htmlspecialchars($s) ?>" <?= ($status === $s) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($s) ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
-                            </td>
+                        </td>
 
-                            <td>
+                        <td>
                             <?php
                                 $pay = strtoupper(trim($o['payment_status'] ?? 'UNPAID'));
                                 $payClass = ($pay === 'PAID') ? 'delivered' : 'pending';
                             ?>
                             <span class="status <?= $payClass ?>"><?= htmlspecialchars($pay) ?></span>
-                            </td>
+                        </td>
 
-                            <td style="text-align:right; white-space:nowrap;">
-                                <button type="button"
-                                        onclick="toggleDetails('od-<?= $oid ?>')"
-                                        class="primary"
-                                        style="background:none;border:none;cursor:pointer;">
-                                    Details
-                                </button>
+                        <td style="text-align:right; white-space:nowrap;">
+                            <button type="button"
+                                    onclick="toggleDetails('od-<?= $oid ?>')"
+                                    class="primary"
+                                    style="background:none;border:none;cursor:pointer;">
+                                Details
+                            </button>
+                        </td>
+                    </tr>
 
-                                <button type="submit"
-                                        name="order_id"
-                                        value="<?= $oid ?>"
-                                        formaction="delete-order.php"
-                                        formmethod="POST"
-                                        onclick="return confirm('Delete this order? This will also delete all its items.');"
-                                        class="primary"
-                                        style="background:none;border:none;color:#ff5c5c;cursor:pointer;">
-                                    Delete
-                                </button>
-                            </td>
+                    <!-- Details row -->
+                    <tr id="od-<?= $oid ?>" style="display:none; background: rgba(255,255,255,0.02);">
+                        <td colspan="8" style="padding:14px 16px;">
+                            <div style="display:flex; gap:18px; flex-wrap:wrap;">
+                                <div style="min-width:260px;">
+                                    <b>Order Code</b><br>
+                                    <?= htmlspecialchars($o['order_code']) ?><br><br>
+                                    <b>Customer</b><br>
+                                    <?= htmlspecialchars($o['customer_name']) ?><br>
+                                    <small class="text-muted"><?= htmlspecialchars($o['customer_email']) ?></small>
+                                </div>
 
-                        </tr>
-
-                        <tr id="od-<?= $oid ?>" style="display:none; background: rgba(255,255,255,0.02);">
-                            <td colspan="7" style="padding:14px 16px;">
-                                <div style="display:flex; gap:18px; flex-wrap:wrap;">
-                                    <div style="min-width:260px;">
-                                        <b>Order Code</b><br>
-                                        <?= htmlspecialchars($o['order_code']) ?><br><br>
-                                        <b>Customer</b><br>
-                                        <?= htmlspecialchars($o['customer_name']) ?><br>
-                                        <small class="text-muted"><?= htmlspecialchars($o['customer_email']) ?></small>
-                                    </div>
-
-                                    <div style="flex:1; min-width:360px;">
-                                        <b>Items</b>
-                                        <div style="margin-top:8px;">
-                                            <?php $items = $itemsByOrder[$oid] ?? []; ?>
-                                            <?php if (empty($items)): ?>
-                                                <small class="text-muted">No items found for this order.</small>
-                                            <?php else: ?>
-                                                <table style="width:100%; border-collapse:collapse;">
-                                                    <thead>
+                                <div style="flex:1; min-width:360px;">
+                                    <b>Items</b>
+                                    <div style="margin-top:8px;">
+                                        <?php $items = $itemsByOrder[$oid] ?? []; ?>
+                                        <?php if (empty($items)): ?>
+                                            <small class="text-muted">No items found for this order.</small>
+                                        <?php else: ?>
+                                            <table style="width:100%; border-collapse:collapse;">
+                                                <thead>
                                                     <tr>
                                                         <th style="text-align:left; padding:6px 0;">Menu</th>
                                                         <th style="text-align:left; padding:6px 0;">Options</th>
@@ -701,37 +736,36 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
                                                         <th style="text-align:left; padding:6px 0;">Price</th>
                                                         <th style="text-align:left; padding:6px 0;">Subtotal</th>
                                                     </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    <?php foreach ($items as $it): ?>
-                                                        <?php
+                                                </thead>
+                                                <tbody>
+                                                <?php foreach ($items as $it): ?>
+                                                    <?php
                                                         $qty = (int)$it['quantity'];
                                                         $price = (float)$it['price'];
                                                         $sub = $qty * $price;
 
                                                         $optParts = [];
-                                                        if (!empty($it['temp'])) $optParts[] = "Temp: " . $it['temp'];
-                                                        if (!empty($it['milk'])) $optParts[] = "Milk: " . $it['milk'];
+                                                        if (!empty($it['temp']))  $optParts[] = "Temp: " . $it['temp'];
+                                                        if (!empty($it['milk']))  $optParts[] = "Milk: " . $it['milk'];
                                                         if (!empty($it['syrup'])) $optParts[] = "Syrup: " . $it['syrup'];
-                                                        if (!empty($it['addons'])) $optParts[] = "Add-ons: " . $it['addons'];
+                                                        if (!empty($it['addons']))$optParts[] = "Add-ons: " . $it['addons'];
                                                         $opts = !empty($optParts) ? implode(" | ", array_map('htmlspecialchars', $optParts)) : "-";
-                                                        ?>
-
-                                                        <tr>
-                                                            <td style="padding:6px 0;"><?= htmlspecialchars($it['menu_name']) ?></td>
-                                                            <td style="padding:6px 0;"><small class="text-muted"><?= $opts ?></small></td>
-                                                            <td style="padding:6px 0;"><?= $qty ?></td>
-                                                            <td style="padding:6px 0;">RM<?= number_format($price, 2) ?></td>
-                                                            <td style="padding:6px 0;">RM<?= number_format($sub, 2) ?></td>
-                                                        </tr>
-                                                    <?php endforeach; ?>
-                                                    </tbody>
-                                                </table>
-                                            <?php endif; ?>
-                                        </div>
+                                                    ?>
+                                                    <tr>
+                                                        <td style="padding:6px 0;"><?= htmlspecialchars($it['menu_name']) ?></td>
+                                                        <td style="padding:6px 0;"><small class="text-muted"><?= $opts ?></small></td>
+                                                        <td style="padding:6px 0;"><?= $qty ?></td>
+                                                        <td style="padding:6px 0;">RM<?= number_format($price, 2) ?></td>
+                                                        <td style="padding:6px 0;">RM<?= number_format($sub, 2) ?></td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        <?php endif; ?>
                                     </div>
+                                </div>
 
-                                    <div style="min-width:240px;">
+                                <div style="min-width:240px;">
                                     <b>Total</b><br>
                                     RM<?= number_format((float)$o['total'], 2) ?><br><br>
 
@@ -746,17 +780,18 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
 
                                     <b>Paid At</b><br>
                                     <?= !empty($o['paid_at']) ? htmlspecialchars($o['paid_at']) : '-' ?>
-                                    </div>
                                 </div>
-                            </td>
-                        </tr>
+                            </div>
+                        </td>
+                    </tr>
 
-                    <?php endforeach; ?>
-                <?php endif; ?>
-                </tbody>
-            </table>
-        </form>
-    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+            </tbody>
+        </table>
+    </form>
+</div>
+
 
     <script>
         function toggleDetails(id) {
@@ -766,6 +801,7 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
         }
     </script>
 </div>
+
 
             <div id="staff"    class="tab-content <?= $activeTab === 'staff' ? 'active' : '' ?>">
                 <h1>Staff</h1>

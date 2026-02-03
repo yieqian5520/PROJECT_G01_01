@@ -241,3 +241,210 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSelectedUI();
   });
 });
+
+/**
+ * Common Bulk Delete Controller
+ * Works for Customers / Orders / Feedback (or any table) using config selectors.
+ */
+(function () {
+  function $(sel, root = document) { return root.querySelector(sel); }
+  function $all(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
+
+  function initBulkDelete(cfg) {
+    const toggleBtn   = $(cfg.toggleBtn);
+    const cancelBtn   = cfg.cancelBtn ? $(cfg.cancelBtn) : null;
+    const counterEl   = $(cfg.counter);
+    const checkAll    = $(cfg.checkAll);
+    const formEl      = cfg.form ? $(cfg.form) : null;
+
+    if (!toggleBtn || !counterEl || !checkAll) return; // not on this tab/page
+
+    let isDeleteMode = false;
+
+    const getSelectCols = () => $all(cfg.selectCol);
+    const getRowChecks  = () => $all(cfg.rowCheck);
+    const getRows       = () => $all(cfg.row);
+
+    function setDisplay(elems, show) {
+      elems.forEach(el => { el.style.display = show ? '' : 'none'; });
+    }
+
+    function clearSelection() {
+      getRowChecks().forEach(cb => (cb.checked = false));
+      checkAll.checked = false;
+      updateCounter();
+      updateRowHighlight();
+    }
+
+    function updateCounter() {
+      const count = getRowChecks().filter(cb => cb.checked).length;
+      counterEl.textContent = `${count} selected`;
+      counterEl.style.display = isDeleteMode ? '' : 'none';
+      toggleBtn.textContent = isDeleteMode ? (cfg.deleteLabel || 'Delete Selected') : (cfg.toggleLabel || 'Delete');
+    }
+
+    function updateRowHighlight() {
+      const rows = getRows();
+      rows.forEach(row => row.classList.remove(cfg.rowActiveClass || 'row-selected'));
+
+      getRowChecks().forEach(cb => {
+        const row = cb.closest(cfg.row) || cb.closest('tr');
+        if (row && cb.checked) row.classList.add(cfg.rowActiveClass || 'row-selected');
+      });
+    }
+
+    function syncCheckAll() {
+      const cbs = getRowChecks();
+      if (cbs.length === 0) {
+        checkAll.checked = false;
+        return;
+      }
+      const checkedCount = cbs.filter(cb => cb.checked).length;
+      checkAll.checked = checkedCount === cbs.length;
+      updateCounter();
+      updateRowHighlight();
+    }
+
+    function enterDeleteMode() {
+      isDeleteMode = true;
+      setDisplay(getSelectCols(), true);
+      if (cancelBtn) cancelBtn.style.display = '';
+      counterEl.style.display = '';
+      updateCounter();
+    }
+
+    function exitDeleteMode() {
+      isDeleteMode = false;
+      setDisplay(getSelectCols(), false);
+      if (cancelBtn) cancelBtn.style.display = 'none';
+      counterEl.style.display = 'none';
+      toggleBtn.textContent = (cfg.toggleLabel || 'Delete');
+      clearSelection();
+    }
+
+    // Toggle click behavior:
+    // - first click enters delete mode
+    // - second click submits (if form exists) when something selected
+    toggleBtn.addEventListener('click', function () {
+      if (!isDeleteMode) {
+        enterDeleteMode();
+        return;
+      }
+
+      // Already in delete mode -> submit if selected
+      const selected = getRowChecks().filter(cb => cb.checked);
+      if (selected.length === 0) {
+        alert(cfg.noSelectionMessage || 'Please select at least one item.');
+        return;
+      }
+
+      const ok = confirm(cfg.confirmMessage || `Delete ${selected.length} selected item(s)?`);
+      if (!ok) return;
+
+      if (formEl) formEl.submit();
+      else console.warn('Bulk delete form not found:', cfg.form);
+    });
+
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', exitDeleteMode);
+    }
+
+    // Check all
+    checkAll.addEventListener('change', function () {
+      const checked = checkAll.checked;
+      getRowChecks().forEach(cb => (cb.checked = checked));
+      updateCounter();
+      updateRowHighlight();
+    });
+
+    // Each checkbox change
+    document.addEventListener('change', function (e) {
+      if (!isDeleteMode) return;
+      if (!e.target.matches(cfg.rowCheck)) return;
+      syncCheckAll();
+    });
+
+    // Optional: clicking row toggles checkbox (nice UX)
+    if (cfg.enableRowClick !== false) {
+      document.addEventListener('click', function (e) {
+        if (!isDeleteMode) return;
+
+        const row = e.target.closest(cfg.row);
+        if (!row) return;
+
+        // Don't toggle when clicking links/buttons/inputs directly
+        if (e.target.closest('a, button, input, select, textarea, label')) return;
+
+        const cb = row.querySelector(cfg.rowCheck);
+        if (cb) {
+          cb.checked = !cb.checked;
+          syncCheckAll();
+        }
+      });
+    }
+
+    // Expose exit if you want (optional)
+    return { exitDeleteMode };
+  }
+
+  // ====== INIT ALL SECTIONS HERE ======
+
+  // Customers
+  initBulkDelete({
+    toggleBtn: '#toggleBulkDelete',
+    cancelBtn: '#cancelBulkDelete',
+    counter: '#selectedCounter',
+    checkAll: '#checkAll',
+    selectCol: '.select-col',
+    rowCheck: '.row-check',
+    row: '.cust-row',
+    form: '#customersActionForm',
+    toggleLabel: 'Delete',
+    deleteLabel: 'Delete Selected',
+    confirmMessage: 'Delete selected customer(s)?\n\nNote: this may also delete related unpaid orders depending on your backend logic.',
+    noSelectionMessage: 'Select at least 1 customer to delete.',
+    rowActiveClass: 'row-selected',
+    enableRowClick: true
+  });
+
+  // Orders
+  initBulkDelete({
+    toggleBtn: '#toggleBulkDeleteOrders',
+    cancelBtn: '#cancelBulkDeleteOrders',
+    counter: '#selectedCounterOrders',
+    checkAll: '#checkAllOrders',
+    selectCol: '.select-col-orders',
+    rowCheck: '.order-check',
+    row: '.order-row',
+    // IMPORTANT: if you have a separate bulk delete form for orders, use that form id.
+    // If you use update-order-status.php as shown, DON'T submit delete to it.
+    // So create a separate form like id="ordersDeleteForm" that posts to bulk-delete-orders.php
+    form: '#ordersDeleteForm',
+    toggleLabel: 'Delete',
+    deleteLabel: 'Delete Selected',
+    confirmMessage: 'Delete selected order(s)?',
+    noSelectionMessage: 'Select at least 1 order to delete.',
+    rowActiveClass: 'row-selected',
+    enableRowClick: true
+  });
+
+  // Feedback (example ids/classes — match your feedback table)
+  initBulkDelete({
+    toggleBtn: '#toggleBulkDeleteFeedback',
+    cancelBtn: '#cancelBulkDeleteFeedback',
+    counter: '#selectedCounterFeedback',
+    checkAll: '#checkAllFeedback',
+    selectCol: '.select-col-feedback',
+    rowCheck: '.feedback-check',
+    row: '.feedback-row',
+    form: '#feedbackDeleteForm',
+    toggleLabel: 'Delete',
+    deleteLabel: 'Delete Selected',
+    confirmMessage: 'Delete selected feedback(s)?',
+    noSelectionMessage: 'Select at least 1 feedback to delete.',
+    rowActiveClass: 'row-selected',
+    enableRowClick: true
+  });
+
+})();
+
