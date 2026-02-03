@@ -703,7 +703,7 @@
           <tr class="order-row" data-id="<?= $oid ?>">
             <!-- Checkbox column (hidden until delete mode) -->
             <td class="select-col-orders" style="text-align:center; display:none;">
-              <input type="checkbox" class="order-check" name="order_ids[]" value="<?= $oid ?>">
+              <input type="checkbox" class="order-check" name="order_ids[]" value="<?= $oid ?>" form="ordersDeleteForm">
             </td>
 
             <td>
@@ -876,77 +876,111 @@
                     $fbRes = $fbStmt->get_result();
                     ?>
 
-                    <form method="GET" style="margin: 12px 0; display:flex; gap:10px; align-items:center;">
-                        <input type="hidden" name="tab" value="feedback">
-                        <input
-                            type="text"
-                            name="fb_search"
-                            placeholder="Search customer name..."
-                            value="<?= htmlspecialchars($fb_search) ?>"
-                            style="padding:10px; border-radius:10px; border:1px solid #333; width: 360px;"
-                        />
-                        <button type="submit" class="btn-primary" style="padding:10px 14px; border-radius:10px; border:none; cursor:pointer;">
-                            Search
-                        </button>
+                    <form method="GET" style="margin: 12px 0; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <input type="hidden" name="tab" value="feedback">
 
-                        <?php if ($fb_search !== ''): ?>
-                            <a href="dashboard.php?tab=feedback" style="margin-left:6px;">Clear</a>
-                        <?php endif; ?>
+                    <input
+                        type="text"
+                        name="fb_search"
+                        placeholder="Search customer name..."
+                        value="<?= htmlspecialchars($fb_search) ?>"
+                        style="padding:10px; border-radius:10px; border:1px solid #333; width: 360px;"
+                    />
+
+                    <button type="submit" class="btn-primary"
+                            style="padding:10px 14px; border-radius:10px; border:none; cursor:pointer;">
+                        Search
+                    </button>
+
+                    <!-- Delete toggle -->
+                    <button type="button"
+                            id="toggleBulkDeleteFeedback"
+                            class="btn-primary"
+                            style="padding:10px 14px; border-radius:10px; border:none; cursor:pointer; background:#ff5c5c;">
+                        Delete
+                    </button>
+
+                    <span id="selectedCounterFeedback"
+                            style="display:none; margin-left:6px; font-size:13px; opacity:.85;">
+                        0 selected
+                    </span>
+
+                    <?php if ($fb_search !== ''): ?>
+                        <a href="dashboard.php?tab=feedback" style="margin-left:6px;">Clear</a>
+                    <?php endif; ?>
                     </form>
 
+
                     <div class="recent-orders">
-                        <h2>All Feedback</h2>
-                        <table>
+                        <h2 style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                            <span>All Feedback</span>
+
+                            <button type="button" id="cancelBulkDeleteFeedback"
+                            style="display:none; background:none; border:1px solid rgba(255,255,255,.2); color:#fff; padding:8px 12px; border-radius:10px; cursor:pointer;">
+                            Cancel
+                            </button>
+                        </h2>
+
+                        <!-- Separate form for deleting feedback -->
+                        <form id="feedbackDeleteForm" method="POST" action="bulk-delete-feedback.php">
+                            <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
+                        </form>
+
+                        <table id="feedbackTable">
                             <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Customer</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    <th>Rating</th>
-                                    <th>Comment</th>
-                                    <th>Date</th>
-                                </tr>
+                            <tr>
+                                <!-- checkbox col hidden until delete mode -->
+                                <th class="select-col-feedback" style="width:46px; text-align:center; display:none;">
+                                <input type="checkbox" id="checkAllFeedback">
+                                </th>
+
+                                <th>#</th>
+                                <th>Customer</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Rating</th>
+                                <th>Comment</th>
+                                <th>Date</th>
+                            </tr>
                             </thead>
                             <tbody>
-                                <?php if ($fbRes->num_rows === 0): ?>
-                                    <tr>
-                                        <td colspan="7" style="text-align:center; padding:16px;">No customer found.</td>
-                                    </tr>
-                                <?php else: ?>
-                                    <?php $fbNo = 1; ?>
-                                    <?php while ($row = $fbRes->fetch_assoc()): ?>
-                                        <tr>
-                                            <td><?= $fbNo++ ?></td>
-                                            <td><?= htmlspecialchars($row['name']) ?></td>
-                                            <td><?= htmlspecialchars($row['email']) ?></td>
-                                            <td><?= htmlspecialchars($row['phone']) ?></td>
-                                            <td>
-                                                <span class="status delivered">
-                                                    <?= (int)$row['rating'] ?>/5
-                                                </span>
-                                            </td>
-                                            <td><?= htmlspecialchars($row['comment']) ?></td>
-                                            <td><?= htmlspecialchars($row['created_at']) ?></td>
-                                            <td style="text-align:right;">
-                                                <form method="POST" action="delete-feedback.php"
-                                                    style="display:inline;"
-                                                    onsubmit="return confirm('Delete this feedback?');">
-                                                    <input type="hidden" name="id" value="<?= (int)$row['id'] ?>">
-                                                    <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
-                                                    <button type="submit"
-                                                            class="primary"
-                                                            style="background:none;border:none;color:#ff5c5c;cursor:pointer;">
-                                                        Delete
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    <?php endwhile; ?>
-                                <?php endif; ?>
+                            <?php if ($fbRes->num_rows === 0): ?>
+                                <tr>
+                                <td colspan="8" style="text-align:center; padding:16px;">No feedback found.</td>
+                                </tr>
+                            <?php else: ?>
+                                <?php $fbNo = 1; ?>
+                                <?php while ($row = $fbRes->fetch_assoc()): ?>
+                                <tr class="feedback-row" data-id="<?= (int)$row['id'] ?>">
+
+                                    <!-- checkbox hidden until delete mode -->
+                                    <td class="select-col-feedback" style="text-align:center; display:none;">
+                                    <!-- IMPORTANT: use form="feedbackDeleteForm" so checkbox belongs to delete form -->
+                                    <input type="checkbox"
+                                            class="feedback-check"
+                                            name="feedback_ids[]"
+                                            value="<?= (int)$row['id'] ?>"
+                                            form="feedbackDeleteForm">
+                                    </td>
+
+                                    <td><?= $fbNo++ ?></td>
+                                    <td><?= htmlspecialchars($row['name']) ?></td>
+                                    <td><?= htmlspecialchars($row['email']) ?></td>
+                                    <td><?= htmlspecialchars($row['phone']) ?></td>
+                                    <td>
+                                    <span class="status delivered">
+                                        <?= (int)$row['rating'] ?>/5
+                                    </span>
+                                    </td>
+                                    <td><?= htmlspecialchars($row['comment']) ?></td>
+                                    <td><?= htmlspecialchars($row['created_at']) ?></td>
+                                </tr>
+                                <?php endwhile; ?>
+                            <?php endif; ?>
                             </tbody>
                         </table>
-                    </div>
+                        </div>
+
                 </div>
                 <div id="reports"  class="tab-content <?= $activeTab === 'reports' ? 'active' : '' ?>">
                     <h1>Reports</h1>
