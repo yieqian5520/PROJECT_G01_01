@@ -467,7 +467,7 @@
                                         <th>Address</th>
                                         <th>Verified</th>
                                         <th>Joined</th>
-                                        <th style="text-align:right;">Action</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
 
@@ -689,7 +689,7 @@
           <th>Date</th>
           <th>Status</th>
           <th>Payment</th>
-          <th style="text-align:right;">Actions</th>
+          <th style>Actions</th>
         </tr>
       </thead>
 
@@ -739,12 +739,10 @@
             </td>
 
             <td style="text-align:right; white-space:nowrap;">
-              <button type="button"
-                onclick="toggleDetails('od-<?= $oid ?>')"
-                class="primary"
-                style="background:none;border:none;cursor:pointer;">
-                Details
-              </button>
+            <a class="primary"
+            href="order-details.php?id=<?= $oid ?>&return_to=<?= urlencode('dashboard.php?tab=orders') ?>">
+            Details
+            </a>
             </td>
           </tr>
 
