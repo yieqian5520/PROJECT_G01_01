@@ -30,42 +30,65 @@ try {
     if (!$customer) {
         throw new Exception("Customer not found.");
     }
-
     $email = $customer['email'];
 
-    /* 2) Delete order_items for this user's orders (JOIN delete) */
+    /*
+      Define UNPAID orders:
+      - payment_status = 'UNPAID' OR NULL
+      - and/or paid_at IS NULL
+      Choose ONE logic. Using BOTH is safer if your data is inconsistent.
+    */
+
+    /* 2) Delete order_items ONLY for UNPAID orders */
     $stmt = $db->prepare("
         DELETE oi
         FROM order_items oi
         JOIN orders o ON o.id = oi.order_id
         WHERE o.user_id = ?
+          AND (o.payment_status IS NULL OR o.payment_status = 'UNPAID')
+          AND o.paid_at IS NULL
     ");
     $stmt->bind_param("i", $customerId);
     $stmt->execute();
 
-    /* 3) Delete orders */
-    $stmt = $db->prepare("DELETE FROM orders WHERE user_id = ?");
+    /* 3) Delete orders ONLY for UNPAID orders */
+    $stmt = $db->prepare("
+        DELETE FROM orders
+        WHERE user_id = ?
+          AND (payment_status IS NULL OR payment_status = 'UNPAID')
+          AND paid_at IS NULL
+    ");
     $stmt->bind_param("i", $customerId);
     $stmt->execute();
 
-    /* 4) Delete feedback_message */
+    /* 4) Detach PAID orders (KEEP THEM) */
+    $stmt = $db->prepare("
+        UPDATE orders
+        SET user_id = NULL
+        WHERE user_id = ?
+          AND (payment_status = 'PAID' OR paid_at IS NOT NULL)
+    ");
+    $stmt->bind_param("i", $customerId);
+    $stmt->execute();
+
+    /* 5) Delete feedback_message */
     $stmt = $db->prepare("DELETE FROM feedback_message WHERE user_id = ?");
     $stmt->bind_param("i", $customerId);
     $stmt->execute();
 
-    /* 5) Delete contact_messages by email */
+    /* 6) Delete contact_messages by email */
     $stmt = $db->prepare("DELETE FROM contact_messages WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
 
-    /* 6) Finally delete user */
+    /* 7) Finally delete user */
     $stmt = $db->prepare("DELETE FROM users WHERE id = ?");
     $stmt->bind_param("i", $customerId);
     $stmt->execute();
 
     $db->commit();
 
-    $_SESSION['flash_success'] = "Customer and related records deleted successfully.";
+    $_SESSION['flash_success'] = "Customer deleted. UNPAID orders removed; PAID orders kept.";
     header("Location: dashboard.php?tab=customers");
     exit();
 

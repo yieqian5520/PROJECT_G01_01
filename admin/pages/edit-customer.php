@@ -359,7 +359,6 @@ while ($fb = $latestFeedbackRes->fetch_assoc()) {
         </div>
     </main>
 
-    <!-- RIGHT (same as your staff_dashboard) -->
     <div class="right">
         <div class="top">
             <div class="theme-toggler">
