@@ -394,8 +394,10 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
                 }
                 ?>
 
-                <form method="GET" style="margin: 12px 0; display:flex; gap:10px; align-items:center;">
+                <!-- Search + Delete toggle -->
+                <form method="GET" id="customerSearchForm" style="margin: 12px 0; display:flex; gap:10px; align-items:center;">
                     <input type="hidden" name="tab" value="customers">
+
                     <input
                         type="text"
                         name="search"
@@ -403,67 +405,235 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
                         value="<?= htmlspecialchars($search) ?>"
                         style="padding:10px; border-radius:10px; border:1px solid #333; width: 320px;"
                     />
+
                     <button type="submit" class="btn-primary" style="padding:10px 14px; border-radius:10px; border:none; cursor:pointer;">
                         Search
                     </button>
+
+                    <!-- SINGLE delete button beside search -->
+                    <button
+                        type="button"
+                        id="toggleBulkDelete"
+                        class="btn-primary"
+                        style="padding:10px 14px; border-radius:10px; border:none; cursor:pointer; background:#ff5c5c;"
+                    >
+                        Delete
+                    </button>
+
+                    <span id="selectedCounter"
+                        style="display:none; margin-left:6px; font-size:13px; opacity:.85;">
+                        0 selected
+                    </span>
 
                     <?php if ($search !== ''): ?>
                         <a href="dashboard.php?tab=customers" style="margin-left:6px;">Clear</a>
                     <?php endif; ?>
                 </form>
 
-                <div class="recent-orders">
-                    <h2>Customer List</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Name</th>
-                                <th>Phone</th>
-                                <th>Email</th>
-                                <th>Address</th>
-                                <th>Verified</th>
-                                <th>Joined</th>
-                                <th style="text-align:right;">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php if ($customers->num_rows === 0): ?>
-                            <tr>
-                                <td colspan="8" style="text-align:center; padding:16px;">No customers found.</td>
-                            </tr>
-                        <?php else: ?>
-                            <?php $no = 1; ?>
-                            <?php while ($row = $customers->fetch_assoc()): ?>
-                                <tr>
-                                    <td><?= $no++ ?></td>
-                                    <td><?= htmlspecialchars($row['name']) ?></td>
-                                    <td><?= htmlspecialchars($row['phone']) ?></td>
-                                    <td><?= htmlspecialchars($row['email']) ?></td>
-                                    <td><?= htmlspecialchars($row['address']) ?></td>
-                                    <td>
-                                        <span class="status <?= ((int)$row['verify_status'] === 1) ? 'delivered' : 'pending' ?>">
-                                            <?= ((int)$row['verify_status'] === 1) ? 'Yes' : 'No' ?>
-                                        </span>
-                                    </td>
-                                    <td><?= htmlspecialchars($row['created_at']) ?></td>
+                <!-- Bulk delete form wraps the table -->
+                <form method="POST" action="bulk-delete-customer.php" id="bulkDeleteForm">
+                    <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
 
-                                    <td style="text-align:right;">
-                                        <a class="primary" href="edit-customer-admin.php?id=<?= (int)$row['id'] ?>">Edit</a>
-                                        <form method="POST" action="delete-customer.php" style="display:inline;" onsubmit="return confirm('Delete this customer?');">
-                                            <input type="hidden" name="id" value="<?= (int)$row['id'] ?>">
-                                            <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
-                                            <button type="submit" class="primary" style="background:none;border:none;color:#ff5c5c;cursor:pointer;">
-                                                Delete
-                                            </button>
-                                        </form>
-                                    </td>
+                    <div class="recent-orders" id="customersTableWrap">
+                        <h2 style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                            <span>Customer List</span>
+
+                            <!-- Optional: cancel button (only shows in delete mode) -->
+                            <button type="button" id="cancelBulkDelete"
+                                    style="display:none; background:none; border:1px solid rgba(255,255,255,.2); color:#fff; padding:8px 12px; border-radius:10px; cursor:pointer;">
+                                Cancel
+                            </button>
+                        </h2>
+
+                        <table id="customersTable">
+                            <thead>
+                                <tr>
+                                    <!-- Checkbox column (hidden until delete mode) -->
+                                    <th class="select-col" style="width:46px; text-align:center; display:none;">
+                                        <input type="checkbox" id="checkAll">
+                                    </th>
+
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th>Address</th>
+                                    <th>Verified</th>
+                                    <th>Joined</th>
+                                    <th style="text-align:right;">Action</th>
                                 </tr>
-                            <?php endwhile; ?>
-                        <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+
+                            <tbody>
+                            <?php if ($customers->num_rows === 0): ?>
+                                <tr>
+                                    <td colspan="9" style="text-align:center; padding:16px;">No customers found.</td>
+                                </tr>
+                            <?php else: ?>
+                                <?php $no = 1; ?>
+                                <?php while ($row = $customers->fetch_assoc()): ?>
+                                    <tr class="cust-row" data-id="<?= (int)$row['id'] ?>">
+                                        <!-- Checkbox column (hidden until delete mode) -->
+                                        <td class="select-col" style="text-align:center; display:none;">
+                                            <input type="checkbox" class="row-check" name="ids[]" value="<?= (int)$row['id'] ?>">
+                                        </td>
+
+                                        <td><?= $no++ ?></td>
+                                        <td><?= htmlspecialchars($row['name']) ?></td>
+                                        <td><?= htmlspecialchars($row['phone']) ?></td>
+                                        <td><?= htmlspecialchars($row['email']) ?></td>
+                                        <td><?= htmlspecialchars($row['address']) ?></td>
+                                        <td>
+                                            <span class="status <?= ((int)$row['verify_status'] === 1) ? 'delivered' : 'pending' ?>">
+                                                <?= ((int)$row['verify_status'] === 1) ? 'Yes' : 'No' ?>
+                                            </span>
+                                        </td>
+                                        <td><?= htmlspecialchars($row['created_at']) ?></td>
+
+                                        <!-- Action: ONLY Edit now -->
+                                        <td style="text-align:right;">
+                                            <a class="primary" href="edit-customer-admin.php?id=<?= (int)$row['id'] ?>">Edit</a>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+
+                <script>
+                (function () {
+                    const toggleBtn = document.getElementById('toggleBulkDelete');
+                    const cancelBtn = document.getElementById('cancelBulkDelete');
+                    const selectedCounter = document.getElementById('selectedCounter');
+                    const bulkForm = document.getElementById('bulkDeleteForm');
+                    const table = document.getElementById('customersTable');
+                    const checkAll = document.getElementById('checkAll');
+
+                    let bulkMode = false;
+
+                    function getRowChecks() {
+                        return Array.from(document.querySelectorAll('.row-check'));
+                    }
+
+                    function setBulkMode(on) {
+                        bulkMode = on;
+
+                        // show/hide checkbox column
+                        table.querySelectorAll('.select-col').forEach(el => {
+                            el.style.display = on ? '' : 'none';
+                        });
+
+                        // show counter + cancel
+                        selectedCounter.style.display = on ? '' : 'none';
+                        cancelBtn.style.display = on ? '' : 'none';
+
+                        // button behavior/label
+                        if (on) {
+                            toggleBtn.textContent = 'Delete Selected (0)';
+                            toggleBtn.style.background = '#ff5c5c';
+                        } else {
+                            toggleBtn.textContent = 'Delete';
+                            toggleBtn.style.background = '#ff5c5c';
+
+                            // reset checks
+                            if (checkAll) checkAll.checked = false;
+                            getRowChecks().forEach(cb => cb.checked = false);
+                            updateSelectedUI();
+                        }
+                    }
+
+                    function updateSelectedUI() {
+                        const checks = getRowChecks();
+                        const selected = checks.filter(cb => cb.checked).length;
+
+                        selectedCounter.textContent = `${selected} selected`;
+
+                        if (bulkMode) {
+                            toggleBtn.textContent = `Delete Selected (${selected})`;
+
+                            // make selected rows more visible
+                            document.querySelectorAll('tr.cust-row').forEach(tr => tr.classList.remove('row-selected'));
+                            checks.forEach(cb => {
+                                if (cb.checked) cb.closest('tr').classList.add('row-selected');
+                            });
+
+                            // sync "check all"
+                            if (checkAll && checks.length) {
+                                checkAll.checked = (selected === checks.length);
+                                checkAll.indeterminate = (selected > 0 && selected < checks.length);
+                            }
+                        }
+                    }
+
+                    // Toggle bulk mode / submit delete
+                    toggleBtn.addEventListener('click', function () {
+                        if (!bulkMode) {
+                            setBulkMode(true);
+                            updateSelectedUI();
+                            return;
+                        }
+
+                        // bulkMode = true -> submit if any selected
+                        const selected = getRowChecks().filter(cb => cb.checked).length;
+                        if (selected === 0) {
+                            alert('Please select at least 1 customer to delete.');
+                            return;
+                        }
+
+                        if (!confirm(`Delete ${selected} selected customer(s)?`)) return;
+                        bulkForm.submit();
+                    });
+
+                    cancelBtn.addEventListener('click', function () {
+                        setBulkMode(false);
+                    });
+
+                    // Check all
+                    if (checkAll) {
+                        checkAll.addEventListener('change', function () {
+                            getRowChecks().forEach(cb => cb.checked = checkAll.checked);
+                            updateSelectedUI();
+                        });
+                    }
+
+                    // Each row checkbox updates counter + highlight
+                    document.addEventListener('change', function (e) {
+                        if (!bulkMode) return;
+                        if (e.target.classList.contains('row-check')) {
+                            updateSelectedUI();
+                        }
+                    });
+
+                    // Row click (optional convenience): click row selects checkbox when in bulk mode
+                    document.addEventListener('click', function (e) {
+                        if (!bulkMode) return;
+                        const tr = e.target.closest('tr.cust-row');
+                        if (!tr) return;
+
+                        // don't toggle if clicking checkbox itself or link
+                        if (e.target.matches('input, a, button')) return;
+
+                        const cb = tr.querySelector('.row-check');
+                        if (cb) {
+                            cb.checked = !cb.checked;
+                            updateSelectedUI();
+                        }
+                    });
+
+                    // Add simple selected-row style via JS class
+                    const style = document.createElement('style');
+                    style.innerHTML = `
+                        tr.row-selected {
+                            outline: 2px solid rgba(255, 92, 92, .65);
+                            background: rgba(255, 92, 92, .08) !important;
+                        }
+                    `;
+                    document.head.appendChild(style);
+                })();
+                </script>
+
             </div>
 
             <div id="orders" class="tab-content <?= $activeTab === 'orders' ? 'active' : '' ?>">
