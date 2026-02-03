@@ -98,3 +98,45 @@ document.addEventListener("click", (e) => {
   showModal();
 });
 
+function autoHideAlerts() {
+  const alerts = document.querySelectorAll(".alert.success, .alert.error");
+  if (!alerts.length) return;
+
+  const HIDE_AFTER_MS = 3000;
+  const FADE_MS = 350;
+
+  alerts.forEach((alertBox) => {
+    // prevent double timer
+    if (alertBox.dataset.autohide === "1") return;
+    alertBox.dataset.autohide = "1";
+
+    alertBox.style.opacity = "1";
+    alertBox.style.transform = "translateY(0)";
+    alertBox.style.transition = `opacity ${FADE_MS}ms ease, transform ${FADE_MS}ms ease`;
+
+    setTimeout(() => {
+      alertBox.style.opacity = "0";
+      alertBox.style.transform = "translateY(-8px)";
+
+      setTimeout(() => alertBox.remove(), FADE_MS + 50);
+    }, HIDE_AFTER_MS);
+  });
+}
+
+/**
+ * Some alerts appear after tab switch / redirect.
+ * This will retry a few times.
+ */
+function runAutoHideAlertsWithRetry() {
+  let tries = 0;
+  const maxTries = 10;
+
+  const timer = setInterval(() => {
+    autoHideAlerts();
+    tries++;
+    if (tries >= maxTries) clearInterval(timer);
+  }, 300); // check every 0.3s for ~3s
+}
+
+document.addEventListener("DOMContentLoaded", runAutoHideAlertsWithRetry);
+

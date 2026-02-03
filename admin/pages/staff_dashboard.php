@@ -142,7 +142,6 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
     <div class="container">
         
         <aside>
-            <div class="right"></div>
             <div class="top">
                 <div class="logo">
                     <img src="../assets/img/puckslogo.jpg" alt="">
@@ -348,7 +347,21 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
             </div>
             <div id="customers" class="tab-content <?= $activeTab === 'customers' ? 'active' : '' ?>">
                 <h1>Customers</h1>
+                <?php if (!empty($_SESSION['flash_success'])): ?>
+                <div class="alert success">
+                    <span class="material-symbols-sharp">check_circle</span>
+                    <?= htmlspecialchars($_SESSION['flash_success']) ?>
+                </div>
+                <?php unset($_SESSION['flash_success']); ?>
+                <?php endif; ?>
 
+                <?php if (!empty($_SESSION['flash_error'])): ?>
+                <div class="alert error">
+                    <span class="material-symbols-sharp">error</span>
+                    <?= htmlspecialchars($_SESSION['flash_error']) ?>
+                </div>
+                <?php unset($_SESSION['flash_error']); ?>
+                <?php endif; ?>                
                 <?php
                 // Simple search
                 $search = trim($_GET['search'] ?? '');
