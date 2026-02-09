@@ -1,6 +1,12 @@
 <?php
 // menu.php
 session_start();
+if(isset($_POST['order_type'])){
+    $_SESSION['order_type'] = $_POST['order_type'];
+}
+
+$orderType = $_SESSION['order_type'] ?? 'Dine In';
+
 include_once __DIR__ . "/includes/header.php";
 
 $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
@@ -260,7 +266,8 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
                 data-menu-id="11"
                 data-name="Batik Indulgence"
                 data-price="8.00"
-                data-image="image/Batik Indulgence.jpg">
+                data-image="image/Batik Indulgence.jpg"
+                data-category="dessert">
           Add to Cart
         </button>
       <?php else: ?>
@@ -280,7 +287,8 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
                 data-menu-id="12"
                 data-name="Matcha Batik Indulgence"
                 data-price="9.00"
-                data-image="image/Matcha Batik Indulgence.jpg">
+                data-image="image/Matcha Batik Indulgence.jpg"
+                data-category="dessert">
           Add to Cart
         </button>
       <?php else: ?>
@@ -300,7 +308,8 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
                 data-menu-id="13"
                 data-name="Biscoff Cake"
                 data-price="12.00"
-                data-image="image/Biscoff Cake.jpg">
+                data-image="image/Biscoff Cake.jpg"
+                data-category="dessert">
           Add to Cart
         </button>
       <?php else: ?>
@@ -320,7 +329,8 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
                 data-menu-id="14"
                 data-name="Japanese Cream Puff"
                 data-price="6.00"
-                data-image="image/Japanese Cream Puff.jpg">
+                data-image="image/Japanese Cream Puff.jpg"
+                data-category="dessert">
           Add to Cart
         </button>
       <?php else: ?>
@@ -340,7 +350,8 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
                 data-menu-id="15"
                 data-name="Cookies"
                 data-price="4.00"
-                data-image="image/Cookies.jpg">
+                data-image="image/Cookies.jpg"
+                data-category="dessert">
           Add to Cart
         </button>
       <?php else: ?>
@@ -360,7 +371,8 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
                 data-menu-id="16"
                 data-name="Banana Choc Loaf"
                 data-price="7.00"
-                data-image="image/Banana Choc Loaf.jpg">
+                data-image="image/Banana Choc Loaf.jpg"
+                data-category="dessert">
           Add to Cart
         </button>
       <?php else: ?>
@@ -380,7 +392,8 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
                 data-menu-id="17"
                 data-name="Banana Walnut Loaf"
                 data-price="8.00"
-                data-image="image/Banana Walnut Loaf.jpg">
+                data-image="image/Banana Walnut Loaf.jpg"
+                data-category="dessert">
           Add to Cart
         </button>
       <?php else: ?>
@@ -397,6 +410,7 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
 <!-- =================================================
      MODAL WINDOW (customer only)
 ================================================== -->
+
 <?php if ($isCustomer): ?>
 <div id="cartModal" class="cart-modal" aria-hidden="true">
   <div class="cart-modal-content">
@@ -414,32 +428,43 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
           <label style="display:block;margin-top:8px;">Quantity</label>
           <input type="number" name="quantity" value="1" min="1" class="form-control" style="max-width:140px;">
 
-          <label style="display:block;margin-top:12px;">Option</label>
-          <select name="temp" class="form-select" style="max-width:220px;">
-            <option value="Hot">Hot</option>
-            <option value="Cold">Cold</option>
-          </select>
-
-          <label style="display:block;margin-top:12px;">Add-ons</label>
-          <div style="display:grid;gap:8px;margin-top:6px;">
-            <label><input type="checkbox" name="addons[]" value="Extra Shot"> Extra Shot</label>
-
-            <div>
-              <div style="font-weight:600;margin-bottom:4px;">Milk</div>
-              <label style="margin-right:12px;"><input type="radio" name="milk" value="Oat Milk"> Oat Milk</label>
-              <label style="margin-right:12px;"><input type="radio" name="milk" value="Soy Milk"> Soy Milk</label>
-              <label style="margin-right:12px;"><input type="radio" name="milk" value="Almond Milk"> Almond Milk</label>
-              <label><input type="radio" name="milk" value="" checked> Normal</label>
-            </div>
-
-            <div>
-              <div style="font-weight:600;margin-bottom:4px;">Syrup</div>
-              <label style="margin-right:12px;"><input type="radio" name="syrup" value="Caramel"> Caramel</label>
-              <label style="margin-right:12px;"><input type="radio" name="syrup" value="Hazelnut"> Hazelnut</label>
-              <label style="margin-right:12px;"><input type="radio" name="syrup" value="Vanilla"> Vanilla</label>
-              <label><input type="radio" name="syrup" value="" checked> None</label>
-            </div>
+          <div id="drinkOptions">
+             <label style="display:block;margin-top:12px;">Option</label>
+             <select name="temp" class="form-select" style="max-width:220px;">
+             <option value="Hot">Hot</option>
+             <option value="Cold">Cold</option>
+             </select>
           </div>
+
+
+          <div id="drinkAddons">
+  <label style="display:block;margin-top:12px;">Add-ons</label>
+  <div style="display:grid;gap:8px;margin-top:6px;">
+    <label><input type="checkbox" name="addons[]" value="Extra Shot"> Extra Shot</label>
+
+    <div>
+      <div style="font-weight:600;margin-bottom:4px;">Milk</div>
+      <label><input type="radio" name="milk" value="Oat Milk"> Oat Milk</label>
+      <label><input type="radio" name="milk" value="Soy Milk"> Soy Milk</label>
+      <label><input type="radio" name="milk" value="Almond Milk"> Almond Milk</label>
+      <label><input type="radio" name="milk" value="" checked> Normal</label>
+    </div>
+
+    <div>
+      <div style="font-weight:600;margin-bottom:4px;">Syrup</div>
+      <label><input type="radio" name="syrup" value="Caramel"> Caramel</label>
+      <label><input type="radio" name="syrup" value="Hazelnut"> Hazelnut</label>
+      <label><input type="radio" name="syrup" value="Vanilla"> Vanilla</label>
+      <label><input type="radio" name="syrup" value="" checked> None</label>
+    </div>
+  </div>
+</div>
+
+          <label style="display:block;margin-top:8px;">Order Type</label>
+          <select name="order_type" class="form-select" style="max-width:220px;">
+            <option value="Dine In" <?= $orderType=='Dine In'?'selected':'' ?>>Dine In</option>
+            <option value="Take Away" <?= $orderType=='Take Away'?'selected':'' ?>>Take Away</option>
+          </select>
 
           <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
             <button type="button" class="btn btn-secondary" id="cancelModal">Cancel</button>
@@ -515,13 +540,20 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
     const modalImage  = document.getElementById("modalImage");
 
     function openModal(btn){
-      modalMenuId.value = btn.dataset.menuId;
-      modalName.textContent = btn.dataset.name;
-      modalPrice.textContent = "RM "+btn.dataset.price;
-      modalImage.src = btn.dataset.image;
-      modal.classList.add("show");
-      modal.setAttribute("aria-hidden","false");
-    }
+  modalMenuId.value = btn.dataset.menuId;
+  modalName.textContent = btn.dataset.name;
+  modalPrice.textContent = "RM "+btn.dataset.price;
+  modalImage.src = btn.dataset.image;
+
+  const isDessert = btn.dataset.category === 'dessert';
+
+  document.getElementById("drinkOptions").style.display = isDessert ? "none" : "block";
+  document.getElementById("drinkAddons").style.display  = isDessert ? "none" : "block";
+
+  modal.classList.add("show");
+  modal.setAttribute("aria-hidden","false");
+}
+
 
     function closeModal(){
       modal.classList.remove("show");
@@ -578,6 +610,14 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
         });
     });
   }
+
+  document.querySelector('[name="order_type"]')?.addEventListener('change', e=>{
+  fetch('set_order_type.php',{
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:'order_type='+encodeURIComponent(e.target.value)
+  });
+});
 </script>
 
 <?php include_once __DIR__ . "/includes/footer.php"; ?>

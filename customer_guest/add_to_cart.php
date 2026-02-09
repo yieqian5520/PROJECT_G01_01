@@ -2,26 +2,39 @@
 session_start();
 include_once "dbcon.php";
 
-if(!isset($_POST['menu_id']) || !isset($_POST['quantity'])){
-    echo json_encode(['status'=>'error','msg'=>'Invalid data']);
-    exit;
-}
-
-$menu_id = intval($_POST['menu_id']);
-$quantity = intval($_POST['quantity']);
-$option = $_POST['temp'] ?? '';
-$addons = isset($_POST['addons']) ? implode(',', $_POST['addons']) : '';
-$milk = $_POST['milk'] ?? '';
-$syrup = $_POST['syrup'] ?? '';
 $sid = session_id();
 
-// Check if item exists
-$q = mysqli_query($con, "SELECT * FROM cart_items WHERE session_id='$sid' AND menu_id=$menu_id LIMIT 1");
+$menu_id   = intval($_POST['menu_id']);
+$qty       = intval($_POST['quantity']);
+$orderType = $_POST['order_type'] ?? 'Dine In';
+
+$temp   = $_POST['temp'] ?? '';
+$milk   = $_POST['milk'] ?? '';
+$syrup  = $_POST['syrup'] ?? '';
+$addons = isset($_POST['addons']) ? implode(',', $_POST['addons']) : '';
+
+$q = mysqli_query($con,"
+  SELECT id, quantity FROM cart_items
+  WHERE session_id='$sid'
+  AND menu_id=$menu_id
+  AND order_type='$orderType'
+");
+
 if(mysqli_num_rows($q)){
-    mysqli_query($con,"UPDATE cart_items SET quantity=quantity+$quantity WHERE session_id='$sid' AND menu_id=$menu_id");
+  $r = mysqli_fetch_assoc($q);
+  $newQty = $r['quantity'] + $qty;
+  mysqli_query($con,"
+    UPDATE cart_items
+    SET quantity=$newQty
+    WHERE id={$r['id']}
+  ");
 }else{
-    mysqli_query($con,"INSERT INTO cart_items (session_id, menu_id, quantity, temp, addons, milk, syrup)
-        VALUES ('$sid',$menu_id,$quantity,'$option','$addons','$milk','$syrup')");
+  mysqli_query($con,"
+    INSERT INTO cart_items
+    (session_id, menu_id, quantity, order_type, temp, milk, syrup, addons)
+    VALUES
+    ('$sid',$menu_id,$qty,'$orderType','$temp','$milk','$syrup','$addons')
+  ");
 }
 
 echo json_encode(['status'=>'success']);
