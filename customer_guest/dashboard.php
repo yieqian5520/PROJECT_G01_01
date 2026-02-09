@@ -174,16 +174,6 @@ include_once __DIR__ . "/includes/header.php";
 
                             <hr>
 
-                            <div class="mb-3">
-                                <label>New Password</label>
-                                <input type="password" name="password" class="form-control">
-                            </div>
-
-                            <div class="mb-3">
-                                <label>Confirm Password</label>
-                                <input type="password" name="confirm_password" class="form-control">
-                            </div>
-
                             <div class="d-grid">
                                 <button type="submit" name="update_profile" class="btn btn-warning text-dark">
                                     Update Profile
@@ -194,9 +184,22 @@ include_once __DIR__ . "/includes/header.php";
 
                         <hr>
 
-                        <form action="logout.php" method="POST" class="text-center">
-                            <button type="submit" class="btn btn-danger">Logout</button>
+                        <div class="d-flex justify-content-between mt-3">
+
+                        <!-- Change Password -->
+                        <a href="change_password.php" class="btn btn-outline-secondary">
+                            Change Password
+                        </a>
+
+                        <!-- Logout -->
+                        <form action="logout.php" method="POST">
+                            <button type="submit" class="btn btn-danger">
+                                Logout
+                            </button>
                         </form>
+
+                    </div>
+
 
                     </div>
                 </div>

@@ -29,6 +29,10 @@ if(isset($_POST['reset_password_btn'])) {
         $_SESSION['status'] = "Passwords do not match.";
     } elseif(strlen($password) < 8) {
         $_SESSION['status'] = "Password must be at least 8 characters.";
+    } elseif(!preg_match('/[A-Za-z]/', $password)) {
+        $_SESSION['status'] = "Password must contain at least 1 letter.";
+    } elseif(!preg_match('/[0-9]/', $password)) {
+        $_SESSION['status'] = "Password must contain at least 1 number.";
     } else {
         $hash = password_hash($password, PASSWORD_DEFAULT);
         $update = $con->prepare("UPDATE users SET password=?, verify_token='' WHERE id=?");
@@ -41,6 +45,7 @@ if(isset($_POST['reset_password_btn'])) {
         exit();
     }
 }
+
 
 include_once __DIR__ . "/includes/header.php";
 ?>
@@ -61,7 +66,6 @@ include_once __DIR__ . "/includes/header.php";
                         <div class="password-input-group">
                             <input type="password" name="password" class="form-control password-input" placeholder="********" required>
                             <span class="password-toggle">
-                                <br>
                                 <i class="bi bi-eye"></i>
                             </span>
                         </div>
@@ -73,7 +77,6 @@ include_once __DIR__ . "/includes/header.php";
                         <div class="password-input-group">
                             <input type="password" name="confirm_password" class="form-control password-input" placeholder="********" required>
                             <span class="password-toggle">
-                                <br>
                                 <i class="bi bi-eye"></i>
                             </span>
                         </div>
