@@ -676,5 +676,205 @@ main .profile-form .btn-primary:hover {
   color: var(--color-white);
 }
 
+tr.row-selected {
+  outline: 2px solid rgba(255, 92, 92, 0.65);
+  background: rgba(255, 92, 92, 0.08) !important;
+}
 
+/* =========================== ORDER DETAILS PAGE ======================== */
+.order-details-wrap {
+  margin-top: 1.4rem;
+}
+
+.order-details-topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.btn-back{
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+  padding: 0.65rem 1rem;
+  border-radius: var(--border-radius-2);
+  background: var(--color-white);
+  box-shadow: var(--box-shadow);
+  border: 1px solid rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: all 300ms ease;
+}
+
+.btn-back:hover{
+  box-shadow: none;
+  transform: translateY(-1px);
+}
+
+.btn-back span{
+  font-size: 1.2rem;
+}
+
+/* Cards layout */
+.details-grid{
+  display:grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 1.2rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 980px){
+  .details-grid{ grid-template-columns: 1fr; }
+}
+
+/* clean card */
+.details-card{
+  background: var(--color-white);
+  border-radius: var(--card-border-radius);
+  padding: var(--card-padding);
+  box-shadow: var(--box-shadow);
+  transition: all 300ms ease;
+}
+
+.details-card:hover{ box-shadow: none; }
+
+.details-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap: 10px;
+  flex-wrap:wrap;
+  margin-bottom: 0.8rem;
+}
+
+.details-title{
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.details-sub{
+  margin-top: 4px;
+  color: var(--color-info-dark);
+  font-size: 0.82rem;
+}
+
+/* badges */
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--color-light);
+  color: var(--color-dark);
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+.badge-success{
+  background: rgba(65,241,182,0.18);
+  border: 1px solid rgba(65,241,182,0.35);
+}
+
+.badge-warning{
+  background: rgba(255,187,85,0.18);
+  border: 1px solid rgba(255,187,85,0.35);
+}
+
+/* meta info grid */
+.meta-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem 1.2rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 520px){
+  .meta-grid{ grid-template-columns: 1fr; }
+}
+
+.meta-item .label{
+  font-size: 0.75rem;
+  color: var(--color-info-dark);
+  margin-bottom: 4px;
+}
+
+.meta-item .value{
+  font-size: 0.9rem;
+  color: var(--color-dark);
+}
+
+/* =========================== PROFESSIONAL TABLE ======================== */
+.table-clean{
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border-radius: var(--border-radius-3);
+  border: 1px solid var(--color-light);
+  background: var(--color-white);
+}
+
+.table-clean thead th{
+  text-align: left;
+  padding: 0.95rem 0.9rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.3px;
+  color: var(--color-info-dark);
+  background: rgba(132, 139, 200, 0.10);
+  border-bottom: 1px solid var(--color-light);
+  white-space: nowrap;
+}
+
+.table-clean tbody td{
+  padding: 0.9rem 0.9rem;
+  border-bottom: 1px solid var(--color-light);
+  color: var(--color-dark-variant);
+  text-align: left; /* IMPORTANT: clean look */
+  height: auto;     /* override your global table td height */
+}
+
+.table-clean tbody tr:hover td{
+  background: rgba(132, 139, 200, 0.08);
+}
+
+.table-clean tbody tr:last-child td{
+  border-bottom: none;
+}
+
+.t-right{ text-align: right !important; }
+.t-muted{ color: var(--color-info-dark); font-size: 0.78rem; }
+
+/* totals box */
+.totals-box{
+  margin-top: 1rem;
+  display:flex;
+  justify-content:flex-end;
+}
+
+.totals-inner{
+  width: min(360px, 100%);
+  background: rgba(132, 139, 200, 0.06);
+  border: 1px solid var(--color-light);
+  border-radius: var(--border-radius-3);
+  padding: 0.9rem;
+}
+
+.totals-row{
+  display:flex;
+  justify-content:space-between;
+  gap: 10px;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--color-light);
+}
+
+.totals-row:last-child{ border-bottom:none; }
+
+.totals-row strong{
+  font-size: 1rem;
+  color: var(--color-dark);
+}
 

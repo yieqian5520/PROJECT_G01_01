@@ -39,62 +39,90 @@ foreach ($ids as $customerId) {
         $stmt->bind_param("i", $customerId);
         $stmt->execute();
         $customer = $stmt->get_result()->fetch_assoc();
-
-        if (!$customer) {
-            throw new Exception("Customer ID $customerId not found.");
-        }
+        if (!$customer) throw new Exception("Customer ID $customerId not found.");
         $email = $customer['email'];
 
-        /* 2) Delete order_items ONLY for UNPAID orders */
+        /**
+         * 2) SAVE PAID AMOUNTS INTO dashboard_daily_totals (group by day)
+         *    (No customer/order data saved — only totals)
+         */
+        $paidStmt = $db->prepare("
+            SELECT
+              DATE(o.created_at) AS day,
+              COALESCE(SUM(o.total),0) AS sales,
+              COALESCE(SUM(GREATEST(oi.price - 4, 0) * oi.quantity),0) AS expenses
+            FROM orders o
+            JOIN order_items oi ON oi.order_id = o.id
+            WHERE o.user_id = ?
+              AND UPPER(TRIM(o.payment_status)) = 'PAID'
+            GROUP BY DATE(o.created_at)
+        ");
+        $paidStmt->bind_param("i", $customerId);
+        $paidStmt->execute();
+        $paidRes = $paidStmt->get_result();
+
+        $upsert = $db->prepare("
+            INSERT INTO dashboard_daily_totals (day, sales, expenses, income)
+            VALUES (?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE
+              sales    = sales + VALUES(sales),
+              expenses = expenses + VALUES(expenses),
+              income   = income + VALUES(income)
+        ");
+
+        while ($row = $paidRes->fetch_assoc()) {
+            $day = $row['day'];
+            $sales = (float)$row['sales'];
+            $expenses = (float)$row['expenses'];
+            $income = $sales - $expenses;
+
+            $upsert->bind_param("sddd", $day, $sales, $expenses, $income);
+            $upsert->execute();
+        }
+
+        /**
+         * 3) DELETE ALL order_items for this customer (paid/unpaid)
+         *    We must delete items first due to FK constraints.
+         */
         $stmt = $db->prepare("
             DELETE oi
             FROM order_items oi
             JOIN orders o ON o.id = oi.order_id
             WHERE o.user_id = ?
-              AND (o.payment_status IS NULL OR o.payment_status = 'UNPAID')
-              AND o.paid_at IS NULL
         ");
         $stmt->bind_param("i", $customerId);
         $stmt->execute();
 
-        /* 3) Delete orders ONLY for UNPAID orders */
-        $stmt = $db->prepare("
-            DELETE FROM orders
-            WHERE user_id = ?
-              AND (payment_status IS NULL OR payment_status = 'UNPAID')
-              AND paid_at IS NULL
-        ");
+        /**
+         * 4) DELETE ALL orders for this customer (paid/unpaid)
+         */
+        $stmt = $db->prepare("DELETE FROM orders WHERE user_id = ?");
         $stmt->bind_param("i", $customerId);
         $stmt->execute();
 
-        /* 4) Detach PAID orders (KEEP THEM) */
-        $stmt = $db->prepare("
-            UPDATE orders
-            SET user_id = NULL
-            WHERE user_id = ?
-              AND (payment_status = 'PAID' OR paid_at IS NOT NULL)
-        ");
-        $stmt->bind_param("i", $customerId);
-        $stmt->execute();
-
-        /* 5) Delete feedback_message */
+        /**
+         * 5) DELETE feedback
+         */
         $stmt = $db->prepare("DELETE FROM feedback_message WHERE user_id = ?");
         $stmt->bind_param("i", $customerId);
         $stmt->execute();
 
-        /* 6) Delete contact_messages by email */
+        /**
+         * 6) DELETE contact messages by email
+         */
         $stmt = $db->prepare("DELETE FROM contact_messages WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
 
-        /* 7) Finally delete user */
+        /**
+         * 7) DELETE the customer
+         */
         $stmt = $db->prepare("DELETE FROM users WHERE id = ?");
         $stmt->bind_param("i", $customerId);
         $stmt->execute();
 
         $db->commit();
 
-        // Count only if the user row was actually deleted
         if ($stmt->affected_rows > 0) $deletedUsers++;
 
     } catch (Exception $e) {
@@ -102,6 +130,7 @@ foreach ($ids as $customerId) {
         $errors[] = "ID {$customerId}: " . $e->getMessage();
     }
 }
+
 
 /* flash message */
 if ($deletedUsers > 0) {
