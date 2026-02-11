@@ -1,15 +1,15 @@
 <?php
 // menu.php
 session_start();
-if(isset($_POST['order_type'])){
-    $_SESSION['order_type'] = $_POST['order_type'];
+
+if (isset($_POST['order_type'])) {
+  $_SESSION['order_type'] = $_POST['order_type'];
 }
 
-$orderType = $_SESSION['order_type'] ?? 'Dine In';
+$orderType  = $_SESSION['order_type'] ?? 'Dine In';
+$isCustomer = isset($_SESSION['authenticated']); // logged-in customer
 
 include_once __DIR__ . "/includes/header.php";
-
-$isCustomer = isset($_SESSION['authenticated']); // logged-in customer
 ?>
 <section class="menu-hero">
   <div class="menu-hero-overlay">
@@ -171,6 +171,7 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Chocolate</h3>
       <p>Rich and creamy chocolate indulgence</p>
       <span>RM 11.00</span>
+
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="7"
@@ -191,6 +192,7 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Matcha</h3>
       <p>Smooth Japanese green tea blended with milk</p>
       <span>RM 12.00</span>
+
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="8"
@@ -211,6 +213,7 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Peach Tea</h3>
       <p>Refreshing tea with sweet peach notes</p>
       <span>RM 9.00</span>
+
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="9"
@@ -231,6 +234,7 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Peppermint Tea</h3>
       <p>Light and refreshing herbal mint tea</p>
       <span>RM 8.00</span>
+
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="10"
@@ -249,7 +253,6 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
   </div>
 </div>
 
-
 <!-- =================================================
      DESSERT
 ================================================== -->
@@ -261,6 +264,7 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Batik Indulgence</h3>
       <p>Classic chocolate biscuit cake</p>
       <span>RM 8.00</span>
+
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="11"
@@ -282,6 +286,7 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Matcha Batik Indulgence</h3>
       <p>Batik cake with aromatic matcha flavour</p>
       <span>RM 9.00</span>
+
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="12"
@@ -303,6 +308,7 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Biscoff Cake</h3>
       <p>Soft cake layered with Biscoff spread</p>
       <span>RM 12.00</span>
+
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="13"
@@ -324,6 +330,7 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Japanese Cream Puff</h3>
       <p>Light pastry filled with creamy custard</p>
       <span>RM 6.00</span>
+
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="14"
@@ -345,6 +352,7 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Cookies</h3>
       <p>Freshly baked cookies</p>
       <span>RM 4.00</span>
+
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="15"
@@ -366,6 +374,7 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Banana Choc Loaf</h3>
       <p>Moist banana loaf with chocolate</p>
       <span>RM 7.00</span>
+
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="16"
@@ -387,6 +396,7 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
       <h3>Banana Walnut Loaf</h3>
       <p>Soft banana loaf topped with walnuts</p>
       <span>RM 8.00</span>
+
       <?php if ($isCustomer): ?>
         <button type="button" class="btn open-modal"
                 data-menu-id="17"
@@ -406,11 +416,9 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
   </div>
 </div>
 
-
 <!-- =================================================
      MODAL WINDOW (customer only)
 ================================================== -->
-
 <?php if ($isCustomer): ?>
 <div id="cartModal" class="cart-modal" aria-hidden="true">
   <div class="cart-modal-content">
@@ -429,36 +437,35 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
           <input type="number" name="quantity" value="1" min="1" class="form-control" style="max-width:140px;">
 
           <div id="drinkOptions">
-             <label style="display:block;margin-top:12px;">Option</label>
-             <select name="temp" class="form-select" style="max-width:220px;">
-             <option value="Hot">Hot</option>
-             <option value="Cold">Cold</option>
-             </select>
+            <label style="display:block;margin-top:12px;">Option</label>
+            <select name="temp" class="form-select" style="max-width:220px;">
+              <option value="Hot">Hot</option>
+              <option value="Cold">Cold</option>
+            </select>
           </div>
 
-
           <div id="drinkAddons">
-  <label style="display:block;margin-top:12px;">Add-ons</label>
-  <div style="display:grid;gap:8px;margin-top:6px;">
-    <label><input type="checkbox" name="addons[]" value="Extra Shot"> Extra Shot</label>
+            <label style="display:block;margin-top:12px;">Add-ons</label>
+            <div style="display:grid;gap:8px;margin-top:6px;">
+              <label><input type="checkbox" name="addons[]" value="Extra Shot"> Extra Shot</label>
 
-    <div>
-      <div style="font-weight:600;margin-bottom:4px;">Milk</div>
-      <label><input type="radio" name="milk" value="Oat Milk"> Oat Milk</label>
-      <label><input type="radio" name="milk" value="Soy Milk"> Soy Milk</label>
-      <label><input type="radio" name="milk" value="Almond Milk"> Almond Milk</label>
-      <label><input type="radio" name="milk" value="" checked> Normal</label>
-    </div>
+              <div>
+                <div style="font-weight:600;margin-bottom:4px;">Milk</div>
+                <label><input type="radio" name="milk" value="Oat Milk"> Oat Milk</label>
+                <label><input type="radio" name="milk" value="Soy Milk"> Soy Milk</label>
+                <label><input type="radio" name="milk" value="Almond Milk"> Almond Milk</label>
+                <label><input type="radio" name="milk" value="" checked> Normal</label>
+              </div>
 
-    <div>
-      <div style="font-weight:600;margin-bottom:4px;">Syrup</div>
-      <label><input type="radio" name="syrup" value="Caramel"> Caramel</label>
-      <label><input type="radio" name="syrup" value="Hazelnut"> Hazelnut</label>
-      <label><input type="radio" name="syrup" value="Vanilla"> Vanilla</label>
-      <label><input type="radio" name="syrup" value="" checked> None</label>
-    </div>
-  </div>
-</div>
+              <div>
+                <div style="font-weight:600;margin-bottom:4px;">Syrup</div>
+                <label><input type="radio" name="syrup" value="Caramel"> Caramel</label>
+                <label><input type="radio" name="syrup" value="Hazelnut"> Hazelnut</label>
+                <label><input type="radio" name="syrup" value="Vanilla"> Vanilla</label>
+                <label><input type="radio" name="syrup" value="" checked> None</label>
+              </div>
+            </div>
+          </div>
 
           <label style="display:block;margin-top:8px;">Order Type</label>
           <select name="order_type" class="form-select" style="max-width:220px;">
@@ -478,43 +485,17 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
 <?php endif; ?>
 
 <!-- =================================================
-     MINI CART (ORDER-SHELL STYLE)
+     CART DRAWER (OPEN ONLY WHEN USER CLICK CART ICON)
 ================================================== -->
-<div id="miniCart" class="mini-cart" style="display:none;">
-  <div class="mini-cart-header">
-    <h4>Your Order</h4>
-    <button id="closeMiniCart">&times;</button>
-  </div>
-  <div id="miniCartBody"></div>
-  <div class="mini-cart-footer">
-    <strong>Total: RM <span id="miniCartTotal">0.00</span></strong>
-    <a href="order_status.php?latest=1" class="btn btn-warning w-100 mt-2">Place Order</a>
-  </div>
+<div id="cartDrawer" style="
+  position:fixed; top:0; right:-420px; width:420px; height:100%;
+  background:#fff; box-shadow:-4px 0 20px rgba(0,0,0,.2);
+  transition:right .3s; z-index:99999;">
+  <iframe id="cartFrame" src="cart.php" style="border:0;width:100%;height:100%;"></iframe>
 </div>
 
-<style>
-.mini-cart {
-  position: fixed;
-  top: 0;
-  right: -400px;
-  width: 400px;
-  height: 100%;
-  background: #fff;
-  box-shadow: -4px 0 20px rgba(0,0,0,.2);
-  transition: right 0.3s;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-}
-.mini-cart.show { right: 0; }
-.mini-cart-header { display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #ddd; }
-#miniCartBody { flex:1; overflow-y:auto; padding:10px; }
-.mini-cart-footer { padding:10px; border-top:1px solid #ddd; }
-#closeMiniCart { background:none; border:none; font-size:1.5rem; cursor:pointer; }
-</style>
-
 <script>
-  // Tabs switching
+  // ===== Tabs switching =====
   const tabs = document.querySelectorAll(".menu-tab");
   const panels = document.querySelectorAll(".menu-panel");
 
@@ -531,8 +512,9 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
     });
   });
 
-  // Modal logic
+  // ===== Modal logic =====
   const modal = document.getElementById("cartModal");
+  let closeModal = ()=>{};
   if(modal){
     const modalMenuId = document.getElementById("modalMenuId");
     const modalName   = document.getElementById("modalName");
@@ -540,84 +522,125 @@ $isCustomer = isset($_SESSION['authenticated']); // logged-in customer
     const modalImage  = document.getElementById("modalImage");
 
     function openModal(btn){
-  modalMenuId.value = btn.dataset.menuId;
-  modalName.textContent = btn.dataset.name;
-  modalPrice.textContent = "RM "+btn.dataset.price;
-  modalImage.src = btn.dataset.image;
+      modalMenuId.value = btn.dataset.menuId;
+      modalName.textContent = btn.dataset.name;
+      modalPrice.textContent = "RM "+btn.dataset.price;
+      modalImage.src = btn.dataset.image;
 
-  const isDessert = btn.dataset.category === 'dessert';
+      const isDessert = btn.dataset.category === 'dessert';
+      document.getElementById("drinkOptions").style.display = isDessert ? "none" : "block";
+      document.getElementById("drinkAddons").style.display  = isDessert ? "none" : "block";
 
-  document.getElementById("drinkOptions").style.display = isDessert ? "none" : "block";
-  document.getElementById("drinkAddons").style.display  = isDessert ? "none" : "block";
+      modal.classList.add("show");
+      modal.setAttribute("aria-hidden","false");
+    }
 
-  modal.classList.add("show");
-  modal.setAttribute("aria-hidden","false");
-}
-
-
-    function closeModal(){
+    closeModal = function(){
       modal.classList.remove("show");
       modal.setAttribute("aria-hidden","true");
     }
 
     document.querySelectorAll(".open-modal").forEach(btn=>btn.addEventListener("click",()=>openModal(btn)));
-    document.getElementById("closeModal").addEventListener("click", closeModal);
-    document.getElementById("cancelModal").addEventListener("click", closeModal);
+    document.getElementById("closeModal")?.addEventListener("click", closeModal);
+    document.getElementById("cancelModal")?.addEventListener("click", closeModal);
     modal.addEventListener("click", (e)=>{ if(e.target===modal) closeModal(); });
   }
 
-  // Mini-cart
-  const miniCart = document.getElementById("miniCart");
-  const miniCartBody = document.getElementById("miniCartBody");
-  const miniCartTotal = document.getElementById("miniCartTotal");
-  document.getElementById("closeMiniCart").addEventListener("click", ()=> miniCart.classList.remove("show"));
+  // ===== Cart Drawer (open ONLY when user clicks cart icon) =====
+  const cartDrawer = document.getElementById("cartDrawer");
+  const cartFrame  = document.getElementById("cartFrame");
 
-  function showMiniCart(){
-    fetch('fetch_cart.php').then(res=>res.json()).then(data=>{
-      miniCartBody.innerHTML = '';
-      let total=0;
-      data.items.forEach(item=>{
-        let line=item.price*item.quantity;
-        total+=line;
-        miniCartBody.innerHTML+=`
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-            <div>
-              <strong>${item.name}</strong><br>
-              ${item.quantity} x RM ${item.price.toFixed(2)}
-            </div>
-            <div>RM ${line.toFixed(2)}</div>
-          </div>`;
-      });
-      miniCartTotal.textContent = total.toFixed(2);
-      miniCart.classList.add("show");
+  function openCartDrawer(orderType){
+    cartDrawer.style.right = "0";
+
+    // send order type + refresh to iframe cart.php
+    const setTypeMsg = { type:"set_type", value: orderType || "Dine In" };
+    const refreshMsg = { type:"refresh" };
+
+    let tries = 0;
+    const timer = setInterval(()=>{
+      tries++;
+      if(cartFrame && cartFrame.contentWindow){
+        cartFrame.contentWindow.postMessage(setTypeMsg, window.location.origin);
+        cartFrame.contentWindow.postMessage(refreshMsg, window.location.origin);
+        clearInterval(timer);
+      }
+      if(tries >= 10) clearInterval(timer);
+    }, 80);
+  }
+
+  function closeCartDrawer(){
+    cartDrawer.style.right = "-420px";
+  }
+
+  // ✅ If your header has cart button id="cartBtn"
+  const cartBtn = document.getElementById("cartBtn");
+  if(cartBtn){
+    cartBtn.addEventListener("click", ()=>{
+      const currentOrderType = <?= json_encode($orderType) ?>;
+      openCartDrawer(currentOrderType);
     });
   }
 
+  // ===== Add to Cart: update badge only (NO open drawer) =====
   const addCartForm = document.getElementById("addCartForm");
   if(addCartForm){
     addCartForm.addEventListener("submit", function(e){
       e.preventDefault();
+
       const formData = new FormData(this);
-      fetch('add_to_cart.php',{
+      const selectedOrderType = this.querySelector('select[name="order_type"]').value;
+
+      fetch('add_to_cart.php', {
         method:'POST',
-        body:formData
-      }).then(res=>res.json())
-        .then(res=>{
-          if(res.status==='success'){
-            showMiniCart();
-            closeModal();
+        body: formData,
+        credentials:"include",
+        cache:"no-store"
+      })
+      .then(res=>res.json())
+      .then(res=>{
+        if(res.status === 'success'){
+          closeModal();
+
+          // ✅ update badge only
+          fetch("fetch_cart.php", {
+            method:"POST",
+            headers:{ "Content-Type":"application/x-www-form-urlencoded" },
+            body:"order_type="+encodeURIComponent(selectedOrderType),
+            credentials:"include",
+            cache:"no-store"
+          })
+          .then(r=>r.json())
+          .then(data=>{
+            const cartBadge = document.getElementById("cartBadge");
+            if(cartBadge) cartBadge.textContent = data.total_qty ?? 0;
+          });
+
+          // ✅ optional: tell iframe to refresh (if drawer already opened)
+          if(cartFrame && cartFrame.contentWindow){
+            cartFrame.contentWindow.postMessage({type:"refresh"}, window.location.origin);
           }
-        });
+
+        } else {
+          alert("Failed to add to cart");
+        }
+      })
+      .catch(()=> alert("Network error"));
     });
   }
 
-  document.querySelector('[name="order_type"]')?.addEventListener('change', e=>{
-  fetch('set_order_type.php',{
-    method:'POST',
-    headers:{'Content-Type':'application/x-www-form-urlencoded'},
-    body:'order_type='+encodeURIComponent(e.target.value)
+  // If user changes order type in modal, update session immediately (optional)
+  const modalOrderTypeSelect = document.querySelector('#addCartForm select[name="order_type"]');
+  modalOrderTypeSelect?.addEventListener("change", e=>{
+    fetch('set_order_type.php', {
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:'order_type='+encodeURIComponent(e.target.value),
+      credentials:"include",
+      cache:"no-store"
+    });
   });
-});
+
 </script>
 
 <?php include_once __DIR__ . "/includes/footer.php"; ?>

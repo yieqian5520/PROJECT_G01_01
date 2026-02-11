@@ -1,5 +1,8 @@
 <?php
 session_start();
+header('Content-Type: application/json');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
 include_once "dbcon.php";
 
 $sid = session_id();
@@ -38,3 +41,4 @@ if(mysqli_num_rows($q)){
 }
 
 echo json_encode(['status'=>'success']);
+exit;

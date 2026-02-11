@@ -49,17 +49,10 @@ $profileImg = !empty($user['profile_image'])
 <body>
     <!-- CART DRAWER (ADD ONLY) -->
 <div id="cartDrawer" style="
-position:fixed;
-top:0;
-right:-420px;
-width:420px;
-height:100%;
-background:#fff;
-z-index:9999;
-transition:.3s;
-box-shadow:-4px 0 20px rgba(0,0,0,.15);
-">
-    <iframe src="cart.php" style="width:100%;height:100%;border:none;"></iframe>
+  position:fixed; top:0; right:-420px; width:420px; height:100%;
+  background:#fff; box-shadow:-4px 0 20px rgba(0,0,0,.2);
+  transition:right .3s; z-index:99999;">
+  <iframe id="cartFrame" src="cart.php" style="border:0;width:100%;height:100%;"></iframe>
 </div>
 
 <div id="cartOverlay" style="
