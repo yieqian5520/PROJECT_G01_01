@@ -234,4 +234,12 @@ $currentStep = $statusSteps[$o['status']] ?? 0;
   </div>
 </section>
 
+<script>
+document.getElementById('placeOrderBtn')?.addEventListener('click', function() {
+    // Redirect to order_status.php
+    window.location.href = 'order_status.php';
+});
+</script>
+
+
 <?php include_once "includes/footer.php"; ?>

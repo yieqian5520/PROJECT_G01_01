@@ -244,11 +244,18 @@ body { margin:0; font-family: Arial, sans-serif; background:#fff; }
       <strong>RM <span id="cartTotal"><?= number_format($total,2) ?></span></strong>
     </div>
 
-    <?php if($items): ?>
-      <button class="place-btn" type="button" onclick="window.top.location.href='place_order.php'">Place Order</button>
-    <?php endif; ?>
-  </div>
-</div>
+<button class="place-btn" type="button" onclick="placeOrder()">
+    Place Order
+</button>
+
+<script>
+function placeOrder() {
+    // Redirect the **full browser window** to place_order.php
+    window.top.location.href = 'place_order.php';
+}
+</script>
+
+
 
 <script>
 const orderList = document.getElementById("orderList");
@@ -423,6 +430,16 @@ function escapeHtml(str){
 }
 
 bindCardButtons();
+
+document.getElementById('placeOrderBtn')?.addEventListener('click', function() {
+    // Close the cart drawer first (optional)
+    if (window.parent && window.parent.closeCart) {
+        window.parent.closeCart();
+    }
+    // Redirect main window to order_status.php
+    window.parent.location.href = 'order_status.php?latest=1';
+});
+
 </script>
 </body>
 </html>

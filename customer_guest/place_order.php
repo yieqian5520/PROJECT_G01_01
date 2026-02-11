@@ -2,21 +2,17 @@
 session_start();
 include_once "dbcon.php";
 
-if (!isset($_SESSION['auth_user'])) {
-    // Redirect to login if user not logged in
+// 1️⃣ Check if user is logged in
+if(!isset($_SESSION['auth_user'])){
     header("Location: login.php");
     exit;
 }
 
-$user_id = $_SESSION['auth_user']['id'];
+$user_id = (int)$_SESSION['auth_user']['id'];
 $sid = session_id();
-$type = $_SESSION['order_type'] ?? 'Dine In';
 
-$order_code = "PUCKS" . date("YmdHis") . rand(100,999);
-$total = 0;
-
-// Get cart items
-$cart = mysqli_query($con, "
+// 2️⃣ Fetch cart items
+$cart_q = mysqli_query($con, "
     SELECT c.*, m.name, m.price, m.image
     FROM cart_items c
     JOIN menu_items m ON c.menu_id = m.id
@@ -24,55 +20,65 @@ $cart = mysqli_query($con, "
 ");
 
 $items = [];
-while ($row = mysqli_fetch_assoc($cart)) {
-    $total += $row['price'] * $row['quantity'];
-    $items[] = $row;
+$total = 0.0;
+
+while($r = mysqli_fetch_assoc($cart_q)){
+    $line = (float)$r['price'] * (int)$r['quantity'];
+    $total += $line;
+    $items[] = $r;
 }
 
-if (empty($items)) {
-    // If cart is empty, redirect back to cart
+// 3️⃣ If cart is empty, redirect back
+if(empty($items)){
     header("Location: cart.php");
     exit;
 }
 
-$insertOrder = mysqli_query($con, "
-    INSERT INTO orders (user_id, order_code, total, status, created_at)
-    VALUES ($user_id, '$order_code', $total, 'Confirmed', NOW())
+// 4️⃣ Generate unique order code
+$order_code = "PUCKS" . date("YmdHis") . rand(100,999);
+
+// 5️⃣ Insert order
+$stmt = $con->prepare("
+    INSERT INTO orders (user_id, order_code, total, `status`, created_at)
+    VALUES (?, ?, ?, 'Confirmed', NOW())
 ");
 
-if (!$insertOrder) {
-    die("ORDER INSERT FAILED: " . mysqli_error($con));
+if(!$stmt){
+    die("Prepare failed: " . $con->error);
 }
 
-$order_id = mysqli_insert_id($con);
+$stmt->bind_param("isd", $user_id, $order_code, $total);
+$stmt->execute();
+$order_id = $stmt->insert_id;
+$stmt->close();
 
-// Insert order items
-foreach ($items as $i) {
-    $menu_name = mysqli_real_escape_string($con, $i['name']);
-    $price = (float)$i['price'];
-    $qty = (int)$i['quantity'];
+// 6️⃣ Insert order items
+$stmt = $con->prepare("
+    INSERT INTO order_items (order_id, menu_name, price, quantity, temp, milk, syrup, addons)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+");
 
-    $temp  = mysqli_real_escape_string($con, $i['temp'] ?? '');
-    $milk  = mysqli_real_escape_string($con, $i['milk'] ?? '');
-    $syrup = mysqli_real_escape_string($con, $i['syrup'] ?? '');
-    $addons= mysqli_real_escape_string($con, $i['addons'] ?? '');
-
-    $ok = mysqli_query($con, "
-        INSERT INTO order_items (order_id, menu_name, price, quantity, temp, milk, syrup, addons)
-        VALUES ($order_id, '$menu_name', $price, $qty, '$temp', '$milk', '$syrup', '$addons')
-    ");
-
-    if (!$ok) {
-        die("ORDER ITEM INSERT FAILED: " . mysqli_error($con));
-    }
+if(!$stmt){
+    die("Prepare failed (order_items): " . $con->error);
 }
 
+foreach($items as $i){
+    $name   = $i['name'];
+    $price  = (float)$i['price'];
+    $qty    = (int)$i['quantity'];
+    $temp   = $i['temp'] ?? '';
+    $milk   = $i['milk'] ?? '';
+    $syrup  = $i['syrup'] ?? '';
+    $addons = $i['addons'] ?? '';
 
-// Clear cart
-mysqli_query($con,"DELETE FROM cart_items WHERE session_id='$sid'");
-unset($_SESSION['order_type']);
+    $stmt->bind_param("isidssss", $order_id, $name, $price, $qty, $temp, $milk, $syrup, $addons);
+    $stmt->execute();
+}
+$stmt->close();
 
+// 7️⃣ Clear cart
+mysqli_query($con, "DELETE FROM cart_items WHERE session_id='$sid'");
+
+// 8️⃣ Redirect to latest order
 header("Location: order_status.php?latest=1");
 exit;
-
-
