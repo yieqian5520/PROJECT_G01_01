@@ -170,7 +170,12 @@ $currentStep = $statusSteps[$o['status']] ?? 0;
             <img src="<?= htmlspecialchars($item['item_image']) ?>" alt="<?= htmlspecialchars($item['menu_name']) ?>">
             <div class="os-item-info">
               <p class="name"><?= htmlspecialchars($item['menu_name']) ?></p>
-              <p class="meta">Qty: <?= (int)$item['quantity'] ?></p>
+              <p class="meta">
+                Qty: <?= (int)$item['quantity'] ?> &nbsp;&nbsp;
+                <br>
+                Order Type: <?= htmlspecialchars($_SESSION['order_type'] ?? 'Dine In') ?>
+              </p>
+
             </div>
             <?php
               $unit = (float)$item['price'];
