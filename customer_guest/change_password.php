@@ -190,7 +190,7 @@ include_once __DIR__ . "/includes/header.php";
             <strong>Password must:</strong>
             <ul class="mb-0 ps-3">
                 <li>Be at least 8 characters</li>
-                <li>Contain at least 1 letter (A–Z)</li>
+                <li>Contain at least 1 letter (A–Z / a-z)</li>
                 <li>Contain at least 1 number (0–9)</li>
             </ul>
         </div>
