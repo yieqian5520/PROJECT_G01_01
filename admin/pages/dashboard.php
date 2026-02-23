@@ -747,7 +747,7 @@
           </tr>
 
                                     <!-- Details row -->
-                                    <tr id="od-<?= $oid ?>" style="display:none; background: rgba(255,255,255,0.02);">
+          <tr id="od-<?= $oid ?>" style="display:none; background: rgba(255,255,255,0.02);">
                                         <td colspan="8" style="padding:14px 16px;">
                                             <div style="display:flex; gap:18px; flex-wrap:wrap;">
                                                 <div style="min-width:260px;">
@@ -822,7 +822,7 @@
                                                 </div>
                                             </div>
                                         </td>
-                                    </tr>
+          </tr>
 
                                 <?php endforeach; ?>
                             </tbody>
@@ -839,10 +839,341 @@
                     </script>
                 </div>
 
-                <div id="staff"    class="tab-content <?= $activeTab === 'staff' ? 'active' : '' ?>">
+                <div id="staff" class="tab-content <?= $activeTab === 'staff' ? 'active' : '' ?>">
                     <h1>Staff</h1>
-                    <p>Staff management content goes here.</p>
+
+                    <?php if (!empty($_SESSION['flash_success'])): ?>
+                        <div class="alert success" style="margin-top:12px;">
+                        <span class="material-symbols-sharp">check_circle</span>
+                        <?= htmlspecialchars($_SESSION['flash_success']) ?>
+                        </div>
+                        <?php unset($_SESSION['flash_success']); ?>
+                    <?php endif; ?>
+
+                    <?php if (!empty($_SESSION['flash_error'])): ?>
+                        <div class="alert error" style="margin-top:12px;">
+                        <span class="material-symbols-sharp">error</span>
+                        <?= htmlspecialchars($_SESSION['flash_error']) ?>
+                        </div>
+                        <?php unset($_SESSION['flash_error']); ?>
+                    <?php endif; ?>
+
+                    <?php
+                    $staff_search = trim($_GET['staff_search'] ?? '');
+                    $staff_role_filter = trim($_GET['staff_role'] ?? '');
+
+                    $staff_like = "%{$staff_search}%";
+
+                    // must match your ENUM exactly:
+                    $staffRoles = ['admin','staff'];
+
+                    $sql = "
+                    SELECT id, name, email, phone, role, profile_image, joined_date
+                    FROM user
+                    WHERE role IN ('admin','staff')
+                    ";
+
+                    $types = "";
+                    $params = [];
+
+                    if ($staff_search !== '') {
+                    $sql .= " AND (name LIKE ? OR email LIKE ? OR phone LIKE ?) ";
+                    $types .= "sss";
+                    $params[] = $staff_like;
+                    $params[] = $staff_like;
+                    $params[] = $staff_like;
+                    }
+
+                    if ($staff_role_filter !== '' && in_array($staff_role_filter, $staffRoles, true)) {
+                    $sql .= " AND role = ? ";
+                    $types .= "s";
+                    $params[] = $staff_role_filter;
+                    }
+
+                    $sql .= " ORDER BY id DESC";
+
+                    $stStmt = $db->prepare($sql);
+                    if ($types !== "") $stStmt->bind_param($types, ...$params);
+                    $stStmt->execute();
+                    $staffRes = $stStmt->get_result();
+
+                    if (empty($_SESSION['csrf'])) {
+                    $_SESSION['csrf'] = bin2hex(random_bytes(16));
+                    }
+                    ?>
+
+                    <!-- Filter Bar -->
+                    <form method="GET" id="staffFilterForm"
+                            style="margin: 12px 0; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                        <input type="hidden" name="tab" value="staff">
+
+                        <input
+                        type="text"
+                        name="staff_search"
+                        placeholder="Search staff name / email / phone..."
+                        value="<?= htmlspecialchars($staff_search) ?>"
+                        style="padding:10px; border-radius:10px; border:1px solid #333; width: 360px;"
+                        />
+
+                        <select name="staff_role" style="padding:10px; border-radius:10px; border:1px solid #333; min-width:180px;">
+                        <option value="">All Roles</option>
+                        <?php foreach ($staffRoles as $r): ?>
+                            <option value="<?= htmlspecialchars($r) ?>" <?= ($staff_role_filter === $r) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($r) ?>
+                            </option>
+                        <?php endforeach; ?>
+                        </select>
+
+                        <button type="submit" class="btn-primary"
+                                style="padding:10px 14px; border-radius:10px; border:none; cursor:pointer;">
+                        Filter
+                        </button>
+
+                        <!-- Add Staff -->
+                        <button type="button"
+                                id="openAddStaffModal"
+                                class="btn-primary"
+                                style="padding:10px 14px; border-radius:10px; border:none; cursor:pointer;">
+                        + Add Staff
+                        </button>
+
+                        <!-- Bulk Delete toggle -->
+                        <button type="button"
+                                id="toggleBulkDeleteStaff"
+                                class="btn-primary"
+                                style="padding:10px 14px; border-radius:10px; border:none; cursor:pointer; background:#ff5c5c;">
+                        Delete
+                        </button>
+
+                        <span id="selectedCounterStaff"
+                            style="display:none; margin-left:6px; font-size:13px; opacity:.85;">
+                        0 selected
+                        </span>
+
+                        <?php if ($staff_search !== '' || $staff_role_filter !== ''): ?>
+                        <a href="dashboard.php?tab=staff" style="margin-left:6px;">Clear</a>
+                        <?php endif; ?>
+                    </form>
+
+                    <div class="recent-orders">
+                        <h2 style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                        <span>Staff List</span>
+
+                        <button type="button" id="cancelBulkDeleteStaff"
+                                style="display:none; background:none; border:1px solid rgba(255,255,255,.2); color:#fff; padding:8px 12px; border-radius:10px; cursor:pointer;">
+                            Cancel
+                        </button>
+                        </h2>
+
+                        <!-- Separate form for delete (IMPORTANT to avoid form nesting) -->
+                        <form id="staffDeleteForm" method="POST" action="bulk-delete-staff.php">
+                        <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
+                        </form>
+
+                        <table id="staffTable">
+                        <thead>
+                            <tr>
+                            <th class="select-col-staff" style="width:46px; text-align:center; display:none;">
+                                <input type="checkbox" id="checkAllStaff">
+                            </th>
+
+                            <th>#</th>
+                            <th>Staff</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Role</th>
+                            <th>Joined</th>
+                            <th style="text-align:right;">Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                        <?php if ($staffRes->num_rows === 0): ?>
+                            <tr>
+                            <td colspan="8" style="text-align:center; padding:16px;">No staff found.</td>
+                            </tr>
+                        <?php else: ?>
+                            <?php $sno = 1; ?>
+                            <?php while ($s = $staffRes->fetch_assoc()): ?>
+                            <?php $sid = (int)$s['id']; ?>
+                            <tr class="staff-row" data-id="<?= $sid ?>">
+                                <td class="select-col-staff" style="text-align:center; display:none;">
+                                <input type="checkbox"
+                                        class="staff-check"
+                                        name="staff_ids[]"
+                                        value="<?= $sid ?>"
+                                        form="staffDeleteForm">
+                                </td>
+
+                                <td><?= $sno++ ?></td>
+
+                                <td style="text-align:left;">
+                                <div style="display:flex; gap:10px; align-items:center;">
+                                    <img
+                                    src="<?= htmlspecialchars($s['profile_image'] ?: '../assets/img/Default_pfp.jpg') ?>"
+                                    alt=""
+                                    style="width:34px; height:34px; border-radius:50%; object-fit:cover;"
+                                    >
+                                    <div>
+                                    <b><?= htmlspecialchars($s['name']) ?></b><br>
+                                    <small class="text-muted">#<?= $sid ?></small>
+                                    </div>
+                                </div>
+                                </td>
+
+                                <td><?= htmlspecialchars($s['email']) ?></td>
+                                <td><?= htmlspecialchars($s['phone'] ?? '-') ?></td>
+
+                                <td>
+                                <span class="status delivered"><?= htmlspecialchars($s['role'] ?? '-') ?></span>
+                                </td>
+
+                                <td><?= htmlspecialchars($s['joined_date'] ?? '-') ?></td>
+
+                                <td style="text-align:right; white-space:nowrap;">
+                                <button type="button"
+                                        class="primary"
+                                        data-edit-staff
+                                        data-id="<?= $sid ?>"
+                                        data-name="<?= htmlspecialchars($s['name']) ?>"
+                                        data-email="<?= htmlspecialchars($s['email']) ?>"
+                                        data-phone="<?= htmlspecialchars($s['phone'] ?? '') ?>"
+                                        data-role="<?= htmlspecialchars($s['role'] ?? 'Staff') ?>"
+                                        style="background:none; cursor:pointer;">
+                                    Edit
+                                </button>
+                                </td>
+                            </tr>
+                            <?php endwhile; ?>
+                        <?php endif; ?>
+                        </tbody>
+                        </table>
+                    </div>
+
+                    <!-- ===== Add Staff Modal ===== -->
+                    <div id="addStaffModal" class="modal" style="display:none;">
+                        <div class="modal-content" style="max-width:560px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                            <h2 style="margin:0;">Add Staff</h2>
+                            <button type="button" id="closeAddStaffModal" style="background:none; cursor:pointer;">
+                            <span class="material-symbols-sharp">close</span>
+                            </button>
+                        </div>
+
+                        <form method="POST" action="add-staff.php" style="margin-top:14px;">
+                            <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
+                            <input type="hidden" name="return_to" value="dashboard.php?tab=staff">
+
+                            <div class="form-row" style="display:flex; gap:12px;">
+                            <div class="form-group" style="flex:1;">
+                                <label>Name</label>
+                                <input type="text" name="name" required>
+                            </div>
+                            <div class="form-group" style="flex:1;">
+                                <label>Phone</label>
+                                <input type="text" name="phone" maxlength="11" oninput="this.value=this.value.replace(/\\D/g,'').slice(0,11);">
+                            </div>
+                            </div>
+
+                            <div class="form-row" style="display:flex; gap:12px; margin-top:12px;">
+                            <div class="form-group" style="flex:1;">
+                                <label>Email</label>
+                                <input type="email" name="email" required>
+                            </div>
+                            <div class="form-group" style="flex:1;">
+                                <label>Role</label>
+                                <select name="role" required>
+                                <?php foreach ($staffRoles as $r): ?>
+                                    <option value="<?= htmlspecialchars($r) ?>"><?= htmlspecialchars($r) ?></option>
+                                <?php endforeach; ?>
+                                </select>
+                            </div>
+                            </div>
+
+                            <div class="form-row" style="display:flex; gap:12px; margin-top:12px;">
+                            <div class="form-group" style="flex:1;">
+                                <label>Password</label>
+                                <input type="password" name="password" required minlength="8">
+                                <small class="text-muted">Min 8 characters</small>
+                            </div>
+                            </div>
+
+                            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+                            <button type="button" id="cancelAddStaffModal"
+                                    style="background:none; border:1px solid rgba(255,255,255,.2); padding:10px 14px; border-radius:10px; cursor:pointer;">
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn-primary" style="padding:10px 14px; border-radius:10px; cursor:pointer;">
+                                Save
+                            </button>
+                            </div>
+                        </form>
+                        </div>
+                    </div>
+
+                    <!-- ===== Edit Staff Modal ===== -->
+                    <div id="editStaffModal" class="modal" style="display:none;">
+                <div class="modal-content" style="max-width:560px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                    <h2 style="margin:0;">Edit Staff</h2>
+                    <button type="button" id="closeEditStaffModal" style="background:none; cursor:pointer;">
+                        <span class="material-symbols-sharp">close</span>
+                    </button>
+                    </div>
+
+                    <form method="POST" action="edit-staff.php" style="margin-top:14px;">
+                    <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
+                    <input type="hidden" name="return_to" value="dashboard.php?tab=staff">
+                    <input type="hidden" name="id" id="staff_edit_id">
+
+                    <div class="form-row" style="display:flex; gap:12px;">
+                        <div class="form-group" style="flex:1;">
+                        <label>Name</label>
+                        <input type="text" name="name" id="staff_edit_name" required>
+                        </div>
+
+                        <div class="form-group" style="flex:1;">
+                        <label>Phone</label>
+                        <input type="text" name="phone" id="staff_edit_phone" maxlength="11"
+                                oninput="this.value=this.value.replace(/\D/g,'').slice(0,11);">
+                        </div>
+                    </div>
+
+                    <div class="form-row" style="display:flex; gap:12px; margin-top:12px;">
+                        <div class="form-group" style="flex:1;">
+                        <label>Email</label>
+                        <!-- ✅ NO name="email" so it won't be submitted -->
+                        <input type="email" id="staff_edit_email" readonly
+                                style="opacity:.75; cursor:not-allowed;">
+                        </div>
+
+                        <div class="form-group" style="flex:1;">
+                        <label>Role</label>
+                        <!-- ✅ readonly doesn't work for select; use disabled -->
+                        <!-- ✅ NO name="role" so it won't be submitted -->
+                        <select id="staff_edit_role" disabled style="opacity:.75; cursor:not-allowed;">
+                            <?php foreach ($staffRoles as $r): ?>
+                            <option value="<?= htmlspecialchars($r) ?>"><?= htmlspecialchars($r) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+                        <button type="button" id="cancelEditStaffModal"
+                                style="background:none; border:1px solid rgba(255,255,255,.2); padding:10px 14px; border-radius:10px; cursor:pointer;">
+                        Cancel
+                        </button>
+                        <button type="submit" class="btn-primary"
+                                style="padding:10px 14px; border-radius:10px; cursor:pointer;">
+                        Update
+                        </button>
+                    </div>
+                    </form>
                 </div>
+                </div>
+
+                    </div>
                 <div id="feedback" class="tab-content <?= $activeTab === 'feedback' ? 'active' : '' ?>">
                     <h1>Feedback</h1>
 
@@ -989,7 +1320,7 @@
                     <div class="profile-container">
                         <div class="profile-header">
                             <div class="profile-avatar">
-                                <img src="<?= htmlspecialchars($user['profile_image'] ?: '../assets/img/profile-1.jpg') ?>?t=<?= time() ?>" alt="Profile Picture" id="profile-img">
+                                <img src="<?= htmlspecialchars($user['profile_image'] ?: '../assets/img/Default_pfp.jpg') ?>?t=<?= time() ?>" alt="Profile Picture" id="profile-img">
                             </div>
                             <div class="profile-info">
                                 <h2><?= htmlspecialchars($user['name']) ?></h2>
@@ -1057,7 +1388,7 @@
                         </div>
                         <div class="profile-photo">
                             <img
-                            src="<?= htmlspecialchars($user['profile_image'] ?: '../assets/img/profile-1.jpg') ?>?t=<?= time() ?>"
+                            src="<?= htmlspecialchars($user['profile_image'] ?: '../assets/img/Default_pfp.jpg') ?>?t=<?= time() ?>"
                             alt=""
                             >
                         </div>
@@ -1077,7 +1408,7 @@
                                 <?php foreach ($latestFeedback as $fb): ?>
                                     <div class="fb">
                                         <div class="profile-photo">
-                                            <img src="<?= htmlspecialchars($fb['profile_image'] ?: '../assets/img/profile-1.jpg') ?>" alt="">
+                                            <img src="<?= htmlspecialchars($fb['profile_image'] ?: '../assets/img/Default_pfp.jpg') ?>" alt="">
                                         </div>
 
                                         <div class="message">

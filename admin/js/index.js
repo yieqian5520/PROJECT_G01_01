@@ -140,8 +140,149 @@ function runAutoHideAlertsWithRetry() {
 
 document.addEventListener("DOMContentLoaded", runAutoHideAlertsWithRetry);
 
+// =========================================================
+// ✅ Staff Modals (ADD THIS SECTION - was missing in your file)
+// =========================================================
+(function () {
+  const addModal = document.getElementById("addStaffModal");
+  const editModal = document.getElementById("editStaffModal");
 
+  const openAddBtn = document.getElementById("openAddStaffModal");
+  const closeAddBtn = document.getElementById("closeAddStaffModal");
+  const cancelAddBtn = document.getElementById("cancelAddStaffModal");
 
+  const closeEditBtn = document.getElementById("closeEditStaffModal");
+  const cancelEditBtn = document.getElementById("cancelEditStaffModal");
+
+  function show(m) { if (m) m.style.display = "flex"; }
+  function hide(m) { if (m) m.style.display = "none"; }
+
+  // Open Add
+  openAddBtn?.addEventListener("click", () => show(addModal));
+  closeAddBtn?.addEventListener("click", () => hide(addModal));
+  cancelAddBtn?.addEventListener("click", () => hide(addModal));
+  addModal?.addEventListener("click", (e) => { if (e.target === addModal) hide(addModal); });
+
+  // Close Edit
+  closeEditBtn?.addEventListener("click", () => hide(editModal));
+  cancelEditBtn?.addEventListener("click", () => hide(editModal));
+  editModal?.addEventListener("click", (e) => { if (e.target === editModal) hide(editModal); });
+
+  // Open Edit + Fill Data
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-edit-staff]");
+    if (!btn) return;
+
+    const idEl = document.getElementById("staff_edit_id");
+    const nameEl = document.getElementById("staff_edit_name");
+    const emailEl = document.getElementById("staff_edit_email");
+    const phoneEl = document.getElementById("staff_edit_phone");
+    const roleEl = document.getElementById("staff_edit_role");
+
+    if (idEl) idEl.value = btn.dataset.id || "";
+    if (nameEl) nameEl.value = btn.dataset.name || "";
+    if (emailEl) emailEl.value = btn.dataset.email || "";
+    if (phoneEl) phoneEl.value = btn.dataset.phone || "";
+
+    // ✅ must match enum exactly: 'admin' or 'staff'
+    const roleVal = (btn.dataset.role || "staff").toLowerCase();
+    if (roleEl) roleEl.value = roleVal;
+
+    show(editModal);
+  });
+})();
+
+// =========================================================
+// ✅ Add Staff: Check email exists before submit
+// =========================================================
+(function () {
+  const addStaffModal = document.getElementById("addStaffModal");
+  if (!addStaffModal) return;
+
+  const form = addStaffModal.querySelector("form");
+  if (!form) return;
+
+  const emailInput = form.querySelector("input[name='email']");
+  if (!emailInput) return;
+
+  // create small message area under email input (UI)
+  const msg = document.createElement("small");
+  msg.style.display = "none";
+  msg.style.marginTop = "6px";
+  msg.style.fontSize = "12px";
+  msg.style.color = "#ff5c5c";
+  emailInput.insertAdjacentElement("afterend", msg);
+
+  let lastChecked = "";
+  let lastExists = false;
+
+  async function checkEmail(email) {
+    const res = await fetch("check-email.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: "email=" + encodeURIComponent(email)
+    });
+    const text = (await res.text()).trim(); // expects "exists" or "ok"
+    return text === "exists";
+  }
+
+  // Check when admin leaves the email field
+  emailInput.addEventListener("blur", async () => {
+    const email = (emailInput.value || "").trim().toLowerCase();
+    if (!email) {
+      msg.style.display = "none";
+      lastExists = false;
+      lastChecked = "";
+      return;
+    }
+
+    // prevent repeated check if same email
+    if (email === lastChecked) return;
+
+    lastChecked = email;
+
+    try {
+      const exists = await checkEmail(email);
+      lastExists = exists;
+
+      if (exists) {
+        msg.textContent = "This email already exists in the system.";
+        msg.style.display = "block";
+      } else {
+        msg.style.display = "none";
+      }
+    } catch (err) {
+      console.error("Email check failed:", err);
+      // do not block submit if API fails
+      msg.style.display = "none";
+      lastExists = false;
+    }
+  });
+
+  // Block submit if exists
+  form.addEventListener("submit", async (e) => {
+    const email = (emailInput.value || "").trim().toLowerCase();
+    if (!email) return;
+
+    try {
+      // if not checked yet or email changed -> check again
+      if (email !== lastChecked) {
+        lastChecked = email;
+        lastExists = await checkEmail(email);
+      }
+
+      if (lastExists) {
+        e.preventDefault();
+        msg.textContent = "This email already exists in the system.";
+        msg.style.display = "block";
+        emailInput.focus();
+      }
+    } catch (err) {
+      console.error("Submit email check failed:", err);
+      // allow submit if check fails
+    }
+  });
+})();
 /**
  * Common Bulk Delete Controller
  * Works for Customers / Orders / Feedback (or any table) using config selectors.
@@ -327,6 +468,23 @@ document.addEventListener("DOMContentLoaded", runAutoHideAlertsWithRetry);
     rowActiveClass: 'row-selected',
     enableRowClick: true
   });
+  
+  initBulkDelete({
+  toggleBtn: '#toggleBulkDeleteStaff',
+  cancelBtn: '#cancelBulkDeleteStaff',
+  counter: '#selectedCounterStaff',
+  checkAll: '#checkAllStaff',
+  selectCol: '.select-col-staff',
+  rowCheck: '.staff-check',
+  row: '.staff-row',
+  form: '#staffDeleteForm',
+  toggleLabel: 'Delete',
+  deleteLabel: 'Delete Selected',
+  confirmMessage: 'Delete selected staff(s)?',
+  noSelectionMessage: 'Select at least 1 staff to delete.',
+  rowActiveClass: 'row-selected',
+  enableRowClick: true
+});
 
   // Feedback (example ids/classes — match your feedback table)
   initBulkDelete({

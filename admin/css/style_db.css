@@ -878,3 +878,34 @@ tr.row-selected {
   color: var(--color-dark);
 }
 
+/* ================= MODAL ================= */
+.modal{
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.55);
+  z-index: 9999;
+  padding: 18px;
+}
+
+.modal-content{
+  width: 100%;
+  background: var(--color-white);
+  color: var(--color-dark);
+  border-radius: var(--border-radius-3);
+  padding: 18px;
+  box-shadow: var(--box-shadow);
+}
+
+.modal-content input,
+.modal-content select{
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid var(--color-light);
+  border-radius: var(--border-radius-1);
+  background: var(--color-background);
+  color: var(--color-dark);
+}
+

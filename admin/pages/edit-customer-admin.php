@@ -262,7 +262,7 @@ while ($fb = $res->fetch_assoc()) $latestFeedback[] = $fb;
           <small class="text-muted"><?= htmlspecialchars($user['role']) ?></small>
         </div>
         <div class="profile-photo">
-          <img src="<?= htmlspecialchars($user['profile_image'] ?: '../assets/img/profile-1.jpg') ?>?t=<?= time() ?>" alt="">
+          <img src="<?= htmlspecialchars($user['profile_image'] ?: '../assets/img/Default_pfp.jpg') ?>?t=<?= time() ?>" alt="">
         </div>
       </div>
     </div>
@@ -280,7 +280,7 @@ while ($fb = $res->fetch_assoc()) $latestFeedback[] = $fb;
           <?php foreach ($latestFeedback as $fb): ?>
             <div class="fb">
               <div class="profile-photo">
-                <img src="<?= htmlspecialchars($fb['profile_image'] ?: '../assets/img/profile-1.jpg') ?>" alt="">
+                <img src="<?= htmlspecialchars($fb['profile_image'] ?: '../assets/img/Default_pfp.jpg') ?>" alt="">
               </div>
               <div class="message">
                 <p><b><?= htmlspecialchars($fb['name']) ?></b> rated <?= (int)$fb['rating'] ?> star<?= ((int)$fb['rating'] !== 1) ? 's' : '' ?></p>

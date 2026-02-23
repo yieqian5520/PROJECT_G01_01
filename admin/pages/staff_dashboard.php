@@ -904,7 +904,7 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
                 <div class="profile-container">
                     <div class="profile-header">
                         <div class="profile-avatar">
-                            <img src="<?= htmlspecialchars($user['profile_image'] ?: '../assets/img/profile-1.jpg') ?>?t=<?= time() ?>" alt="Profile Picture" id="profile-img">
+                            <img src="<?= htmlspecialchars($user['profile_image'] ?: '../assets/img/Default_pfp.jpg') ?>?t=<?= time() ?>" alt="Profile Picture" id="profile-img">
                         </div>
                         <div class="profile-info">
                             <h2><?= htmlspecialchars($user['name']) ?></h2>
@@ -972,7 +972,7 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
                     </div>
                     <div class="profile-photo">
                         <img
-                        src="<?= htmlspecialchars($user['profile_image'] ?: '../assets/img/profile-1.jpg') ?>?t=<?= time() ?>"
+                        src="<?= htmlspecialchars($user['profile_image'] ?: '../assets/img/Default_pfp.jpg') ?>?t=<?= time() ?>"
                         alt=""
                         >
                     </div>
@@ -992,7 +992,7 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
                             <?php foreach ($latestFeedback as $fb): ?>
                                 <div class="fb">
                                     <div class="profile-photo">
-                                        <img src="<?= htmlspecialchars($fb['profile_image'] ?: '../assets/img/profile-1.jpg') ?>" alt="">
+                                        <img src="<?= htmlspecialchars($fb['profile_image'] ?: '../assets/img/Default_pfp.jpg') ?>" alt="">
                                     </div>
 
                                     <div class="message">
