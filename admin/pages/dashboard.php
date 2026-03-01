@@ -1311,10 +1311,413 @@
                         </div>
 
                 </div>
-                <div id="reports"  class="tab-content <?= $activeTab === 'reports' ? 'active' : '' ?>">
-                    <h1>Reports</h1>
-                    <p>Reports content goes here.</p>
-                </div>           
+                <div id="reports" class="tab-content <?= $activeTab === 'reports' ? 'active' : '' ?>">
+                    <h1>Sales Report</h1>
+
+                    <?php
+                    // ====== Report controls ======
+                    $period = $_GET['period'] ?? 'week'; // week | month | year
+                    $allowedPeriods = ['week','month','year'];
+                    if (!in_array($period, $allowedPeriods, true)) $period = 'week';
+
+                    // Anchor date (default today)
+                    $reportDate = $_GET['report_date'] ?? date('Y-m-d');
+                    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $reportDate)) $reportDate = date('Y-m-d');
+
+                    // Build date range [start, end)
+                    $dt = new DateTime($reportDate);
+
+                    if ($period === 'week') {
+                        $start = (clone $dt)->modify('monday this week')->setTime(0,0,0);
+                        $end   = (clone $start)->modify('+7 days');
+                        $label = "Weekly (" . $start->format('Y-m-d') . " to " . (clone $end)->modify('-1 day')->format('Y-m-d') . ")";
+                    } elseif ($period === 'month') {
+                        $start = (clone $dt)->modify('first day of this month')->setTime(0,0,0);
+                        $end   = (clone $start)->modify('first day of next month');
+                        $label = "Monthly (" . $start->format('F Y') . ")";
+                    } else { // year
+                        $start = (clone $dt)->setDate((int)$dt->format('Y'), 1, 1)->setTime(0,0,0);
+                        $end   = (clone $start)->modify('+1 year');
+                        $label = "Yearly (" . $start->format('Y') . ")";
+                    }
+
+                    $startStr = $start->format('Y-m-d H:i:s');
+                    $endStr   = $end->format('Y-m-d H:i:s');
+
+                    // ====== Item breakdown report ======
+                    $reportSql = "
+                        SELECT
+                        oi.menu_name AS item_name,
+                        oi.price AS unit_price,
+                        SUM(oi.quantity) AS qty_sold,
+                        SUM(oi.price * oi.quantity) AS total_revenue,
+                        -- ✅ cost per item = RM4
+                        (SUM(oi.quantity) * 4) AS total_expenses,
+                        -- ✅ income = revenue - expenses
+                        (SUM(oi.price * oi.quantity) - (SUM(oi.quantity) * 4)) AS total_income
+                        FROM order_items oi
+                        JOIN orders o ON o.id = oi.order_id
+                        WHERE o.created_at >= ?
+                        AND o.created_at < ?
+                        AND UPPER(TRIM(o.payment_status)) = 'PAID'
+                        GROUP BY oi.menu_name, oi.price
+                        ORDER BY total_income DESC
+                    ";
+                    $repStmt = $db->prepare($reportSql);
+                    $repStmt->bind_param("ss", $startStr, $endStr);
+                    $repStmt->execute();
+                    $repRes = $repStmt->get_result();
+
+                    $rows = [];
+                    $grandRevenue = 0.0;
+                    $grandExpenses = 0.0;
+                    $grandIncome = 0.0;
+                    $totalItemsSold = 0;
+
+                    while ($r = $repRes->fetch_assoc()) {
+                        $rows[] = $r;
+                        $grandRevenue  += (float)$r['total_revenue'];
+                        $grandExpenses += (float)$r['total_expenses'];
+                        $grandIncome   += (float)$r['total_income'];
+                        $totalItemsSold += (int)$r['qty_sold'];
+                    }
+
+                    // ====== KPI: Orders count + AOV ======
+                    $kpiSql = "
+                    SELECT
+                        COUNT(DISTINCT o.id) AS total_orders,
+                        COALESCE(SUM(o.total),0) AS orders_revenue,
+                        COALESCE(SUM(oi.quantity),0) AS items_sold,
+                        (COALESCE(SUM(oi.quantity),0) * 4) AS orders_expenses,
+                        (COALESCE(SUM(o.total),0) - (COALESCE(SUM(oi.quantity),0) * 4)) AS orders_income
+                    FROM orders o
+                    JOIN order_items oi ON oi.order_id = o.id
+                    WHERE o.created_at >= ?
+                        AND o.created_at < ?
+                        AND UPPER(TRIM(o.payment_status)) = 'PAID'
+                    ";
+                    $kpiStmt = $db->prepare($kpiSql);
+                    $kpiStmt->bind_param("ss", $startStr, $endStr);
+                    $kpiStmt->execute();
+                    $kpi = $kpiStmt->get_result()->fetch_assoc();
+
+                    $totalOrders     = (int)($kpi['total_orders'] ?? 0);
+                    $ordersRevenue   = (float)($kpi['orders_revenue'] ?? 0);
+                    $totalItemsSold  = (int)($kpi['items_sold'] ?? 0);
+                    $grandExpenses   = (float)($kpi['orders_expenses'] ?? 0);
+                    $grandIncome     = (float)($kpi['orders_income'] ?? 0);
+
+                    // Avg order value
+                    $avgOrderValue = ($totalOrders > 0) ? ($ordersRevenue / $totalOrders) : 0;
+                    $kpiStmt = $db->prepare($kpiSql);
+                    $kpiStmt->bind_param("ss", $startStr, $endStr);
+                    $kpiStmt->execute();
+                    $kpi = $kpiStmt->get_result()->fetch_assoc();
+
+                    $totalOrders = (int)($kpi['total_orders'] ?? 0);
+                    $ordersRevenue = (float)($kpi['orders_revenue'] ?? 0);
+                    $avgOrderValue = ($totalOrders > 0) ? ($ordersRevenue / $totalOrders) : 0;
+
+                    // ====== Trend chart data ======
+                    // week/month -> daily; year -> monthly
+                    if ($period === 'year') {
+                        $trendSql = "
+                        SELECT
+                            DATE_FORMAT(o.created_at, '%Y-%m') AS bucket,
+                            COALESCE(SUM(o.total),0) AS revenue,
+                            (COALESCE(SUM(oi.quantity),0) * 4) AS expenses
+                        FROM orders o
+                        JOIN order_items oi ON oi.order_id = o.id
+                        WHERE o.created_at >= ?
+                            AND o.created_at < ?
+                            AND UPPER(TRIM(o.payment_status)) = 'PAID'
+                        GROUP BY DATE_FORMAT(o.created_at, '%Y-%m')
+                        ORDER BY bucket ASC
+                        ";
+                    } else {
+                        $trendSql = "
+                        SELECT
+                            DATE(o.created_at) AS bucket,
+                            COALESCE(SUM(o.total),0) AS revenue,
+                            (COALESCE(SUM(oi.quantity),0) * 4) AS expenses
+                        FROM orders o
+                        JOIN order_items oi ON oi.order_id = o.id
+                        WHERE o.created_at >= ?
+                            AND o.created_at < ?
+                            AND UPPER(TRIM(o.payment_status)) = 'PAID'
+                        GROUP BY DATE(o.created_at)
+                        ORDER BY bucket ASC
+                        ";
+                    }
+
+                    $trendStmt = $db->prepare($trendSql);
+                    $trendStmt->bind_param("ss", $startStr, $endStr);
+                    $trendStmt->execute();
+                    $trendRes = $trendStmt->get_result();
+
+                    $trendLabels = [];
+                    $trendRevenue = [];
+                    $trendExpenses = [];
+                    $trendIncome = [];
+
+                    while ($t = $trendRes->fetch_assoc()) {
+                        $rev = (float)$t['revenue'];
+                        $exp = (float)$t['expenses'];
+                        $trendLabels[] = (string)$t['bucket'];
+                        $trendRevenue[] = $rev;
+                        $trendExpenses[] = $exp;
+                        $trendIncome[] = $rev - $exp;
+                    }
+
+                    // ====== Top 5 items (by income) ======
+                    $top5 = array_slice($rows, 0, 5);
+                    ?>
+
+                    <!-- ====== Controls ====== -->
+                    <form method="GET" style="margin: 12px 0; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                        <input type="hidden" name="tab" value="reports">
+
+                        <select name="period" style="padding:10px; border-radius:10px; border:1px solid #333; min-width:180px;">
+                        <option value="week"  <?= $period==='week' ? 'selected' : '' ?>>Weekly</option>
+                        <option value="month" <?= $period==='month' ? 'selected' : '' ?>>Monthly</option>
+                        <option value="year"  <?= $period==='year' ? 'selected' : '' ?>>Yearly</option>
+                        </select>
+
+                        <input type="date" name="report_date"
+                        value="<?= htmlspecialchars($reportDate) ?>"
+                        style="padding:10px; border-radius:10px; border:1px solid #333;" />
+
+                        <button type="submit" class="btn-primary"
+                        style="padding:10px 14px; border-radius:10px; border:none; cursor:pointer;">
+                        View Report
+                        </button>
+
+                        <!-- Export CSV -->
+                        <button type="button" id="exportCsvBtn"
+                        class="btn-primary"
+                        style="padding:10px 14px; border-radius:10px; border:none; cursor:pointer;">
+                        Export CSV
+                        </button>
+                    </form>
+
+                    <!-- ====== KPI Cards ====== -->
+                    <div class="insights" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+
+                        <div class="sales">
+                        <span class="material-symbols-sharp">payments</span>
+                        <div class="middle">
+                            <div class="left">
+                            <h3>Total Revenue</h3>
+                            <h1>RM<?= number_format($grandRevenue, 2) ?></h1>
+                            <small class="text-muted"><?= htmlspecialchars($label) ?></small>
+                            </div>
+                        </div>
+                        </div>
+
+                        <div class="expenses">
+                        <span class="material-symbols-sharp">receipt</span>
+                        <div class="middle">
+                            <div class="left">
+                            <h3>Total Expenses</h3>
+                            <h1>RM<?= number_format($grandExpenses, 2) ?></h1>
+                            </div>
+                        </div>
+                        </div>
+
+                        <div class="income">
+                        <span class="material-symbols-sharp">trending_up</span>
+                        <div class="middle">
+                            <div class="left">
+                            <h3>Total Income</h3>
+                            <h1>RM<?= number_format($grandIncome, 2) ?></h1>
+                            </div>
+                        </div>
+                        </div>
+
+                        <div class="sales">
+                        <span class="material-symbols-sharp">shopping_cart</span>
+                        <div class="middle">
+                            <div class="left">
+                            <h3>Paid Orders</h3>
+                            <h1><?= number_format($totalOrders) ?></h1>
+                            </div>
+                        </div>
+                        </div>
+
+                        <div class="sales">
+                        <span class="material-symbols-sharp">inventory_2</span>
+                        <div class="middle">
+                            <div class="left">
+                            <h3>Items Sold</h3>
+                            <h1><?= number_format($totalItemsSold) ?></h1>
+                            <small class="text-muted">Total quantity sold</small>
+                            </div>
+                        </div>
+                        </div>
+
+                        <div class="sales">
+                        <span class="material-symbols-sharp">calculate</span>
+                        <div class="middle">
+                            <div class="left">
+                            <h3>Avg Order Value</h3>
+                            <h1>RM<?= number_format($avgOrderValue, 2) ?></h1>
+                            <small class="text-muted">Revenue / Orders</small>
+                            </div>
+                        </div>
+                        </div>
+
+                    </div>
+
+                    <!-- ====== Trend Chart + Top 5 ====== -->
+                    <div style="display:grid; grid-template-columns: 2fr 1fr; gap:16px; margin-top:16px;">
+                        <div class="recent-orders" style="padding:16px;">
+                        <h2 style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>Trend</span>
+                            <small class="text-muted"><?= htmlspecialchars($period === 'year' ? 'Monthly buckets' : 'Daily buckets') ?></small>
+                        </h2>
+
+                        <canvas id="trendChart" height="110"></canvas>
+                        <small class="text-muted">Revenue vs Expenses vs Income</small>
+                        </div>
+
+                        <div class="recent-orders" style="padding:16px;">
+                        <h2>Top 5 Items</h2>
+                        <?php if (empty($top5)): ?>
+                            <p class="text-muted" style="margin-top:10px;">No data.</p>
+                        <?php else: ?>
+                            <table style="width:100%;">
+                            <thead>
+                                <tr>
+                                <th style="text-align:left;">Item</th>
+                                <th style="text-align:right;">Income</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($top5 as $t): ?>
+                                <tr>
+                                    <td style="text-align:left;"><?= htmlspecialchars($t['item_name']) ?></td>
+                                    <td style="text-align:right;"><b>RM<?= number_format((float)$t['total_income'], 2) ?></b></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                            </table>
+                        <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <!-- ====== Full Item Table ====== -->
+                    <div class="recent-orders" style="margin-top:16px;">
+                        <h2 style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                        <span><?= htmlspecialchars($label) ?> — Item Breakdown</span>
+                        <small class="text-muted">Paid orders only</small>
+                        </h2>
+
+                        <table id="salesReportTable">
+                        <thead>
+                            <tr>
+                            <th>Item Name</th>
+                            <th>Unit Price</th>
+                            <th>Quantity</th>
+                            <th>Total Revenue</th>
+                            <th>Expenses</th>
+                            <th>Income</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <?php if (empty($rows)): ?>
+                            <tr>
+                                <td colspan="6" style="text-align:center; padding:16px;">No sales found for this period.</td>
+                            </tr>
+                            <?php else: ?>
+                            <?php foreach ($rows as $r): ?>
+                                <tr>
+                                <td><?= htmlspecialchars($r['item_name']) ?></td>
+                                <td>RM<?= number_format((float)$r['unit_price'], 2) ?></td>
+                                <td><?= number_format((int)$r['qty_sold']) ?></td>
+                                <td>RM<?= number_format((float)$r['total_revenue'], 2) ?></td>
+                                <td style="color:#ff6b6b;">RM<?= number_format((float)$r['total_expenses'], 2) ?></td>
+                                <td style="color:#4caf50;"><b>RM<?= number_format((float)$r['total_income'], 2) ?></b></td>
+                                </tr>
+                            <?php endforeach; ?>
+
+                            <tr style="background:rgba(255,255,255,0.05);">
+                                <td colspan="5" style="text-align:right; padding-top:14px;">
+                                <b>Total Cafe Income:</b>
+                                </td>
+                                <td style="padding-top:14px; color:#4caf50;">
+                                <b>RM<?= number_format($grandIncome, 2) ?></b>
+                                </td>
+                            </tr>
+                            <?php endif; ?>
+                        </tbody>
+                        </table>
+                    </div>
+
+                    <!-- ====== Chart.js (CDN) + Export CSV ====== -->
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                    <script>
+                        // Chart data from PHP
+                        const trendLabels   = <?= json_encode($trendLabels) ?>;
+                        const trendRevenue  = <?= json_encode($trendRevenue) ?>;
+                        const trendExpenses = <?= json_encode($trendExpenses) ?>;
+                        const trendIncome   = <?= json_encode($trendIncome) ?>;
+
+                        const ctx = document.getElementById('trendChart');
+                        if (ctx) {
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                            labels: trendLabels,
+                            datasets: [
+                                { label: 'Revenue', data: trendRevenue, tension: 0.25 },
+                                { label: 'Expenses', data: trendExpenses, tension: 0.25 },
+                                { label: 'Income', data: trendIncome, tension: 0.25 },
+                            ]
+                            },
+                            options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { display: true }
+                            },
+                            scales: {
+                                y: { beginAtZero: true }
+                            }
+                            }
+                        });
+                        }
+
+                        // Export CSV (from the table)
+                        document.getElementById('exportCsvBtn')?.addEventListener('click', () => {
+                        const table = document.getElementById('salesReportTable');
+                        if (!table) return;
+
+                        let csv = [];
+                        const rows = table.querySelectorAll('tr');
+
+                        rows.forEach(row => {
+                            const cols = row.querySelectorAll('th, td');
+                            const data = Array.from(cols).map(col => {
+                            let text = col.innerText.replace(/\n/g, ' ').trim();
+                            text = text.replace(/"/g, '""');
+                            return `"${text}"`;
+                            });
+                            csv.push(data.join(','));
+                        });
+
+                        const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                        const url = URL.createObjectURL(blob);
+
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'sales-report.csv';
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        URL.revokeObjectURL(url);
+                        });
+                    </script>
+                    </div>          
                 <div id="profile"  class="tab-content <?= $activeTab === 'profile' ? 'active' : '' ?>">
                     <h1>Profile</h1>
                     <div class="profile-container">

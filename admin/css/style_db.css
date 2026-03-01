@@ -909,3 +909,69 @@ tr.row-selected {
   color: var(--color-dark);
 }
 
+/* =========================
+   MAIN-ONLY SCROLL (NO SIDEBAR/RIGHT SCROLL)
+   ========================= */
+
+html, body { height: 100%; }
+
+body{
+  overflow: hidden;          /* prevent whole page scrolling */
+  overflow-x: hidden;
+}
+
+/* lock grid to viewport */
+.container{
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* disable sidebar/right scrolling completely */
+aside,
+.right{
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Main column scrolls (scrollbar on the correct edge) */
+main{
+  height: 100vh;
+  overflow-y: auto;          /* ✅ visible scrollbar here */
+  overflow-x: hidden;
+  padding-right: 10px;       /* breathing space so bar doesn't cover content */
+}
+
+/* tab content should not create its own scrollbar */
+.tab-content{ display:none; }
+.tab-content.active{
+  display:block;
+  overflow: visible;         /* ✅ let main handle scrolling */
+  padding-bottom: 28px;
+}
+
+/* =========================
+   MORE VISIBLE SCROLLBAR
+   ========================= */
+
+/* Chrome / Edge */
+main::-webkit-scrollbar{
+  width: 12px;               /* thicker */
+}
+main::-webkit-scrollbar-track{
+  background: rgba(0,0,0,0.06);
+  border-radius: 999px;
+}
+main::-webkit-scrollbar-thumb{
+  background: rgba(80, 90, 160, 0.75);  /* strong contrast */
+  border-radius: 999px;
+  border: 3px solid rgba(0,0,0,0.06);   /* makes it look “pill” + clean */
+}
+main::-webkit-scrollbar-thumb:hover{
+  background: rgba(80, 90, 160, 0.95);
+}
+
+/* Firefox */
+main{
+  scrollbar-width: auto; /* thicker than thin */
+  scrollbar-color: rgba(80, 90, 160, 0.85) rgba(0,0,0,0.06);
+}
