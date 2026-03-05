@@ -143,14 +143,6 @@ function paymentIcon($payment) {
       display:flex; align-items:center; justify-content:space-between; gap:12px;
       margin-bottom: 14px;
     }
-    .back-btn{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:10px 14px; border-radius:12px;
-      border:1px solid rgba(255,255,255,.12);
-      color:#fff; text-decoration:none;
-      background: rgba(255,255,255,.03);
-    }
-    .back-btn:hover{ background: rgba(255,255,255,.06); }
 
     .panel{
       background: rgba(255,255,255,.04);
@@ -321,7 +313,7 @@ function paymentIcon($payment) {
         <small class="text-muted">View order, items, and payment summary.</small>
       </div>
 
-      <a class="back-btn" href="<?= htmlspecialchars($return_to) ?>">
+      <a class="btn-back" href="<?= htmlspecialchars($return_to) ?>">
         <span class="material-symbols-sharp">arrow_back</span>
         Back
       </a>

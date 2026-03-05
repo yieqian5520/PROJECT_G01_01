@@ -174,16 +174,6 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
                     <h3>Orders</h3>
                 </a>
 
-                <a href="staff_dashboard.php?tab=staff">
-                    <span class="material-symbols-sharp">person_3</span>
-                    <h3>Staff</h3>
-                </a>
-
-                <a href="staff_dashboard.php?tab=reports">
-                    <span class="material-symbols-sharp">report_gmailerrorred</span>
-                    <h3>Reports</h3>
-                </a>
-
                 <a href="staff_dashboard.php?tab=feedback">
                     <span class="material-symbols-sharp">reviews</span>
                     <h3>Feedback</h3>
@@ -416,50 +406,64 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
                 </form>
 
                 <div class="recent-orders">
-                    <h2>Customer List</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Name</th>
-                                <th>Phone</th>
-                                <th>Email</th>
-                                <th>Address</th>
-                                <th>Verified</th>
-                                <th>Joined</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php if ($customers->num_rows === 0): ?>
-                            <tr>
-                                <td colspan="8" style="text-align:center; padding:16px;">No customers found.</td>
-                            </tr>
-                        <?php else: ?>
-                            <?php $no = 1; ?>
-                            <?php while ($row = $customers->fetch_assoc()): ?>
-                                <tr>
-                                    <td><?= $no++ ?></td>
-                                    <td><?= htmlspecialchars($row['name']) ?></td>
-                                    <td><?= htmlspecialchars($row['phone']) ?></td>
-                                    <td><?= htmlspecialchars($row['email']) ?></td>
-                                    <td><?= htmlspecialchars($row['address']) ?></td>
-                                    <td>
-                                        <span class="status <?= ((int)$row['verify_status'] === 1) ? 'delivered' : 'pending' ?>">
-                                            <?= ((int)$row['verify_status'] === 1) ? 'Yes' : 'No' ?>
-                                        </span>
-                                    </td>
-                                    <td><?= htmlspecialchars($row['created_at']) ?></td>
+  <h2>Customer List</h2>
 
-                                    <td style="text-align:right;">
-                                        <a class="primary" href="edit-customer.php?id=<?= (int)$row['id'] ?>">Edit</a>               
-                                    </td>
-                                </tr>
-                            <?php endwhile; ?>
-                        <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
+  <div class="table-wrap">
+    <table class="table-pro table-card">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Address</th>
+          <th>Verified</th>
+          <th>Joined</th>
+          <th class="t-right">Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+      <?php if ($customers->num_rows === 0): ?>
+        <tr>
+          <td colspan="8" style="text-align:center; padding:16px;">No customers found.</td>
+        </tr>
+      <?php else: ?>
+        <?php $no = 1; ?>
+        <?php while ($row = $customers->fetch_assoc()): ?>
+          <tr>
+            <td data-label="#" class="t-muted"><?= $no++ ?></td>
+
+            <td data-label="Name"><?= htmlspecialchars($row['name']) ?></td>
+
+            <td data-label="Phone"><?= htmlspecialchars($row['phone']) ?></td>
+
+            <td data-label="Email" class="ellipsis">
+              <?= htmlspecialchars($row['email']) ?>
+            </td>
+
+            <td data-label="Address" class="ellipsis">
+              <?= htmlspecialchars($row['address']) ?>
+            </td>
+
+            <td data-label="Verified">
+              <span class="status <?= ((int)$row['verify_status'] === 1) ? 'delivered' : 'pending' ?>">
+                <?= ((int)$row['verify_status'] === 1) ? 'Yes' : 'No' ?>
+              </span>
+            </td>
+
+            <td data-label="Joined"><?= htmlspecialchars($row['created_at']) ?></td>
+
+            <td data-label="Action" class="t-right">
+              <a class="primary" href="edit-customer.php?id=<?= (int)$row['id'] ?>">Edit</a>
+            </td>
+          </tr>
+        <?php endwhile; ?>
+      <?php endif; ?>
+      </tbody>
+    </table>
+  </div>
+</div>
             </div>
             <div id="orders" class="tab-content <?= $activeTab === 'orders' ? 'active' : '' ?>">
     <h1>Orders</h1>
@@ -625,7 +629,8 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
             </button>
         </div>
 
-        <table id="ordersTable">
+        <div class="table-wrap">
+  <table id="ordersTable" class="table-pro table-card">
             <thead>
                 <tr>
                     <!-- Checkbox column (hidden until delete mode) -->
@@ -787,6 +792,8 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
             <?php endif; ?>
             </tbody>
         </table>
+        </table>
+</div>
     </form>
 </div>
 
@@ -800,11 +807,6 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
     </script>
 </div>
 
-
-            <div id="staff"    class="tab-content <?= $activeTab === 'staff' ? 'active' : '' ?>">
-                <h1>Staff</h1>
-                <p>Staff management content goes here.</p>
-            </div>
             <div id="feedback" class="tab-content <?= $activeTab === 'feedback' ? 'active' : '' ?>">
                 <h1>Feedback</h1>
 
@@ -856,44 +858,54 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
 
                 <div class="recent-orders">
                     <h2>All Feedback</h2>
-                    <table>
+
+                    <div class="table-wrap">
+                        <table class="table-pro table-card">
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Customer</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Rating</th>
-                                <th>Comment</th>
-                                <th>Date</th>
+                            <th>#</th>
+                            <th>Customer</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Rating</th>
+                            <th>Comment</th>
+                            <th>Date</th>
                             </tr>
                         </thead>
+
                         <tbody>
                             <?php if ($fbRes->num_rows === 0): ?>
-                                <tr>
-                                    <td colspan="7" style="text-align:center; padding:16px;">No customer found.</td>
-                                </tr>
+                            <tr>
+                                <td colspan="7" style="text-align:center; padding:16px;">No customer found.</td>
+                            </tr>
                             <?php else: ?>
-                                <?php $fbNo = 1; ?>
-                                <?php while ($row = $fbRes->fetch_assoc()): ?>
-                                    <tr>
-                                        <td><?= $fbNo++ ?></td>
-                                        <td><?= htmlspecialchars($row['name']) ?></td>
-                                        <td><?= htmlspecialchars($row['email']) ?></td>
-                                        <td><?= htmlspecialchars($row['phone']) ?></td>
-                                        <td>
-                                            <span class="status delivered">
-                                                <?= (int)$row['rating'] ?>/5
-                                            </span>
-                                        </td>
-                                        <td><?= htmlspecialchars($row['comment']) ?></td>
-                                        <td><?= htmlspecialchars($row['created_at']) ?></td>
-                                    </tr>
-                                <?php endwhile; ?>
+                            <?php $fbNo = 1; ?>
+                            <?php while ($row = $fbRes->fetch_assoc()): ?>
+                                <tr>
+                                <td data-label="#" class="t-muted"><?= $fbNo++ ?></td>
+
+                                <td data-label="Customer"><?= htmlspecialchars($row['name']) ?></td>
+
+                                <td data-label="Email" class="ellipsis"><?= htmlspecialchars($row['email']) ?></td>
+
+                                <td data-label="Phone"><?= htmlspecialchars($row['phone']) ?></td>
+
+                                <td data-label="Rating">
+                                    <span class="status delivered"><?= (int)$row['rating'] ?>/5</span>
+                                </td>
+
+                                <td data-label="Comment" class="ellipsis">
+                                    <?= htmlspecialchars($row['comment']) ?>
+                                </td>
+
+                                <td data-label="Date"><?= htmlspecialchars($row['created_at']) ?></td>
+                                </tr>
+                            <?php endwhile; ?>
                             <?php endif; ?>
                         </tbody>
-                    </table>
-                </div>
+                        </table>
+                    </div>
+                    </div>
             </div>
             <div id="reports"  class="tab-content <?= $activeTab === 'reports' ? 'active' : '' ?>">
                 <h1>Reports</h1>

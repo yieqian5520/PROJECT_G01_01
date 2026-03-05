@@ -695,26 +695,39 @@ tr.row-selected {
   margin-bottom: 1rem;
 }
 
+/* =======================
+   BACK BUTTON (LIGHT + DARK)
+   ======================= */
+
 .btn-back{
   display:inline-flex;
   align-items:center;
   gap: 8px;
   padding: 0.65rem 1rem;
   border-radius: var(--border-radius-2);
-  background: var(--color-white);
+
+  background: var(--color-white);        /* adapts in dark theme */
+  color: var(--color-dark);              /* adapts in dark theme */
+  border: 1px solid rgba(0,0,0,0.08);    /* visible in light */
   box-shadow: var(--box-shadow);
-  border: 1px solid rgba(0,0,0,0.05);
+
   cursor: pointer;
   transition: all 300ms ease;
+}
+
+.dark-theme-variables .btn-back{
+  border: 1px solid rgba(255,255,255,0.16); /* visible in dark */
 }
 
 .btn-back:hover{
   box-shadow: none;
   transform: translateY(-1px);
+  background: rgba(132, 139, 200, 0.10);    /* soft highlight */
 }
 
 .btn-back span{
   font-size: 1.2rem;
+  color: var(--color-primary);              /* icon stands out */
 }
 
 /* Cards layout */
@@ -974,4 +987,124 @@ main::-webkit-scrollbar-thumb:hover{
 main{
   scrollbar-width: auto; /* thicker than thin */
   scrollbar-color: rgba(80, 90, 160, 0.85) rgba(0,0,0,0.06);
+}
+
+/* =========================
+   PROFESSIONAL + RESPONSIVE TABLES
+   ========================= */
+
+.table-wrap{
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--color-white);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+.table-wrap:hover{ box-shadow: none; }
+
+.table-pro{
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 760px; /* default for most tables */
+}
+
+.table-pro thead th{
+  text-align: left;
+  padding: 0.95rem 0.9rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.3px;
+  color: var(--color-info-dark);
+  background: rgba(132, 139, 200, 0.10);
+  border-bottom: 1px solid var(--color-light);
+  white-space: nowrap;
+}
+
+.table-pro tbody td{
+  padding: 0.9rem 0.9rem;
+  border-bottom: 1px solid var(--color-light);
+  color: var(--color-dark-variant);
+  text-align: left;
+  height: auto; /* override your global td height */
+  vertical-align: middle;
+}
+
+.table-pro tbody tr:hover td{
+  background: rgba(132, 139, 200, 0.08);
+}
+
+.table-pro tbody tr:last-child td{
+  border-bottom: none;
+}
+
+.table-pro .t-right{ text-align: right; }
+.table-pro .t-center{ text-align: center; }
+.table-pro .t-muted{ color: var(--color-info-dark); font-size: 0.78rem; }
+
+/* Prevent crazy long emails/addresses from breaking layout */
+.table-pro td, .table-pro th{
+  max-width: 420px;
+}
+
+.table-pro td.ellipsis{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Orders table usually needs more width */
+.table-pro.orders-wide{ min-width: 1100px; }
+
+/* ---------- Mobile Card Mode (best for Customers + Feedback) ---------- */
+@media (max-width: 760px){
+
+  /* card style rows */
+  .table-pro.table-card{
+    min-width: 0;
+  }
+
+  .table-pro.table-card thead{
+    display: none;
+  }
+
+  .table-pro.table-card tbody tr{
+    display: block;
+    margin: 0 0 12px 0;
+    border: 1px solid var(--color-light);
+    border-radius: 16px;
+    padding: 10px 12px;
+    background: var(--color-white);
+  }
+
+  .table-pro.table-card tbody td{
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--color-light);
+  }
+
+  .table-pro.table-card tbody td:last-child{
+    border-bottom: none;
+  }
+
+  /* left label on mobile from data-label */
+  .table-pro.table-card tbody td::before{
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--color-info-dark);
+    white-space: nowrap;
+  }
+
+  /* allow long text to wrap on mobile */
+  .table-pro.table-card tbody td{
+    white-space: normal;
+  }
+  .table-pro.table-card tbody td.ellipsis{
+    white-space: normal;
+    overflow: visible;
+    text-overflow: initial;
+  }
 }

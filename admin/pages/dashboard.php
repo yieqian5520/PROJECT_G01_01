@@ -442,70 +442,77 @@
                         <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
 
                         <div class="recent-orders" id="customersTableWrap">
-                            <h2 style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
-                                <span>Customer List</span>
+                        <h2 style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                            <span>Customer List</span>
 
-                                <!-- Optional: cancel button (only shows in delete mode) -->
-                                <button type="button" id="cancelBulkDelete"
-                                        style="display:none; background:none; border:1px solid rgba(255,255,255,.2); color:#fff; padding:8px 12px; border-radius:10px; cursor:pointer;">
-                                    Cancel
-                                </button>
-                            </h2>
+                            <button type="button" id="cancelBulkDelete"
+                            style="display:none; background:none; border:1px solid rgba(255,255,255,.2); color:#fff; padding:8px 12px; border-radius:10px; cursor:pointer;">
+                            Cancel
+                            </button>
+                        </h2>
 
-                            <table id="customersTable">
-                                <thead>
-                                    <tr>
-                                        <!-- Checkbox column (hidden until delete mode) -->
-                                        <th class="select-col" style="width:46px; text-align:center; display:none;">
-                                            <input type="checkbox" id="checkAll">
-                                        </th>
+                        <div class="table-wrap">
+                            <table id="customersTable" class="table-pro table-card">
+                            <thead>
+                                <tr>
+                                <!-- Checkbox column (hidden until delete mode) -->
+                                <th class="select-col" style="width:46px; text-align:center; display:none;">
+                                    <input type="checkbox" id="checkAll">
+                                </th>
 
-                                        <th>#</th>
-                                        <th>Name</th>
-                                        <th>Phone</th>
-                                        <th>Email</th>
-                                        <th>Address</th>
-                                        <th>Verified</th>
-                                        <th>Joined</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Address</th>
+                                <th>Verified</th>
+                                <th>Joined</th>
+                                <th class="t-right">Action</th>
+                                </tr>
+                            </thead>
 
-                                <tbody>
-                                <?php if ($customers->num_rows === 0): ?>
-                                    <tr>
-                                        <td colspan="9" style="text-align:center; padding:16px;">No customers found.</td>
-                                    </tr>
-                                <?php else: ?>
-                                    <?php $no = 1; ?>
-                                    <?php while ($row = $customers->fetch_assoc()): ?>
-                                        <tr class="cust-row" data-id="<?= (int)$row['id'] ?>">
-                                            <!-- Checkbox column (hidden until delete mode) -->
-                                            <td class="select-col" style="text-align:center; display:none;">
-                                                <input type="checkbox" class="row-check" name="ids[]" value="<?= (int)$row['id'] ?>">
-                                            </td>
+                            <tbody>
+                            <?php if ($customers->num_rows === 0): ?>
+                                <tr>
+                                <td colspan="9" style="text-align:center; padding:16px;">No customers found.</td>
+                                </tr>
+                            <?php else: ?>
+                                <?php $no = 1; ?>
+                                <?php while ($row = $customers->fetch_assoc()): ?>
+                                <tr class="cust-row" data-id="<?= (int)$row['id'] ?>">
 
-                                            <td><?= $no++ ?></td>
-                                            <td><?= htmlspecialchars($row['name']) ?></td>
-                                            <td><?= htmlspecialchars($row['phone']) ?></td>
-                                            <td><?= htmlspecialchars($row['email']) ?></td>
-                                            <td><?= htmlspecialchars($row['address']) ?></td>
-                                            <td>
-                                                <span class="status <?= ((int)$row['verify_status'] === 1) ? 'delivered' : 'pending' ?>">
-                                                    <?= ((int)$row['verify_status'] === 1) ? 'Yes' : 'No' ?>
-                                                </span>
-                                            </td>
-                                            <td><?= htmlspecialchars($row['created_at']) ?></td>
+                                    <!-- Checkbox column (hidden until delete mode) -->
+                                    <td class="select-col" style="text-align:center; display:none;" data-label="">
+                                    <input type="checkbox" class="row-check" name="ids[]" value="<?= (int)$row['id'] ?>">
+                                    </td>
 
-                                            <!-- Action: ONLY Edit now -->
-                                            <td style="text-align:right;">
-                                                <a class="primary" href="edit-customer-admin.php?id=<?= (int)$row['id'] ?>">Edit</a>
-                                            </td>
-                                        </tr>
-                                    <?php endwhile; ?>
-                                <?php endif; ?>
-                                </tbody>
+                                    <td data-label="#" class="t-muted"><?= $no++ ?></td>
+
+                                    <td data-label="Name"><?= htmlspecialchars($row['name']) ?></td>
+
+                                    <td data-label="Phone"><?= htmlspecialchars($row['phone']) ?></td>
+
+                                    <td data-label="Email" class="ellipsis"><?= htmlspecialchars($row['email']) ?></td>
+
+                                    <td data-label="Address" class="ellipsis"><?= htmlspecialchars($row['address']) ?></td>
+
+                                    <td data-label="Verified">
+                                    <span class="status <?= ((int)$row['verify_status'] === 1) ? 'delivered' : 'pending' ?>">
+                                        <?= ((int)$row['verify_status'] === 1) ? 'Yes' : 'No' ?>
+                                    </span>
+                                    </td>
+
+                                    <td data-label="Joined"><?= htmlspecialchars($row['created_at']) ?></td>
+
+                                    <td data-label="Action" class="t-right">
+                                    <a class="primary" href="edit-customer-admin.php?id=<?= (int)$row['id'] ?>">Edit</a>
+                                    </td>
+                                </tr>
+                                <?php endwhile; ?>
+                            <?php endif; ?>
+                            </tbody>
                             </table>
+                        </div>
                         </div>
                     </form>
 
@@ -675,7 +682,8 @@
   </button>
 </div>
 
-    <table id="ordersTable">
+    <div class="table-wrap">
+  <table id="ordersTable" class="table-pro table-card">
       <thead>
         <tr>
           <!-- Checkbox column (hidden until delete mode) -->
@@ -827,6 +835,8 @@
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
+                          </table>
+</div>
                         </form>
                     </div>
 
@@ -970,84 +980,85 @@
                         <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
                         </form>
 
-                        <table id="staffTable">
-                        <thead>
+                        <div class="table-wrap">
+                        <table id="staffTable" class="table-pro table-card">
+                            <thead>
                             <tr>
-                            <th class="select-col-staff" style="width:46px; text-align:center; display:none;">
+                                <th class="select-col-staff" style="width:46px; text-align:center; display:none;">
                                 <input type="checkbox" id="checkAllStaff">
-                            </th>
+                                </th>
 
-                            <th>#</th>
-                            <th>Staff</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>Role</th>
-                            <th>Joined</th>
-                            <th style="text-align:right;">Actions</th>
+                                <th>#</th>
+                                <th>Staff</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Role</th>
+                                <th>Joined</th>
+                                <th class="t-right">Actions</th>
                             </tr>
-                        </thead>
+                            </thead>
 
-                        <tbody>
-                        <?php if ($staffRes->num_rows === 0): ?>
+                            <tbody>
+                            <?php if ($staffRes->num_rows === 0): ?>
                             <tr>
-                            <td colspan="8" style="text-align:center; padding:16px;">No staff found.</td>
+                                <td colspan="8" style="text-align:center; padding:16px;">No staff found.</td>
                             </tr>
-                        <?php else: ?>
+                            <?php else: ?>
                             <?php $sno = 1; ?>
                             <?php while ($s = $staffRes->fetch_assoc()): ?>
-                            <?php $sid = (int)$s['id']; ?>
-                            <tr class="staff-row" data-id="<?= $sid ?>">
-                                <td class="select-col-staff" style="text-align:center; display:none;">
-                                <input type="checkbox"
-                                        class="staff-check"
-                                        name="staff_ids[]"
-                                        value="<?= $sid ?>"
-                                        form="staffDeleteForm">
+                                <?php $sid = (int)$s['id']; ?>
+                                <tr class="staff-row" data-id="<?= $sid ?>">
+
+                                <td class="select-col-staff" style="text-align:center; display:none;" data-label="">
+                                    <input type="checkbox"
+                                    class="staff-check"
+                                    name="staff_ids[]"
+                                    form="staffDeleteForm">
                                 </td>
 
-                                <td><?= $sno++ ?></td>
+                                <td data-label="#" class="t-muted"><?= $sno++ ?></td>
 
-                                <td style="text-align:left;">
-                                <div style="display:flex; gap:10px; align-items:center;">
+                                <td data-label="Staff">
+                                    <div style="display:flex; gap:10px; align-items:center;">
                                     <img
-                                    src="<?= htmlspecialchars($s['profile_image'] ?: '../assets/img/Default_pfp.jpg') ?>"
-                                    alt=""
-                                    style="width:34px; height:34px; border-radius:50%; object-fit:cover;"
+                                        src="<?= htmlspecialchars($s['profile_image'] ?: '../assets/img/Default_pfp.jpg') ?>"
+                                        alt=""
+                                        style="width:34px; height:34px; border-radius:50%; object-fit:cover;"
                                     >
                                     <div>
-                                    <b><?= htmlspecialchars($s['name']) ?></b><br>
-                                    <small class="text-muted">#<?= $sid ?></small>
+                                        <b><?= htmlspecialchars($s['name']) ?></b><br>
                                     </div>
-                                </div>
+                                    </div>
                                 </td>
 
-                                <td><?= htmlspecialchars($s['email']) ?></td>
-                                <td><?= htmlspecialchars($s['phone'] ?? '-') ?></td>
+                                <td data-label="Email" class="ellipsis"><?= htmlspecialchars($s['email']) ?></td>
+                                <td data-label="Phone"><?= htmlspecialchars($s['phone'] ?? '-') ?></td>
 
-                                <td>
-                                <span class="status delivered"><?= htmlspecialchars($s['role'] ?? '-') ?></span>
+                                <td data-label="Role">
+                                    <span class="status delivered"><?= htmlspecialchars($s['role'] ?? '-') ?></span>
                                 </td>
 
-                                <td><?= htmlspecialchars($s['joined_date'] ?? '-') ?></td>
+                                <td data-label="Joined"><?= htmlspecialchars($s['joined_date'] ?? '-') ?></td>
 
-                                <td style="text-align:right; white-space:nowrap;">
-                                <button type="button"
-                                        class="primary"
-                                        data-edit-staff
-                                        data-id="<?= $sid ?>"
-                                        data-name="<?= htmlspecialchars($s['name']) ?>"
-                                        data-email="<?= htmlspecialchars($s['email']) ?>"
-                                        data-phone="<?= htmlspecialchars($s['phone'] ?? '') ?>"
-                                        data-role="<?= htmlspecialchars($s['role'] ?? 'Staff') ?>"
-                                        style="background:none; cursor:pointer;">
+                                <td data-label="Actions" class="t-right">
+                                    <button type="button"
+                                    class="primary"
+                                    data-edit-staff
+                                    data-id="<?= $sid ?>"
+                                    data-name="<?= htmlspecialchars($s['name']) ?>"
+                                    data-email="<?= htmlspecialchars($s['email']) ?>"
+                                    data-phone="<?= htmlspecialchars($s['phone'] ?? '') ?>"
+                                    data-role="<?= htmlspecialchars($s['role'] ?? 'staff') ?>"
+                                    style="background:none; cursor:pointer;">
                                     Edit
-                                </button>
+                                    </button>
                                 </td>
-                            </tr>
+                                </tr>
                             <?php endwhile; ?>
-                        <?php endif; ?>
-                        </tbody>
+                            <?php endif; ?>
+                            </tbody>
                         </table>
+                        </div>
                     </div>
 
                     <!-- ===== Add Staff Modal ===== -->
@@ -1255,59 +1266,59 @@
                             <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
                         </form>
 
-                        <table id="feedbackTable">
-                            <thead>
-                            <tr>
-                                <!-- checkbox col hidden until delete mode -->
-                                <th class="select-col-feedback" style="width:46px; text-align:center; display:none;">
-                                <input type="checkbox" id="checkAllFeedback">
-                                </th>
-
-                                <th>#</th>
-                                <th>Customer</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Rating</th>
-                                <th>Comment</th>
-                                <th>Date</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php if ($fbRes->num_rows === 0): ?>
+                        <div class="table-wrap">
+                            <table id="feedbackTable" class="table-pro table-card">
+                                <thead>
                                 <tr>
-                                <td colspan="8" style="text-align:center; padding:16px;">No feedback found.</td>
+                                    <th class="select-col-feedback" style="width:46px; text-align:center; display:none;">
+                                    <input type="checkbox" id="checkAllFeedback">
+                                    </th>
+
+                                    <th>#</th>
+                                    <th>Customer</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Rating</th>
+                                    <th>Comment</th>
+                                    <th>Date</th>
                                 </tr>
-                            <?php else: ?>
+                                </thead>
+
+                                <tbody>
+                                <?php if ($fbRes->num_rows === 0): ?>
+                                <tr>
+                                    <td colspan="8" style="text-align:center; padding:16px;">No feedback found.</td>
+                                </tr>
+                                <?php else: ?>
                                 <?php $fbNo = 1; ?>
                                 <?php while ($row = $fbRes->fetch_assoc()): ?>
-                                <tr class="feedback-row" data-id="<?= (int)$row['id'] ?>">
+                                    <tr class="feedback-row" data-id="<?= (int)$row['id'] ?>">
 
-                                    <!-- checkbox hidden until delete mode -->
-                                    <td class="select-col-feedback" style="text-align:center; display:none;">
-                                    <!-- IMPORTANT: use form="feedbackDeleteForm" so checkbox belongs to delete form -->
-                                    <input type="checkbox"
-                                            class="feedback-check"
-                                            name="feedback_ids[]"
-                                            value="<?= (int)$row['id'] ?>"
-                                            form="feedbackDeleteForm">
+                                    <td class="select-col-feedback" style="text-align:center; display:none;" data-label="">
+                                        <input type="checkbox"
+                                        class="feedback-check"
+                                        name="feedback_ids[]"
+                                        value="<?= (int)$row['id'] ?>"
+                                        form="feedbackDeleteForm">
                                     </td>
 
-                                    <td><?= $fbNo++ ?></td>
-                                    <td><?= htmlspecialchars($row['name']) ?></td>
-                                    <td><?= htmlspecialchars($row['email']) ?></td>
-                                    <td><?= htmlspecialchars($row['phone']) ?></td>
-                                    <td>
-                                    <span class="status delivered">
-                                        <?= (int)$row['rating'] ?>/5
-                                    </span>
+                                    <td data-label="#" class="t-muted"><?= $fbNo++ ?></td>
+                                    <td data-label="Customer"><?= htmlspecialchars($row['name']) ?></td>
+                                    <td data-label="Email" class="ellipsis"><?= htmlspecialchars($row['email']) ?></td>
+                                    <td data-label="Phone"><?= htmlspecialchars($row['phone']) ?></td>
+
+                                    <td data-label="Rating">
+                                        <span class="status delivered"><?= (int)$row['rating'] ?>/5</span>
                                     </td>
-                                    <td><?= htmlspecialchars($row['comment']) ?></td>
-                                    <td><?= htmlspecialchars($row['created_at']) ?></td>
-                                </tr>
+
+                                    <td data-label="Comment" class="ellipsis"><?= htmlspecialchars($row['comment']) ?></td>
+                                    <td data-label="Date"><?= htmlspecialchars($row['created_at']) ?></td>
+                                    </tr>
                                 <?php endwhile; ?>
-                            <?php endif; ?>
-                            </tbody>
-                        </table>
+                                <?php endif; ?>
+                                </tbody>
+                            </table>
+                            </div>
                         </div>
 
                 </div>
