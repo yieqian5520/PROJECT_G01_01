@@ -267,7 +267,7 @@ header {
 }
 
 .menu-hero-overlay {
-  background-image: url("image/menu1.jpg"); /* ✅ MENU IMAGE */
+  background-image: url("image/menu1.png"); /* ✅ MENU IMAGE */
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;

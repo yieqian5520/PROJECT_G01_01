@@ -36,8 +36,7 @@ function isActiveForm($formName, $activeForm){
         <?= showError($errors['login']); ?>
         <input type="email" name="email" placeholder="Email" required>
         <input type="password" name="password" placeholder="Password" required>
-        <button type="submit" name="login">Login</button>
-        <p>Don't have an account? <a href="#" onclick="showForm('register-form')">Register</a></p>
+        <button type="submit" name="login">Login</button> 
         <p><a href="forgot_password.php">Forgot Password?</a></p>
       </form>
     </div>

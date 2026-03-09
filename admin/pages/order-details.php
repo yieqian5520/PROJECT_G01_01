@@ -287,12 +287,6 @@ function paymentIcon($payment) {
       <a href="<?= $dashboardBase ?>?tab=orders" class="active">
         <span class="material-symbols-sharp">receipt_long</span><h3>Orders</h3>
       </a>
-      <a href="<?= $dashboardBase ?>?tab=staff">
-        <span class="material-symbols-sharp">person_3</span><h3>Staff</h3>
-      </a>
-      <a href="<?= $dashboardBase ?>?tab=reports">
-        <span class="material-symbols-sharp">report_gmailerrorred</span><h3>Reports</h3>
-      </a>
       <a href="<?= $dashboardBase ?>?tab=feedback">
         <span class="material-symbols-sharp">reviews</span><h3>Feedback</h3>
       </a>

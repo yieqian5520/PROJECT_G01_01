@@ -69,7 +69,7 @@ include_once __DIR__ . "/includes/header.php";
     </div>
 
     <div class="about-img">
-        <img src="image/About.png" alt="About Us">
+        <img src="image/About.jpeg" alt="About Us">
     </div>
 </section>
 

@@ -52,10 +52,11 @@ include_once __DIR__ . "/includes/header.php";
 
 <section style="padding:60px;">
   <iframe 
-    src="https://maps.google.com/maps?q=kuala%20lumpur&t=&z=13&ie=UTF8&iwloc=&output=embed"
+    src="https://maps.google.com/maps?q=Back%20Portion%2C%20180%20Jalan%20Tun%20H%20S%20Lee%2C%2050000%20Kuala%20Lumpur&t=&z=17&ie=UTF8&iwloc=&output=embed"
     width="100%" 
     height="400" 
-    style="border:0;">
+    style="border:0;"
+    loading="lazy">
   </iframe>
 </section>
 

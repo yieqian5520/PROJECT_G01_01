@@ -121,7 +121,7 @@ while ($fb = $latestFeedbackRes->fetch_assoc()) {
     $latestFeedback[] = $fb;
 }
 
-$allowedTabs = ['dashboard','customers','orders','staff','feedback','reports','profile'];
+$allowedTabs = ['dashboard','customers','orders','feedback','profile'];
 
 $activeTab = $_GET['tab'] ?? 'dashboard';
 if (!in_array($activeTab, $allowedTabs, true)) {
@@ -906,11 +906,7 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
                         </table>
                     </div>
                     </div>
-            </div>
-            <div id="reports"  class="tab-content <?= $activeTab === 'reports' ? 'active' : '' ?>">
-                <h1>Reports</h1>
-                <p>Reports content goes here.</p>
-            </div>           
+            </div>       
             <div id="profile"  class="tab-content <?= $activeTab === 'profile' ? 'active' : '' ?>">
                 <h1>Profile</h1>
                 <div class="profile-container">

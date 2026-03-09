@@ -266,16 +266,6 @@ while ($fb = $latestFeedbackRes->fetch_assoc()) {
                 <h3>Orders</h3>
             </a>
 
-            <a href="staff_dashboard.php?tab=staff">
-                <span class="material-symbols-sharp">person_3</span>
-                <h3>Staff</h3>
-            </a>
-
-            <a href="staff_dashboard.php?tab=reports">
-                <span class="material-symbols-sharp">report_gmailerrorred</span>
-                <h3>Reports</h3>
-            </a>
-
             <a href="staff_dashboard.php?tab=feedback">
                 <span class="material-symbols-sharp">reviews</span>
                 <h3>Feedback</h3>
