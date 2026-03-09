@@ -1,6 +1,7 @@
     <?php
 
     session_start();
+    date_default_timezone_set('Asia/Kuala_Lumpur');
     if(!isset($_SESSION['email'])) {
         header('Location: index1.php');
         exit();
@@ -42,11 +43,22 @@
     }
 
     // --- Date picker support (Dashboard) ---
-    $selectedDate = $_GET['date'] ?? date('Y-m-d');
+    $todayDate = date('Y-m-d');
 
-    // Basic validation (prevents weird values)
+    if (
+        isset($_GET['tab']) &&
+        $_GET['tab'] === 'dashboard' &&
+        isset($_GET['date']) &&
+        $_GET['date'] !== ''
+    ) {
+        $selectedDate = $_GET['date'];
+    } else {
+        $selectedDate = $todayDate;
+    }
+
+    // Basic validation
     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $selectedDate)) {
-        $selectedDate = date('Y-m-d');
+        $selectedDate = $todayDate;
     }
 
     $todayTotals = [

@@ -301,3 +301,39 @@ body{
   scrollbar-width: thin;
   scrollbar-color: rgba(37,99,235,.35) transparent;
 }
+
+
+.os-methods{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin:14px 0 18px;
+}
+
+.os-method-option{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 14px;
+  border:1px solid #d9d9df;
+  border-radius:10px;
+  cursor:pointer;
+  transition:0.2s ease;
+  background:#fff;
+}
+
+.os-method-option:hover{
+  border-color:#3367e8;
+  background:#f7faff;
+}
+
+.os-method-option input[type="radio"]{
+  accent-color:#3367e8;
+  transform:scale(1.1);
+}
+
+.os-method-option span{
+  font-size:14px;
+  font-weight:600;
+  color:#222;
+}

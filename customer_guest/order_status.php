@@ -4,12 +4,10 @@ include_once "dbcon.php";
 
 /* ============================
    1) LATEST ORDER REDIRECT
-   MUST BE BEFORE header.php
 ============================ */
 if (isset($_GET['latest'])) {
 
     if (!isset($_SESSION['auth_user']['id'])) {
-        // No header included yet, so safe to echo
         echo "<h3 style='padding:40px;text-align:center;'>Please login to view your order</h3>";
         exit;
     }
@@ -35,7 +33,7 @@ if (isset($_GET['latest'])) {
 }
 
 /* ============================
-   2) NOW SAFE TO OUTPUT HTML
+   2) SAFE TO OUTPUT HTML
 ============================ */
 include_once "includes/header.php";
 
@@ -48,7 +46,7 @@ $order = mysqli_real_escape_string($con, $order);
 $res = mysqli_query($con, "
     SELECT id, order_code, status, created_at, total, payment_status, payment_method
     FROM orders
-    WHERE order_code='$order'
+    WHERE order_code = '$order'
     LIMIT 1
 ");
 
@@ -72,6 +70,7 @@ $items_res = mysqli_query($con, "
         oi.milk,
         oi.syrup,
         oi.addons,
+        oi.order_type,
         m.image
     FROM order_items oi
     LEFT JOIN menu_items m ON m.name = oi.menu_name
@@ -85,14 +84,15 @@ if ($items_res && mysqli_num_rows($items_res) > 0) {
         $img = str_replace(' ', '%20', $img);
 
         $items[] = [
-            'menu_name' => $row['menu_name'],
-            'item_image'=> $img,
-            'quantity'  => $row['quantity'],
-            'price'     => $row['price'],
-            'temp'      => $row['temp'] ?? '',
-            'milk'      => $row['milk'] ?? '',
-            'syrup'     => $row['syrup'] ?? '',
-            'addons'    => $row['addons'] ?? '',
+            'menu_name'  => $row['menu_name'],
+            'item_image' => $img,
+            'quantity'   => $row['quantity'],
+            'price'      => $row['price'],
+            'temp'       => $row['temp'] ?? '',
+            'milk'       => $row['milk'] ?? '',
+            'syrup'      => $row['syrup'] ?? '',
+            'addons'     => $row['addons'] ?? '',
+            'order_type' => $row['order_type'] ?? 'Dine In',
         ];
     }
 }
@@ -103,14 +103,38 @@ if ($items_res && mysqli_num_rows($items_res) > 0) {
 $statusSteps = [
     'Confirmed' => 1,
     'Preparing' => 2,
-    'Ready' => 3,
+    'Ready'     => 3,
 ];
 $currentStep = $statusSteps[$o['status']] ?? 0;
+
+/* ============================
+   6) FLASH MESSAGE
+============================ */
+$successMessage = $_SESSION['payment_success'] ?? '';
+unset($_SESSION['payment_success']);
 ?>
 
 <link rel="stylesheet" href="styleorder.css">
 
+<style>
+.success-alert{
+  background:#e9f9ee;
+  color:#176b2c;
+  border:1px solid #b7ebc3;
+  padding:14px 16px;
+  border-radius:10px;
+  margin-bottom:18px;
+  font-weight:600;
+}
+</style>
+
 <section class="os-page">
+
+  <?php if (!empty($successMessage)): ?>
+    <div class="success-alert">
+      <?= htmlspecialchars($successMessage) ?>
+    </div>
+  <?php endif; ?>
 
   <div class="os-header">
     <a class="os-back" href="javascript:history.back()">&#8592;</a>
@@ -171,17 +195,17 @@ $currentStep = $statusSteps[$o['status']] ?? 0;
             <div class="os-item-info">
               <p class="name"><?= htmlspecialchars($item['menu_name']) ?></p>
               <p class="meta">
-                Qty: <?= (int)$item['quantity'] ?> &nbsp;&nbsp;
-                <br>
-                Order Type: <?= htmlspecialchars($_SESSION['order_type'] ?? 'Dine In') ?>
+                Qty: <?= (int)$item['quantity'] ?><br>
+                Order Type: <?= htmlspecialchars($item['order_type']) ?>
               </p>
-
             </div>
+
             <?php
               $unit = (float)$item['price'];
               $qty  = (int)$item['quantity'];
               $lineTotal = $unit * $qty;
             ?>
+
             <div class="os-item-price">
               RM<?= number_format($lineTotal, 2) ?>
               <small style="display:block;opacity:.7;">
@@ -200,16 +224,19 @@ $currentStep = $statusSteps[$o['status']] ?? 0;
       <div class="card os-pay">
         <h3>Payment</h3>
 
-        <form action="pay_order.php" method="POST" class="os-pay-form">
+        <form action="payment_router.php" method="POST" class="os-pay-form">
           <input type="hidden" name="order_id" value="<?= (int)$o['id'] ?>">
 
-          <div class="os-radio">
-            <?php foreach (['Cash','TNG','Credit Card'] as $method): ?>
-              <label class="radio">
-                <input type="radio" name="payment_method" value="<?= $method ?>" required>
-                <span><?= $method ?></span>
-              </label>
-            <?php endforeach; ?>
+          <div class="os-methods">
+            <label class="os-method-option">
+              <input type="radio" name="payment_method" value="Cash" required>
+              <span>Cash</span>
+            </label>
+
+            <label class="os-method-option">
+              <input type="radio" name="payment_method" value="Card" required>
+              <span>Card</span>
+            </label>
           </div>
 
           <div class="os-summary">
@@ -218,7 +245,7 @@ $currentStep = $statusSteps[$o['status']] ?? 0;
               <b>RM <?= number_format((float)$o['total'], 2) ?></b>
             </div>
 
-            <button type="submit" class="os-btn">Pay now</button>
+            <button type="submit" class="os-btn">Proceed to Payment</button>
           </div>
         </form>
       </div>
@@ -230,21 +257,12 @@ $currentStep = $statusSteps[$o['status']] ?? 0;
         </p>
 
         <p style="margin-top:8px;font-weight:bold;">
-         Total: RM <?= number_format((float)$o['total'], 2) ?>
+          Total: RM <?= number_format((float)$o['total'], 2) ?>
         </p>
       </div>
-      
     <?php endif; ?>
 
   </div>
 </section>
-
-<script>
-document.getElementById('placeOrderBtn')?.addEventListener('click', function() {
-    // Redirect to order_status.php
-    window.location.href = 'order_status.php';
-});
-</script>
-
 
 <?php include_once "includes/footer.php"; ?>

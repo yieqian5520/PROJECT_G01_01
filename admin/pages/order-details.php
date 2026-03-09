@@ -279,22 +279,45 @@ function paymentIcon($payment) {
 
     <div class="sidebar">
       <a href="<?= $dashboardBase ?>?tab=dashboard">
-        <span class="material-symbols-sharp">grid_view</span><h3>Dashboard</h3>
+        <span class="material-symbols-sharp">grid_view</span>
+        <h3>Dashboard</h3>
       </a>
+
       <a href="<?= $dashboardBase ?>?tab=customers">
-        <span class="material-symbols-sharp">person</span><h3>Customers</h3>
+        <span class="material-symbols-sharp">person</span>
+        <h3>Customers</h3>
       </a>
+
       <a href="<?= $dashboardBase ?>?tab=orders" class="active">
-        <span class="material-symbols-sharp">receipt_long</span><h3>Orders</h3>
+        <span class="material-symbols-sharp">receipt_long</span>
+        <h3>Orders</h3>
       </a>
+
+      <?php if ($isAdmin): ?>
+        <a href="<?= $dashboardBase ?>?tab=staff">
+          <span class="material-symbols-sharp">person_3</span>
+          <h3>Staff</h3>
+        </a>
+
+        <a href="<?= $dashboardBase ?>?tab=reports">
+          <span class="material-symbols-sharp">report_gmailerrorred</span>
+          <h3>Reports</h3>
+        </a>
+      <?php endif; ?>
+
       <a href="<?= $dashboardBase ?>?tab=feedback">
-        <span class="material-symbols-sharp">reviews</span><h3>Feedback</h3>
+        <span class="material-symbols-sharp">reviews</span>
+        <h3>Feedback</h3>
       </a>
+
       <a href="<?= $dashboardBase ?>?tab=profile">
-        <span class="material-symbols-sharp">account_circle</span><h3>Profile</h3>
+        <span class="material-symbols-sharp">account_circle</span>
+        <h3>Profile</h3>
       </a>
+
       <a href="logout1.php" id="logout-link">
-        <span class="material-symbols-sharp">logout</span><h3>Logout</h3>
+        <span class="material-symbols-sharp">logout</span>
+        <h3>Logout</h3>
       </a>
     </div>
   </aside>
