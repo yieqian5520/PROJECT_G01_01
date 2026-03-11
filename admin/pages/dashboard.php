@@ -148,7 +148,7 @@
 
 
     ?>
-
+    
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -1023,9 +1023,10 @@
 
                                 <td class="select-col-staff" style="text-align:center; display:none;" data-label="">
                                     <input type="checkbox"
-                                    class="staff-check"
-                                    name="staff_ids[]"
-                                    form="staffDeleteForm">
+                                        class="staff-check"
+                                        name="staff_ids[]"
+                                        value="<?= $sid ?>"
+                                        form="staffDeleteForm">
                                 </td>
 
                                 <td data-label="#" class="t-muted"><?= $sno++ ?></td>
@@ -1408,73 +1409,117 @@
                     // ====== KPI: Orders count + AOV ======
                     $kpiSql = "
                     SELECT
-                        COUNT(DISTINCT o.id) AS total_orders,
-                        COALESCE(SUM(o.total),0) AS orders_revenue,
-                        COALESCE(SUM(oi.quantity),0) AS items_sold,
-                        (COALESCE(SUM(oi.quantity),0) * 4) AS orders_expenses,
-                        (COALESCE(SUM(o.total),0) - (COALESCE(SUM(oi.quantity),0) * 4)) AS orders_income
-                    FROM orders o
-                    JOIN order_items oi ON oi.order_id = o.id
-                    WHERE o.created_at >= ?
+                        rev.total_orders,
+                        rev.orders_revenue,
+                        exp.items_sold,
+                        exp.orders_expenses,
+                        (rev.orders_revenue - exp.orders_expenses) AS orders_income
+                    FROM
+                    (
+                        SELECT
+                            COUNT(*) AS total_orders,
+                            COALESCE(SUM(o.total), 0) AS orders_revenue
+                        FROM orders o
+                        WHERE o.created_at >= ?
                         AND o.created_at < ?
                         AND UPPER(TRIM(o.payment_status)) = 'PAID'
+                    ) rev
+                    CROSS JOIN
+                    (
+                        SELECT
+                            COALESCE(SUM(oi.quantity), 0) AS items_sold,
+                            COALESCE(SUM(oi.quantity * 4), 0) AS orders_expenses
+                        FROM order_items oi
+                        JOIN orders o ON o.id = oi.order_id
+                        WHERE o.created_at >= ?
+                        AND o.created_at < ?
+                        AND UPPER(TRIM(o.payment_status)) = 'PAID'
+                    ) exp
                     ";
                     $kpiStmt = $db->prepare($kpiSql);
-                    $kpiStmt->bind_param("ss", $startStr, $endStr);
+                    $kpiStmt->bind_param("ssss", $startStr, $endStr, $startStr, $endStr);
                     $kpiStmt->execute();
                     $kpi = $kpiStmt->get_result()->fetch_assoc();
 
-                    $totalOrders     = (int)($kpi['total_orders'] ?? 0);
-                    $ordersRevenue   = (float)($kpi['orders_revenue'] ?? 0);
-                    $totalItemsSold  = (int)($kpi['items_sold'] ?? 0);
-                    $grandExpenses   = (float)($kpi['orders_expenses'] ?? 0);
-                    $grandIncome     = (float)($kpi['orders_income'] ?? 0);
+                    $totalOrders    = (int)($kpi['total_orders'] ?? 0);
+                    $ordersRevenue  = (float)($kpi['orders_revenue'] ?? 0);
+                    $totalItemsSold = (int)($kpi['items_sold'] ?? 0);
+                    $grandExpenses  = (float)($kpi['orders_expenses'] ?? 0);
+                    $grandIncome    = (float)($kpi['orders_income'] ?? 0);
 
-                    // Avg order value
                     $avgOrderValue = ($totalOrders > 0) ? ($ordersRevenue / $totalOrders) : 0;
-                    $kpiStmt = $db->prepare($kpiSql);
-                    $kpiStmt->bind_param("ss", $startStr, $endStr);
-                    $kpiStmt->execute();
-                    $kpi = $kpiStmt->get_result()->fetch_assoc();
-
-                    $totalOrders = (int)($kpi['total_orders'] ?? 0);
-                    $ordersRevenue = (float)($kpi['orders_revenue'] ?? 0);
-                    $avgOrderValue = ($totalOrders > 0) ? ($ordersRevenue / $totalOrders) : 0;
+                    $grandRevenue = $ordersRevenue;
 
                     // ====== Trend chart data ======
                     // week/month -> daily; year -> monthly
                     if ($period === 'year') {
                         $trendSql = "
                         SELECT
-                            DATE_FORMAT(o.created_at, '%Y-%m') AS bucket,
-                            COALESCE(SUM(o.total),0) AS revenue,
-                            (COALESCE(SUM(oi.quantity),0) * 4) AS expenses
-                        FROM orders o
-                        JOIN order_items oi ON oi.order_id = o.id
-                        WHERE o.created_at >= ?
+                            rev.bucket,
+                            rev.revenue,
+                            COALESCE(exp.expenses, 0) AS expenses
+                        FROM
+                        (
+                            SELECT
+                                DATE_FORMAT(o.created_at, '%Y-%m') AS bucket,
+                                COALESCE(SUM(o.total), 0) AS revenue
+                            FROM orders o
+                            WHERE o.created_at >= ?
                             AND o.created_at < ?
                             AND UPPER(TRIM(o.payment_status)) = 'PAID'
-                        GROUP BY DATE_FORMAT(o.created_at, '%Y-%m')
-                        ORDER BY bucket ASC
+                            GROUP BY DATE_FORMAT(o.created_at, '%Y-%m')
+                        ) rev
+                        LEFT JOIN
+                        (
+                            SELECT
+                                DATE_FORMAT(o.created_at, '%Y-%m') AS bucket,
+                                COALESCE(SUM(oi.quantity * 4), 0) AS expenses
+                            FROM order_items oi
+                            JOIN orders o ON o.id = oi.order_id
+                            WHERE o.created_at >= ?
+                            AND o.created_at < ?
+                            AND UPPER(TRIM(o.payment_status)) = 'PAID'
+                            GROUP BY DATE_FORMAT(o.created_at, '%Y-%m')
+                        ) exp
+                        ON rev.bucket = exp.bucket
+                        ORDER BY rev.bucket ASC
                         ";
                     } else {
                         $trendSql = "
                         SELECT
-                            DATE(o.created_at) AS bucket,
-                            COALESCE(SUM(o.total),0) AS revenue,
-                            (COALESCE(SUM(oi.quantity),0) * 4) AS expenses
-                        FROM orders o
-                        JOIN order_items oi ON oi.order_id = o.id
-                        WHERE o.created_at >= ?
+                            rev.bucket,
+                            rev.revenue,
+                            COALESCE(exp.expenses, 0) AS expenses
+                        FROM
+                        (
+                            SELECT
+                                DATE(o.created_at) AS bucket,
+                                COALESCE(SUM(o.total), 0) AS revenue
+                            FROM orders o
+                            WHERE o.created_at >= ?
                             AND o.created_at < ?
                             AND UPPER(TRIM(o.payment_status)) = 'PAID'
-                        GROUP BY DATE(o.created_at)
-                        ORDER BY bucket ASC
+                            GROUP BY DATE(o.created_at)
+                        ) rev
+                        LEFT JOIN
+                        (
+                            SELECT
+                                DATE(o.created_at) AS bucket,
+                                COALESCE(SUM(oi.quantity * 4), 0) AS expenses
+                            FROM order_items oi
+                            JOIN orders o ON o.id = oi.order_id
+                            WHERE o.created_at >= ?
+                            AND o.created_at < ?
+                            AND UPPER(TRIM(o.payment_status)) = 'PAID'
+                            GROUP BY DATE(o.created_at)
+                        ) exp
+                        ON rev.bucket = exp.bucket
+                        ORDER BY rev.bucket ASC
                         ";
                     }
 
                     $trendStmt = $db->prepare($trendSql);
-                    $trendStmt->bind_param("ss", $startStr, $endStr);
+                    $trendStmt->bind_param("ssss", $startStr, $endStr, $startStr, $endStr);
                     $trendStmt->execute();
                     $trendRes = $trendStmt->get_result();
 
@@ -1834,7 +1879,7 @@
                                 <?php foreach ($latestFeedback as $fb): ?>
                                     <div class="fb">
                                         <div class="profile-photo">
-                                            <img src="<?= htmlspecialchars($fb['profile_image'] ?: '../assets/img/Default_pfp.jpg') ?>" alt="">
+                                            <img src="<?= htmlspecialchars(!empty($fb['profile_image']) ? $fb['profile_image'] : 'assets/img/Default_pfp.jpg') ?>" alt="">
                                         </div>
 
                                         <div class="message">

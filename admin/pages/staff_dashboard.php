@@ -1011,7 +1011,7 @@ if ($activeTab === 'customers' && isset($_GET['search']) && trim($_GET['search']
                             <?php foreach ($latestFeedback as $fb): ?>
                                 <div class="fb">
                                     <div class="profile-photo">
-                                        <img src="<?= htmlspecialchars($fb['profile_image'] ?: '../assets/img/Default_pfp.jpg') ?>" alt="">
+                                        <img src="<?= htmlspecialchars(!empty($fb['profile_image']) ? $fb['profile_image'] : 'assets/img/Default_pfp.jpg') ?>" alt="">
                                     </div>
 
                                     <div class="message">
