@@ -37,7 +37,7 @@ include_once __DIR__ . "/includes/header.php";
     <div class="contact-card">
       <div class="contact-icon">✉️</div>
       <h3>Email Us</h3>
-      <p>contact@puckscoffee.com</p>
+      <p>puckscoffee@gmail.com</p>
     </div>
 
     <div class="contact-card">

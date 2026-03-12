@@ -10,7 +10,7 @@
     <div class="footer-col">
       <h4>RESERVATION</h4>
       <p>012-253 0132</p>
-      <p>contact@puckscoffee.com</p>
+      <p>puckscoffee@gmail.com</p>
     </div>
 
     <div class="footer-col">
