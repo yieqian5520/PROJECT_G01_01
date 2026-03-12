@@ -68,22 +68,16 @@ include_once __DIR__ . "/includes/header.php";
 
     <div class="social-icons">
 
-      <a href="https://www.facebook.com/yourpage"
+      <a href="https://www.facebook.com/profile.php?id=61556307396229"
          target="_blank"
          class="social-icon facebook">
         <i class="bi bi-facebook"></i>
       </a>
 
-      <a href="https://www.instagram.com/yourpage"
+      <a href="https://www.instagram.com/pucksandfriends/"
          target="_blank"
          class="social-icon instagram">
         <i class="bi bi-instagram"></i>
-      </a>
-
-      <a href="https://www.tiktok.com/@yourpage"
-         target="_blank"
-         class="social-icon tiktok">
-        <i class="bi bi-tiktok"></i>
       </a>
 
     </div>
